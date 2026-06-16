@@ -286,28 +286,42 @@ export type Database = {
         Row: {
           ai_enabled: boolean
           created_at: string
+          default_version_id: string | null
           display_name: string | null
           id: string
+          notification_time: string | null
           tradition: Database["public"]["Enums"]["tradition"]
           updated_at: string
         }
         Insert: {
           ai_enabled?: boolean
           created_at?: string
+          default_version_id?: string | null
           display_name?: string | null
           id: string
+          notification_time?: string | null
           tradition?: Database["public"]["Enums"]["tradition"]
           updated_at?: string
         }
         Update: {
           ai_enabled?: boolean
           created_at?: string
+          default_version_id?: string | null
           display_name?: string | null
           id?: string
+          notification_time?: string | null
           tradition?: Database["public"]["Enums"]["tradition"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_default_version_id_fkey"
+            columns: ["default_version_id"]
+            isOneToOne: false
+            referencedRelation: "bible_versions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reading_plans: {
         Row: {
