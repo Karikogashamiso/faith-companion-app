@@ -477,6 +477,14 @@ function AhaScreen({
   tradition: string;
   aiEnabled: boolean;
   onDeclineAi: () => void;
+  askStudyFn: ReturnType<typeof useServerFn<typeof askStudy>>;
+  onContinue: () => void;
+}) {
+
+  struggles: string[];
+  tradition: string;
+  aiEnabled: boolean;
+  onDeclineAi: () => void;
   askStudyFn: typeof askStudy;
   onContinue: () => void;
 }) {
