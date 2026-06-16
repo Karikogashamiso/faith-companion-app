@@ -125,13 +125,14 @@ function Onboarding() {
 
   // Persist on every step transition (best-effort, fire-and-forget).
   async function persist() {
-    const profilePatch: Record<string, unknown> = {
+    const profilePatch: Database["public"]["Tables"]["profiles"]["Update"] = {
       ai_enabled: aiEnabled,
       daily_minutes: dailyMinutes,
       reminder_time: reminderTime + ":00",
     };
     if (tradition) profilePatch.tradition = tradition;
     await supabase.from("profiles").update(profilePatch).eq("id", user.id);
+
     await supabase.from("onboarding_answers").upsert(
       {
         user_id: user.id,
