@@ -53,6 +53,24 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage_daily: {
+        Row: {
+          count: number
+          usage_date: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          usage_date: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          usage_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       bible_versions: {
         Row: {
           abbreviation: string
@@ -124,6 +142,42 @@ export type Database = {
           activity_date?: string
           created_at?: string
           source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      entitlements: {
+        Row: {
+          expires_at: string | null
+          product_id: string | null
+          rc_app_user_id: string | null
+          source: string | null
+          store: string | null
+          tier: string
+          trial_ends_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string | null
+          product_id?: string | null
+          rc_app_user_id?: string | null
+          source?: string | null
+          store?: string | null
+          tier?: string
+          trial_ends_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string | null
+          product_id?: string | null
+          rc_app_user_id?: string | null
+          source?: string | null
+          store?: string | null
+          tier?: string
+          trial_ends_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -562,6 +616,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_companion: { Args: { _user_id: string }; Returns: boolean }
       is_group_member: {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean

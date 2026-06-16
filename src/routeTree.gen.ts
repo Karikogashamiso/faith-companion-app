@@ -17,9 +17,11 @@ import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
+import { Route as AuthenticatedCompanionRouteImport } from './routes/_authenticated/companion'
 import { Route as AuthenticatedBibleRouteImport } from './routes/_authenticated/bible'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
 import { Route as ApiPublicWidgetVerseOfTheDayRouteImport } from './routes/api/public/widget/verse-of-the-day'
+import { Route as ApiPublicHooksRevenuecatRouteImport } from './routes/api/public/hooks/revenuecat'
 import { Route as AuthenticatedGroupsGroupIdRequestsRequestIdRouteImport } from './routes/_authenticated/groups.$groupId.requests.$requestId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -61,6 +63,11 @@ const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   path: '/groups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCompanionRoute = AuthenticatedCompanionRouteImport.update({
+  id: '/companion',
+  path: '/companion',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBibleRoute = AuthenticatedBibleRouteImport.update({
   id: '/bible',
   path: '/bible',
@@ -78,6 +85,12 @@ const ApiPublicWidgetVerseOfTheDayRoute =
     path: '/api/public/widget/verse-of-the-day',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRevenuecatRoute =
+  ApiPublicHooksRevenuecatRouteImport.update({
+    id: '/api/public/hooks/revenuecat',
+    path: '/api/public/hooks/revenuecat',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedGroupsGroupIdRequestsRequestIdRoute =
   AuthenticatedGroupsGroupIdRequestsRequestIdRouteImport.update({
     id: '/requests/$requestId',
@@ -89,12 +102,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bible': typeof AuthenticatedBibleRoute
+  '/companion': typeof AuthenticatedCompanionRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
   '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
@@ -102,12 +117,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bible': typeof AuthenticatedBibleRoute
+  '/companion': typeof AuthenticatedCompanionRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
   '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
@@ -117,12 +134,14 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/bible': typeof AuthenticatedBibleRoute
+  '/_authenticated/companion': typeof AuthenticatedCompanionRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
   '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/_authenticated/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
@@ -132,12 +151,14 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/bible'
+    | '/companion'
     | '/groups'
     | '/home'
     | '/onboarding'
     | '/search'
     | '/settings'
     | '/groups/$groupId'
+    | '/api/public/hooks/revenuecat'
     | '/api/public/widget/verse-of-the-day'
     | '/groups/$groupId/requests/$requestId'
   fileRoutesByTo: FileRoutesByTo
@@ -145,12 +166,14 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/bible'
+    | '/companion'
     | '/groups'
     | '/home'
     | '/onboarding'
     | '/search'
     | '/settings'
     | '/groups/$groupId'
+    | '/api/public/hooks/revenuecat'
     | '/api/public/widget/verse-of-the-day'
     | '/groups/$groupId/requests/$requestId'
   id:
@@ -159,12 +182,14 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/bible'
+    | '/_authenticated/companion'
     | '/_authenticated/groups'
     | '/_authenticated/home'
     | '/_authenticated/onboarding'
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/groups/$groupId'
+    | '/api/public/hooks/revenuecat'
     | '/api/public/widget/verse-of-the-day'
     | '/_authenticated/groups/$groupId/requests/$requestId'
   fileRoutesById: FileRoutesById
@@ -173,6 +198,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicHooksRevenuecatRoute: typeof ApiPublicHooksRevenuecatRoute
   ApiPublicWidgetVerseOfTheDayRoute: typeof ApiPublicWidgetVerseOfTheDayRoute
 }
 
@@ -234,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGroupsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/companion': {
+      id: '/_authenticated/companion'
+      path: '/companion'
+      fullPath: '/companion'
+      preLoaderRoute: typeof AuthenticatedCompanionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/bible': {
       id: '/_authenticated/bible'
       path: '/bible'
@@ -253,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/widget/verse-of-the-day'
       fullPath: '/api/public/widget/verse-of-the-day'
       preLoaderRoute: typeof ApiPublicWidgetVerseOfTheDayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/revenuecat': {
+      id: '/api/public/hooks/revenuecat'
+      path: '/api/public/hooks/revenuecat'
+      fullPath: '/api/public/hooks/revenuecat'
+      preLoaderRoute: typeof ApiPublicHooksRevenuecatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/groups/$groupId/requests/$requestId': {
@@ -293,6 +333,7 @@ const AuthenticatedGroupsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBibleRoute: typeof AuthenticatedBibleRoute
+  AuthenticatedCompanionRoute: typeof AuthenticatedCompanionRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -302,6 +343,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBibleRoute: AuthenticatedBibleRoute,
+  AuthenticatedCompanionRoute: AuthenticatedCompanionRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
@@ -316,6 +358,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicHooksRevenuecatRoute: ApiPublicHooksRevenuecatRoute,
   ApiPublicWidgetVerseOfTheDayRoute: ApiPublicWidgetVerseOfTheDayRoute,
 }
 export const routeTree = rootRouteImport
