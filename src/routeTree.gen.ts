@@ -17,6 +17,7 @@ import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
+import { Route as AuthenticatedGitSyncRouteImport } from './routes/_authenticated/git-sync'
 import { Route as AuthenticatedCompanionRouteImport } from './routes/_authenticated/companion'
 import { Route as AuthenticatedBibleRouteImport } from './routes/_authenticated/bible'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
@@ -64,6 +65,11 @@ const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   path: '/groups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGitSyncRoute = AuthenticatedGitSyncRouteImport.update({
+  id: '/git-sync',
+  path: '/git-sync',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCompanionRoute = AuthenticatedCompanionRouteImport.update({
   id: '/companion',
   path: '/companion',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/bible': typeof AuthenticatedBibleRoute
   '/companion': typeof AuthenticatedCompanionRoute
+  '/git-sync': typeof AuthenticatedGitSyncRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/bible': typeof AuthenticatedBibleRoute
   '/companion': typeof AuthenticatedCompanionRoute
+  '/git-sync': typeof AuthenticatedGitSyncRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/bible': typeof AuthenticatedBibleRoute
   '/_authenticated/companion': typeof AuthenticatedCompanionRoute
+  '/_authenticated/git-sync': typeof AuthenticatedGitSyncRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bible'
     | '/companion'
+    | '/git-sync'
     | '/groups'
     | '/home'
     | '/onboarding'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bible'
     | '/companion'
+    | '/git-sync'
     | '/groups'
     | '/home'
     | '/onboarding'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/bible'
     | '/_authenticated/companion'
+    | '/_authenticated/git-sync'
     | '/_authenticated/groups'
     | '/_authenticated/home'
     | '/_authenticated/onboarding'
@@ -271,6 +283,13 @@ declare module '@tanstack/react-router' {
       path: '/groups'
       fullPath: '/groups'
       preLoaderRoute: typeof AuthenticatedGroupsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/git-sync': {
+      id: '/_authenticated/git-sync'
+      path: '/git-sync'
+      fullPath: '/git-sync'
+      preLoaderRoute: typeof AuthenticatedGitSyncRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/companion': {
@@ -354,6 +373,7 @@ const AuthenticatedGroupsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBibleRoute: typeof AuthenticatedBibleRoute
   AuthenticatedCompanionRoute: typeof AuthenticatedCompanionRoute
+  AuthenticatedGitSyncRoute: typeof AuthenticatedGitSyncRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -364,6 +384,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBibleRoute: AuthenticatedBibleRoute,
   AuthenticatedCompanionRoute: AuthenticatedCompanionRoute,
+  AuthenticatedGitSyncRoute: AuthenticatedGitSyncRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
@@ -385,13 +406,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
