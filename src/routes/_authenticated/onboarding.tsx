@@ -626,18 +626,89 @@ function AhaScreen({
 // ---------------------------------------------------------------------------
 // SCREEN 10 — Paywall (Calm-style, honest)
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// SCREEN 1 — Welcome (A/B variants)
+//
+// Variant A is the existing copy ("copy bank"). Variant B is an alternate
+// outcome-led headline to test against it. Both share the same CTA so the
+// trial-start funnel is comparable per variant.
+// ---------------------------------------------------------------------------
+function Screen1({
+  variant,
+  name,
+  onContinue,
+}: {
+  variant: Variant;
+  name: string;
+  onContinue: () => void;
+}) {
+  const greeting = name ? `, ${name}` : "";
+  const copy =
+    variant === "A"
+      ? {
+          title: `Understand the Bible, build a daily habit, and never feel alone in it.`,
+          subtitle:
+            "Answers grounded in real Scripture — it never makes things up.",
+          cta: "Get started",
+        }
+      : {
+          title: `Welcome${greeting}. Five minutes a day. Real Scripture. No guesswork.`,
+          subtitle:
+            "A gentle daily rhythm with a study companion that only quotes verses it can show you.",
+          cta: "Start my 5-minute day",
+        };
+
+  return (
+    <Pane
+      title={copy.title}
+      subtitle={copy.subtitle}
+      primary={{ label: copy.cta, onClick: onContinue }}
+    >
+      <p className="pt-4 text-xs text-muted-foreground">
+        You can sign in with Apple or Google later — no rush.
+      </p>
+    </Pane>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SCREEN 10 — Paywall (A/B variants)
+//
+// Variant A: outcome-led, annual highlighted (existing copy bank).
+// Variant B: trust-led, identical pricing, different headline + ordering.
+// In BOTH variants the "Continue with the free version" link is always
+// visible and tappable. No countdown timers, no pre-checked upsells.
+// ---------------------------------------------------------------------------
 function PaywallScreen({
+  variant,
+  name,
   goal,
   saving,
   onStartCompanion,
   onContinueFree,
 }: {
+  variant: Variant;
+  name: string;
   goal: string | null;
   saving: boolean;
   onStartCompanion: () => void;
   onContinueFree: () => void;
 }) {
   const phrase = goal ? GOAL_PHRASE[goal] ?? "go deeper" : "go deeper";
+  const greeting = name ? `${name}, ` : "";
+
+  const headline =
+    variant === "A"
+      ? `To ${phrase}, unlock your full plan.`
+      : `${greeting}your plan to ${phrase} is ready.`;
+
+  const subtitle =
+    variant === "A"
+      ? "Outcomes, not features. Pick what fits — or stay on the free plan."
+      : "Try Companion free for 14 days. Bible reading, search, and community stay free, forever.";
+
+  const ctaLabel =
+    variant === "A" ? "Start my plan" : "Start 14-day free trial";
 
   return (
     <div className="flex flex-1 flex-col">
@@ -645,12 +716,8 @@ function PaywallScreen({
         <p className="text-xs uppercase tracking-wider text-muted-foreground">
           You're all set
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          To {phrase}, unlock your full plan.
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Outcomes, not features. Pick what fits — or stay on the free plan.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{headline}</h1>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
       </div>
 
       <div className="space-y-3">
@@ -675,17 +742,19 @@ function PaywallScreen({
         disabled={saving}
         className="mt-6 h-12 w-full rounded-md bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
       >
-        {saving ? "One moment…" : "Start my plan"}
+        {saving ? "One moment…" : ctaLabel}
       </button>
 
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        Cancel anytime · The Bible & community are always free.
+        Cancel anytime · The Bible &amp; community are always free.
       </p>
 
+      {/* Free path: ALWAYS visible & tappable. No interstitial nag. */}
       <button
         onClick={onContinueFree}
         disabled={saving}
-        className="mt-6 text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+        className="mt-6 self-center text-sm text-muted-foreground underline underline-offset-2 hover:text-foreground"
+        data-testid="continue-free"
       >
         Continue with the free version
       </button>
