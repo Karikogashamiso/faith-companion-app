@@ -499,6 +499,8 @@ function Onboarding() {
 
         {step === 10 && (
           <PaywallScreen
+            variant={variantScreen10}
+            name={name}
             goal={goal}
             saving={saving}
             onStartCompanion={() => finish(true)}
