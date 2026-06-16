@@ -13,9 +13,13 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
+import { Route as AuthenticatedBibleRouteImport } from './routes/_authenticated/bible'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
+import { Route as ApiPublicWidgetVerseOfTheDayRouteImport } from './routes/api/public/widget/verse-of-the-day'
 import { Route as AuthenticatedGroupsGroupIdRequestsRequestIdRouteImport } from './routes/_authenticated/groups.$groupId.requests.$requestId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -37,9 +41,19 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
@@ -47,11 +61,22 @@ const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   path: '/groups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBibleRoute = AuthenticatedBibleRouteImport.update({
+  id: '/bible',
+  path: '/bible',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedGroupsGroupIdRoute =
   AuthenticatedGroupsGroupIdRouteImport.update({
     id: '/$groupId',
     path: '/$groupId',
     getParentRoute: () => AuthenticatedGroupsRoute,
+  } as any)
+const ApiPublicWidgetVerseOfTheDayRoute =
+  ApiPublicWidgetVerseOfTheDayRouteImport.update({
+    id: '/api/public/widget/verse-of-the-day',
+    path: '/api/public/widget/verse-of-the-day',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const AuthenticatedGroupsGroupIdRequestsRequestIdRoute =
   AuthenticatedGroupsGroupIdRequestsRequestIdRouteImport.update({
@@ -63,19 +88,27 @@ const AuthenticatedGroupsGroupIdRequestsRequestIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/bible': typeof AuthenticatedBibleRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
+  '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/bible': typeof AuthenticatedBibleRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
+  '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
 export interface FileRoutesById {
@@ -83,10 +116,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/bible': typeof AuthenticatedBibleRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
+  '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/_authenticated/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
 export interface FileRouteTypes {
@@ -94,29 +131,41 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/bible'
     | '/groups'
+    | '/home'
     | '/onboarding'
+    | '/search'
     | '/settings'
     | '/groups/$groupId'
+    | '/api/public/widget/verse-of-the-day'
     | '/groups/$groupId/requests/$requestId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/bible'
     | '/groups'
+    | '/home'
     | '/onboarding'
+    | '/search'
     | '/settings'
     | '/groups/$groupId'
+    | '/api/public/widget/verse-of-the-day'
     | '/groups/$groupId/requests/$requestId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/bible'
     | '/_authenticated/groups'
+    | '/_authenticated/home'
     | '/_authenticated/onboarding'
+    | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/groups/$groupId'
+    | '/api/public/widget/verse-of-the-day'
     | '/_authenticated/groups/$groupId/requests/$requestId'
   fileRoutesById: FileRoutesById
 }
@@ -124,6 +173,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicWidgetVerseOfTheDayRoute: typeof ApiPublicWidgetVerseOfTheDayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -156,11 +206,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/search': {
+      id: '/_authenticated/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof AuthenticatedSearchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/home': {
+      id: '/_authenticated/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/groups': {
@@ -170,12 +234,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGroupsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/bible': {
+      id: '/_authenticated/bible'
+      path: '/bible'
+      fullPath: '/bible'
+      preLoaderRoute: typeof AuthenticatedBibleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/groups/$groupId': {
       id: '/_authenticated/groups/$groupId'
       path: '/$groupId'
       fullPath: '/groups/$groupId'
       preLoaderRoute: typeof AuthenticatedGroupsGroupIdRouteImport
       parentRoute: typeof AuthenticatedGroupsRoute
+    }
+    '/api/public/widget/verse-of-the-day': {
+      id: '/api/public/widget/verse-of-the-day'
+      path: '/api/public/widget/verse-of-the-day'
+      fullPath: '/api/public/widget/verse-of-the-day'
+      preLoaderRoute: typeof ApiPublicWidgetVerseOfTheDayRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/groups/$groupId/requests/$requestId': {
       id: '/_authenticated/groups/$groupId/requests/$requestId'
@@ -214,14 +292,20 @@ const AuthenticatedGroupsRouteWithChildren =
   AuthenticatedGroupsRoute._addFileChildren(AuthenticatedGroupsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBibleRoute: typeof AuthenticatedBibleRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBibleRoute: AuthenticatedBibleRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 
@@ -232,6 +316,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicWidgetVerseOfTheDayRoute: ApiPublicWidgetVerseOfTheDayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
