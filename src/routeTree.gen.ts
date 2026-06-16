@@ -20,6 +20,7 @@ import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedBibleRouteImport } from './routes/_authenticated/bible'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
 import { Route as ApiPublicWidgetVerseOfTheDayRouteImport } from './routes/api/public/widget/verse-of-the-day'
+import { Route as ApiPublicHooksRevenuecatRouteImport } from './routes/api/public/hooks/revenuecat'
 import { Route as AuthenticatedGroupsGroupIdRequestsRequestIdRouteImport } from './routes/_authenticated/groups.$groupId.requests.$requestId'
 
 const AuthRoute = AuthRouteImport.update({
@@ -78,6 +79,12 @@ const ApiPublicWidgetVerseOfTheDayRoute =
     path: '/api/public/widget/verse-of-the-day',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRevenuecatRoute =
+  ApiPublicHooksRevenuecatRouteImport.update({
+    id: '/api/public/hooks/revenuecat',
+    path: '/api/public/hooks/revenuecat',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedGroupsGroupIdRequestsRequestIdRoute =
   AuthenticatedGroupsGroupIdRequestsRequestIdRouteImport.update({
     id: '/requests/$requestId',
@@ -95,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
   '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
@@ -108,6 +116,7 @@ export interface FileRoutesByTo {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
   '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
@@ -123,6 +132,7 @@ export interface FileRoutesById {
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
   '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/_authenticated/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
@@ -138,6 +148,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/groups/$groupId'
+    | '/api/public/hooks/revenuecat'
     | '/api/public/widget/verse-of-the-day'
     | '/groups/$groupId/requests/$requestId'
   fileRoutesByTo: FileRoutesByTo
@@ -151,6 +162,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/groups/$groupId'
+    | '/api/public/hooks/revenuecat'
     | '/api/public/widget/verse-of-the-day'
     | '/groups/$groupId/requests/$requestId'
   id:
@@ -165,6 +177,7 @@ export interface FileRouteTypes {
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/groups/$groupId'
+    | '/api/public/hooks/revenuecat'
     | '/api/public/widget/verse-of-the-day'
     | '/_authenticated/groups/$groupId/requests/$requestId'
   fileRoutesById: FileRoutesById
@@ -173,6 +186,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicHooksRevenuecatRoute: typeof ApiPublicHooksRevenuecatRoute
   ApiPublicWidgetVerseOfTheDayRoute: typeof ApiPublicWidgetVerseOfTheDayRoute
 }
 
@@ -255,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWidgetVerseOfTheDayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/revenuecat': {
+      id: '/api/public/hooks/revenuecat'
+      path: '/api/public/hooks/revenuecat'
+      fullPath: '/api/public/hooks/revenuecat'
+      preLoaderRoute: typeof ApiPublicHooksRevenuecatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/groups/$groupId/requests/$requestId': {
       id: '/_authenticated/groups/$groupId/requests/$requestId'
       path: '/requests/$requestId'
@@ -316,6 +337,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicHooksRevenuecatRoute: ApiPublicHooksRevenuecatRoute,
   ApiPublicWidgetVerseOfTheDayRoute: ApiPublicWidgetVerseOfTheDayRoute,
 }
 export const routeTree = rootRouteImport
