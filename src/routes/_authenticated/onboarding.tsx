@@ -248,15 +248,14 @@ function Onboarding() {
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pb-10 pt-8">
         {step === 1 && (
-          <Pane
-            title="Understand the Bible, build a daily habit, and never feel alone in it."
-            subtitle="Answers grounded in real Scripture — it never makes things up."
-            primary={{ label: "Get started", onClick: next }}
-          >
-            <p className="pt-4 text-xs text-muted-foreground">
-              You can sign in with Apple or Google later — no rush.
-            </p>
-          </Pane>
+          <Screen1
+            variant={variantScreen1}
+            name={name}
+            onContinue={() => {
+              void track("screen1_cta_clicked", { variant_screen1: variantScreen1 });
+              void next();
+            }}
+          />
         )}
 
         {step === 2 && (
