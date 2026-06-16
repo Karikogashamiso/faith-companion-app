@@ -94,6 +94,10 @@ function Onboarding() {
   const [aiEnabled, setAiEnabled] = useState(true);
   const [joinCode, setJoinCode] = useState("");
   const [saving, setSaving] = useState(false);
+  const [variantScreen1, setVariantScreen1] = useState<Variant>("A");
+  const [variantScreen10, setVariantScreen10] = useState<Variant>("A");
+  const screen1ViewedRef = useRef(false);
+  const paywallViewedRef = useRef(false);
 
   // Load any prior partial answers + the user's display name.
   useEffect(() => {
