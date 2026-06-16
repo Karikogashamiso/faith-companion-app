@@ -47,13 +47,22 @@ export function AppShell({
               {title ?? "Discipleship Companion"}
             </span>
           </Link>
-          <Link
-            to="/settings"
-            aria-label="Settings"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-on-primary-container transition-colors hover:bg-primary"
-          >
-            <Icon name="verified_user" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/search"
+              aria-label="Search"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-primary transition-colors hover:bg-primary hover:text-on-primary"
+            >
+              <Icon name="search" />
+            </Link>
+            <Link
+              to="/settings"
+              aria-label="Settings"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-on-primary-container transition-colors hover:bg-primary hover:text-on-primary"
+            >
+              <Icon name="verified_user" />
+            </Link>
+          </div>
         </div>
       </header>
 
