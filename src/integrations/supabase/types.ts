@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_study_logs: {
+        Row: {
+          answer: string
+          created_at: string
+          crisis_level: string
+          id: string
+          model: string
+          question: string
+          retrieved_refs: Json
+          stripped_refs: Json
+          tradition: Database["public"]["Enums"]["tradition"]
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          crisis_level: string
+          id?: string
+          model: string
+          question: string
+          retrieved_refs?: Json
+          stripped_refs?: Json
+          tradition: Database["public"]["Enums"]["tradition"]
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          crisis_level?: string
+          id?: string
+          model?: string
+          question?: string
+          retrieved_refs?: Json
+          stripped_refs?: Json
+          tradition?: Database["public"]["Enums"]["tradition"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       bible_versions: {
         Row: {
           abbreviation: string
@@ -357,6 +396,8 @@ export type Database = {
         Row: {
           book: string
           chapter: number
+          embedded_at: string | null
+          embedding: string | null
           id: number
           text: string
           verse: number
@@ -365,6 +406,8 @@ export type Database = {
         Insert: {
           book: string
           chapter: number
+          embedded_at?: string | null
+          embedding?: string | null
           id?: number
           text: string
           verse: number
@@ -373,6 +416,8 @@ export type Database = {
         Update: {
           book?: string
           chapter?: number
+          embedded_at?: string | null
+          embedding?: string | null
           id?: number
           text?: string
           verse?: number
@@ -407,6 +452,22 @@ export type Database = {
       is_group_member: {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
+      }
+      match_verses: {
+        Args: {
+          match_count?: number
+          p_version_id: string
+          query_embedding: string
+          query_text: string
+        }
+        Returns: {
+          book: string
+          chapter: number
+          id: number
+          score: number
+          text: string
+          verse: number
+        }[]
       }
     }
     Enums: {
