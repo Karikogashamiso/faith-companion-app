@@ -98,6 +98,39 @@ export const askStudy = createServerFn({ method: "POST" })
     }
     const tradition = profile?.tradition ?? "unspecified";
 
+    // 1b) AI allowance for free tier (companion = unlimited).
+    const FREE_DAILY_LIMIT = 5;
+    const { data: companion } = await supabase.rpc("is_companion", {
+      _user_id: userId,
+    });
+    if (!companion) {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: usageRow } = await supabase
+        .from("ai_usage_daily")
+        .select("count")
+        .eq("user_id", userId)
+        .eq("usage_date", today)
+        .maybeSingle();
+      const used = (usageRow?.count as number | undefined) ?? 0;
+      if (used >= FREE_DAILY_LIMIT) {
+        return {
+          disabled: true as const,
+          message:
+            `You've used your ${FREE_DAILY_LIMIT} free AI study sessions for today. Tomorrow the count resets — or unlock unlimited with Companion. Scripture reading, search, and prayer are always free.`,
+          paywall: true as const,
+          used,
+          limit: FREE_DAILY_LIMIT,
+        };
+      }
+      await supabase
+        .from("ai_usage_daily")
+        .upsert(
+          { user_id: userId, usage_date: today, count: used + 1 },
+          { onConflict: "user_id,usage_date" },
+        );
+    }
+
+
     // 2) Crisis triage on the raw question.
     const crisis = classifyCrisis(data.question);
 
