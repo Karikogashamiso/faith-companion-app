@@ -55,26 +55,23 @@ function computeStreak(dates: string[]): { current: number; longest: number } {
 }
 
 function Home() {
+  const { user } = Route.useRouteContext();
   const [verse, setVerse] = useState<Verse | null>(null);
   const [planDay, setPlanDay] = useState<PlanDay | null>(null);
   const [planTitle, setPlanTitle] = useState<string | null>(null);
   const [streak, setStreak] = useState({ current: 0, longest: 0 });
   const [completedToday, setCompletedToday] = useState(false);
-  const [me, setMe] = useState<string | null>(null);
 
   useEffect(() => {
     void load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.id]);
 
   async function load() {
-    const { data: u } = await supabase.auth.getUser();
-    setMe(u.user?.id ?? null);
-    if (!u.user) return;
-
     const { data: prof } = await supabase
       .from("profiles")
       .select("default_version_id")
-      .eq("id", u.user.id)
+      .eq("id", user.id)
       .maybeSingle();
 
     let versionId = prof?.default_version_id;
@@ -98,7 +95,7 @@ function Home() {
     const { data: progress } = await supabase
       .from("user_plan_progress")
       .select("plan_id, day_completed")
-      .eq("user_id", u.user.id)
+      .eq("user_id", user.id)
       .order("completed_at", { ascending: false })
       .limit(1);
 
@@ -123,7 +120,7 @@ function Home() {
     const { data: act } = await supabase
       .from("daily_activity")
       .select("activity_date")
-      .eq("user_id", u.user.id)
+      .eq("user_id", user.id)
       .order("activity_date", { ascending: false })
       .limit(120);
     const dates = (act ?? []).map((a: any) => a.activity_date as string);
@@ -132,10 +129,9 @@ function Home() {
   }
 
   async function markToday() {
-    if (!me) return;
     await supabase
       .from("daily_activity")
-      .upsert({ user_id: me, activity_date: todayLocalISO(), source: "home" });
+      .upsert({ user_id: user.id, activity_date: todayLocalISO(), source: "home" });
     void load();
   }
 

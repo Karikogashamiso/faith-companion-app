@@ -13,6 +13,7 @@ type Version = { id: string; name: string; abbreviation: string };
 type Verse = { id: number; book: string; chapter: number; verse: number; text: string };
 
 function Bible() {
+  const { user } = Route.useRouteContext();
   const [versions, setVersions] = useState<Version[]>([]);
   const [versionId, setVersionId] = useState<string | null>(null);
   const [book, setBook] = useState<string>("");
@@ -27,38 +28,38 @@ function Bible() {
         .from("bible_versions")
         .select("id, name, abbreviation");
       setVersions((vs ?? []) as Version[]);
-      const { data: u } = await supabase.auth.getUser();
-      let vid: string | null = null;
-      if (u.user) {
-        const { data: p } = await supabase
-          .from("profiles")
-          .select("default_version_id")
-          .eq("id", u.user.id)
-          .maybeSingle();
-        vid = (p?.default_version_id as string | null) ?? null;
-      }
-      vid = vid ?? (vs?.[0]?.id ?? null);
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("default_version_id")
+        .eq("id", user.id)
+        .maybeSingle();
+      const vid =
+        (p?.default_version_id as string | null) ?? (vs?.[0]?.id ?? null);
       setVersionId(vid);
     })();
-  }, []);
+  }, [user.id]);
 
-  // Load books for selected version
+  // Load books (+ chapter counts) for the selected version via a cheap aggregate RPC.
   const [books, setBooks] = useState<string[]>([]);
+  const [bookChapters, setBookChapters] = useState<Record<string, number>>({});
   useEffect(() => {
     if (!versionId) return;
     void (async () => {
-      const { data } = await supabase
-        .from("verses")
-        .select("book")
-        .eq("version_id", versionId);
-      const uniq = Array.from(new Set((data ?? []).map((r: any) => r.book as string)));
-      setBooks(uniq);
-      if (uniq.length && !uniq.includes(book)) setBook(uniq[0]);
+      const { data } = await supabase.rpc("bible_books", {
+        p_version_id: versionId,
+      });
+      const rows = (data ?? []) as { book: string; chapters: number }[];
+      setBooks(rows.map((r) => r.book));
+      setBookChapters(Object.fromEntries(rows.map((r) => [r.book, r.chapters])));
+      if (rows.length && !rows.some((r) => r.book === book)) {
+        setBook(rows[0].book);
+        setChapter(1);
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [versionId]);
 
-  // Load chapter verses
+  // Load chapter verses + this user's highlights for them.
   useEffect(() => {
     if (!versionId || !book) return;
     void (async () => {
@@ -70,31 +71,35 @@ function Bible() {
         .eq("chapter", chapter)
         .order("verse");
       setVerses((data ?? []) as Verse[]);
-      const { data: u } = await supabase.auth.getUser();
-      if (u.user && data?.length) {
+      if (data?.length) {
         const { data: h } = await supabase
           .from("user_highlights")
           .select("verse_id")
-          .eq("user_id", u.user.id)
+          .eq("user_id", user.id)
           .in("verse_id", data.map((v: any) => v.id));
         setHighlights(new Set((h ?? []).map((x: any) => x.verse_id)));
+      } else {
+        setHighlights(new Set());
       }
     })();
-  }, [versionId, book, chapter]);
+  }, [versionId, book, chapter, user.id]);
 
   const chapters = useMemo(() => {
-    // best-effort: 1..max found in DB; for small seed just 1..10
-    return Array.from({ length: 50 }, (_, i) => i + 1);
-  }, []);
+    const n = bookChapters[book] ?? 1;
+    return Array.from({ length: n }, (_, i) => i + 1);
+  }, [book, bookChapters]);
+
+  function selectBook(b: string) {
+    setBook(b);
+    setChapter(1);
+  }
 
   async function toggleHighlight(v: Verse) {
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
     if (highlights.has(v.id)) {
       await supabase
         .from("user_highlights")
         .delete()
-        .eq("user_id", u.user.id)
+        .eq("user_id", user.id)
         .eq("verse_id", v.id);
       const next = new Set(highlights);
       next.delete(v.id);
@@ -102,7 +107,7 @@ function Bible() {
     } else {
       await supabase
         .from("user_highlights")
-        .insert({ user_id: u.user.id, verse_id: v.id });
+        .insert({ user_id: user.id, verse_id: v.id });
       setHighlights(new Set([...highlights, v.id]));
     }
   }
@@ -115,7 +120,7 @@ function Bible() {
           <SelectChip
             icon="bookmark"
             value={book}
-            onChange={setBook}
+            onChange={selectBook}
             options={books.map((b) => ({ value: b, label: b }))}
           />
           <SelectChip

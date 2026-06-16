@@ -10,24 +10,45 @@
  * This is intentionally over-inclusive; false positives just add a gentle preamble.
  */
 
+// Tuned to be over-inclusive: a false positive only adds a gentle, caring
+// preamble, while a false negative could miss someone in real danger. We
+// therefore err hard toward catching indirect, passive, and metaphorical
+// phrasing — not just explicit keywords.
 const CRISIS_PATTERNS: RegExp[] = [
-  /\b(kill|killing|harm(ing)?|hurt(ing)?)\s+(myself|me)\b/i,
-  /\bsuicid(e|al)\b/i,
-  /\bend(ing)?\s+(my|it all)\s*(life|self)?\b/i,
-  /\bdon'?t\s+want\s+to\s+(live|be\s+(alive|here))\b/i,
-  /\b(cut|cutting)\s+myself\b/i,
-  /\bself[- ]?harm\b/i,
-  /\boverdose\b/i,
+  // Explicit self-harm / suicide.
+  /\b(kill(ing)?|harm(ing)?|hurt(ing)?)\s+(myself|me)\b/i,
+  /\bsuicid/i, // suicide, suicidal, common misspellings start the same
+  /\bself[- ]?harm/i,
+  /\b(cut|cutting|burn(ing)?)\s+myself\b/i,
+  /\boverdos/i, // overdose, overdosing
+  /\b(take|taking|swallow(ing)?)\s+(all\s+)?(my|the)?\s*pills\b/i,
+  /\b(lethal|fatal)\s+(dose|amount)\b/i,
+  // Ending one's life — direct and indirect.
+  /\bend(ing)?\s+(my|it|this)\s*(life|all|now)?\b/i,
+  /\btake\s+my\s+(own\s+)?life\b/i,
+  /\b(want|wanting|wish|wishing|going|ready)\s+to\s+die\b/i,
+  /\b(better off|everyone'?s better)\s+(without me|dead|if i (was|were)n'?t)/i,
+  // Passive ideation / not wanting to exist.
+  /\bdon'?t\s+want\s+to\s+(live|be\s+(alive|here)|exist|wake up|go on)\b/i,
+  /\b(want|wanting)\s+to\s+(disappear|not (exist|wake up|be here)|vanish)\b/i,
+  /\b(can'?t|cannot)\s+(do this|take this|go on|keep going)\s*(any\s*more|anymore)?\b/i,
+  /\b(no (reason|point)\s+(to|in)\s+(living|going on|being here))\b/i,
+  /\b(tired of|done with)\s+(living|life|being alive)\b/i,
+  /\b(nothing (left )?to live for|life isn'?t worth)/i,
+  /\b(dead inside|numb to everything)\b/i,
 ];
 
 const PASTORAL_PATTERNS: RegExp[] = [
-  /\b(grief|grieving|mourning|loss|died|death of)\b/i,
-  /\b(divorce|separating|leaving my (husband|wife|spouse))\b/i,
-  /\b(addict|addiction|relapse|sober|alcohol|porn)\b/i,
-  /\b(abuse|abusive|abused)\b/i,
-  /\b(deconstruct|losing my faith|doubt(ing)? god|leaving the church)\b/i,
-  /\b(should i (marry|divorce|leave|quit|move))\b/i,
-  /\bmiscarriage|stillborn\b/i,
+  /\b(grief|grieving|mourning|bereave|lost (my|someone)|passed away|died|death of|funeral)\b/i,
+  /\b(divorce|divorcing|separating|separation|leaving my (husband|wife|spouse|partner)|my marriage is)\b/i,
+  /\b(addict|addiction|relapse|relapsed|sober|sobriety|alcohol(ic|ism)?|drinking problem|porn|gambling)\b/i,
+  /\b(abus(e|ed|ive)|assault|molest|trafficked|domestic violence)\b/i,
+  /\b(deconstruct|losing my faith|lost my faith|doubt(ing)? god|leaving the church|don'?t believe anymore|is god (even )?real)\b/i,
+  /\bshould i\s+(marry|divorce|leave|quit|move|adopt|forgive|report)\b/i,
+  /\b(miscarriage|miscarried|stillborn|stillbirth|infertil)\b/i,
+  /\b(terminal|cancer|hospice|dying|chronic(ally)? ill)\b/i,
+  /\b(lost my job|got fired|laid off|bankrupt|homeless|evicted)\b/i,
+  /\b(depress(ed|ion)|anxiety attack|panic attack|can'?t get out of bed|hopeless|worthless)\b/i,
 ];
 
 export type CrisisLevel = "none" | "pastoral" | "crisis";

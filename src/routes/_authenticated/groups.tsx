@@ -13,6 +13,7 @@ type Group = { id: string; name: string; join_code: string; owner_id: string };
 
 function GroupsPage() {
   const navigate = useNavigate();
+  const { user } = Route.useRouteContext();
   const [groups, setGroups] = useState<Group[]>([]);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
@@ -46,13 +47,11 @@ function GroupsPage() {
     if (!name.trim()) return;
     setBusy(true);
     setError(null);
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
     const { data, error } = await supabase
       .from("groups")
       .insert({
         name: name.trim(),
-        owner_id: u.user.id,
+        owner_id: user.id,
         join_code: makeJoinCode(),
       })
       .select("id")

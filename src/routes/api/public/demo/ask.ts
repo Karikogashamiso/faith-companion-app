@@ -18,41 +18,27 @@ import {
 /**
  * Public, anonymous AI demo for the marketing landing page.
  * Uses the same retrieval-grounded pipeline as the authenticated /ask flow,
- * but with an aggressive per-IP rate limit and no user logging.
+ * but with an aggressive per-IP rate limit (durable, DB-backed) and no
+ * user logging.
  *
- * Limits: 4 requests / 10 min / IP (per Worker process — best-effort).
+ * Limits: 4 requests / 10 min / IP, enforced atomically in Postgres so the
+ * limit holds across processes and serverless cold starts.
  */
 
 const CHAT_MODEL = "google/gemini-3-flash-preview";
 const EMBED_MODEL = "openai/text-embedding-3-small";
+const MAX_PER_WINDOW = 4;
+const WINDOW_SECONDS = 10 * 60;
 
 const Input = z.object({
   question: z.string().min(3).max(300),
 });
 
-// In-memory limiter; per-process on the edge runtime. Good enough to keep
-// casual abuse off the page — for hard guarantees, swap for a DB counter.
-const RATE: Map<string, { count: number; resetAt: number }> = new Map();
-const WINDOW_MS = 10 * 60 * 1000;
-const MAX_PER_WINDOW = 4;
-
-function rateLimit(ip: string): { ok: boolean; remaining: number } {
-  const now = Date.now();
-  const cur = RATE.get(ip);
-  if (!cur || cur.resetAt < now) {
-    RATE.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return { ok: true, remaining: MAX_PER_WINDOW - 1 };
-  }
-  if (cur.count >= MAX_PER_WINDOW) return { ok: false, remaining: 0 };
-  cur.count += 1;
-  return { ok: true, remaining: MAX_PER_WINDOW - cur.count };
-}
-
 function buildSystem(verses: { book: string; chapter: number; verse: number; text: string }[]) {
   const block = verses.length
     ? verses.map((v) => `[${v.book} ${v.chapter}:${v.verse}] ${v.text}`).join("\n")
     : "(none)";
-  return `You are a Scripture study companion. You may ONLY quote verse text that appears in the CANDIDATE VERSES block below, and you must use the reference verbatim. If the candidates don't answer the question, say so honestly. Stay broadly Christian, warm, and concise (under 180 words). End with: "This is a brief demo — the full app has more."
+  return `You are a Scripture study companion. You may ONLY quote verse text that appears in the CANDIDATE VERSES block below, and you must use the reference verbatim. Never paraphrase, summarize, or reconstruct the wording of any verse that is not in the block — refer to such passages by reference only. If the candidates don't answer the question, say so honestly. Stay broadly Christian, warm, and concise (under 180 words). End with: "This is a brief demo — the full app has more."
 
 CANDIDATE VERSES:
 ${block}`;
@@ -66,8 +52,25 @@ export const Route = createFileRoute("/api/public/demo/ask")({
           request.headers.get("cf-connecting-ip") ??
           request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
           "anon";
-        const rl = rateLimit(ip);
-        if (!rl.ok) {
+
+        const supabase = createClient<Database>(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_PUBLISHABLE_KEY!,
+          { auth: { persistSession: false, autoRefreshToken: false } },
+        );
+
+        // Durable, cross-process rate limit (atomic in Postgres). Fails open
+        // for the marketing page if the limiter is briefly unavailable.
+        const { data: rlRows } = await supabase.rpc("demo_rate_check", {
+          _ip: ip,
+          _max: MAX_PER_WINDOW,
+          _window_seconds: WINDOW_SECONDS,
+        });
+        const rl = (Array.isArray(rlRows) ? rlRows[0] : rlRows) ?? {
+          allowed: true,
+          remaining: MAX_PER_WINDOW - 1,
+        };
+        if (!rl.allowed) {
           return Response.json(
             { error: "You've reached the demo limit. Install the app to keep going." },
             { status: 429 },
@@ -92,12 +95,6 @@ export const Route = createFileRoute("/api/public/demo/ask")({
         }
 
         const crisis = classifyCrisis(question);
-
-        const supabase = createClient<Database>(
-          process.env.SUPABASE_URL!,
-          process.env.SUPABASE_PUBLISHABLE_KEY!,
-          { auth: { persistSession: false, autoRefreshToken: false } },
-        );
 
         const { data: version } = await supabase
           .from("bible_versions")
