@@ -283,6 +283,42 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_answers: {
+        Row: {
+          completed_at: string | null
+          daily_minutes: number | null
+          goal: string | null
+          join_code: string | null
+          journey_stage: string | null
+          reminder_time: string | null
+          struggles: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          daily_minutes?: number | null
+          goal?: string | null
+          join_code?: string | null
+          journey_stage?: string | null
+          reminder_time?: string | null
+          struggles?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          daily_minutes?: number | null
+          goal?: string | null
+          join_code?: string | null
+          journey_stage?: string | null
+          reminder_time?: string | null
+          struggles?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       plan_days: {
         Row: {
           day_number: number
@@ -401,10 +437,12 @@ export type Database = {
         Row: {
           ai_enabled: boolean
           created_at: string
+          daily_minutes: number | null
           default_version_id: string | null
           display_name: string | null
           id: string
           notification_time: string | null
+          reminder_time: string | null
           share_progress: boolean
           tradition: Database["public"]["Enums"]["tradition"]
           updated_at: string
@@ -412,10 +450,12 @@ export type Database = {
         Insert: {
           ai_enabled?: boolean
           created_at?: string
+          daily_minutes?: number | null
           default_version_id?: string | null
           display_name?: string | null
           id: string
           notification_time?: string | null
+          reminder_time?: string | null
           share_progress?: boolean
           tradition?: Database["public"]["Enums"]["tradition"]
           updated_at?: string
@@ -423,10 +463,12 @@ export type Database = {
         Update: {
           ai_enabled?: boolean
           created_at?: string
+          daily_minutes?: number | null
           default_version_id?: string | null
           display_name?: string | null
           id?: string
           notification_time?: string | null
+          reminder_time?: string | null
           share_progress?: boolean
           tradition?: Database["public"]["Enums"]["tradition"]
           updated_at?: string
