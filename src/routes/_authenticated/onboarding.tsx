@@ -481,13 +481,7 @@ function AhaScreen({
   onContinue: () => void;
 }) {
 
-  struggles: string[];
-  tradition: string;
-  aiEnabled: boolean;
-  onDeclineAi: () => void;
-  askStudyFn: typeof askStudy;
-  onContinue: () => void;
-}) {
+
   const demoQuestion = useMemo(() => {
     const key = struggles[0];
     return DEMO_QUESTIONS[key] ?? "What does the Bible say about hope?";
