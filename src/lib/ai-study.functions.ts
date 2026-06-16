@@ -120,7 +120,8 @@ export const askStudy = createServerFn({ method: "POST" })
     }
 
     const { data: candidates, error: matchErr } = await supabase.rpc("match_verses", {
-      query_embedding: embedding,
+      // Supabase types vector columns as `string`; runtime accepts number[]/null.
+      query_embedding: embedding as unknown as string,
       query_text: data.question,
       p_version_id: version.id,
       match_count: 12,
