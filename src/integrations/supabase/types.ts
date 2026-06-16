@@ -141,6 +141,7 @@ export type Database = {
       }
       groups: {
         Row: {
+          active_plan_id: string | null
           church_id: string | null
           created_at: string
           id: string
@@ -149,6 +150,7 @@ export type Database = {
           owner_id: string
         }
         Insert: {
+          active_plan_id?: string | null
           church_id?: string | null
           created_at?: string
           id?: string
@@ -157,6 +159,7 @@ export type Database = {
           owner_id: string
         }
         Update: {
+          active_plan_id?: string | null
           church_id?: string | null
           created_at?: string
           id?: string
@@ -166,6 +169,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "groups_active_plan_id_fkey"
+            columns: ["active_plan_id"]
+            isOneToOne: false
+            referencedRelation: "reading_plans"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "groups_church_id_fkey"
             columns: ["church_id"]
             isOneToOne: false
@@ -173,6 +183,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_logs: {
+        Row: {
+          id: string
+          kind: string
+          sent_at: string
+          target_id: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          kind: string
+          sent_at?: string
+          target_id?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          kind?: string
+          sent_at?: string
+          target_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       plan_days: {
         Row: {
@@ -211,30 +245,36 @@ export type Database = {
       }
       prayer_requests: {
         Row: {
+          answered_at: string | null
           author_id: string
           body: string
           created_at: string
           group_id: string
           id: string
           status: Database["public"]["Enums"]["prayer_status"]
+          testimony: string | null
           updated_at: string
         }
         Insert: {
+          answered_at?: string | null
           author_id: string
           body: string
           created_at?: string
           group_id: string
           id?: string
           status?: Database["public"]["Enums"]["prayer_status"]
+          testimony?: string | null
           updated_at?: string
         }
         Update: {
+          answered_at?: string | null
           author_id?: string
           body?: string
           created_at?: string
           group_id?: string
           id?: string
           status?: Database["public"]["Enums"]["prayer_status"]
+          testimony?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -290,6 +330,7 @@ export type Database = {
           display_name: string | null
           id: string
           notification_time: string | null
+          share_progress: boolean
           tradition: Database["public"]["Enums"]["tradition"]
           updated_at: string
         }
@@ -300,6 +341,7 @@ export type Database = {
           display_name?: string | null
           id: string
           notification_time?: string | null
+          share_progress?: boolean
           tradition?: Database["public"]["Enums"]["tradition"]
           updated_at?: string
         }
@@ -310,6 +352,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           notification_time?: string | null
+          share_progress?: boolean
           tradition?: Database["public"]["Enums"]["tradition"]
           updated_at?: string
         }
@@ -467,6 +510,7 @@ export type Database = {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
+      join_group_by_code: { Args: { _code: string }; Returns: string }
       match_verses: {
         Args: {
           match_count?: number
@@ -483,6 +527,7 @@ export type Database = {
           verse: number
         }[]
       }
+      shares_group_with: { Args: { _a: string; _b: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
