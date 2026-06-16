@@ -116,7 +116,9 @@ function Onboarding() {
 
       const { data: ans } = await supabase
         .from("onboarding_answers")
-        .select("goal, journey_stage, struggles, daily_minutes, reminder_time, join_code")
+        .select(
+          "goal, journey_stage, struggles, daily_minutes, reminder_time, join_code, variant_screen1, variant_screen10",
+        )
         .eq("user_id", user.id)
         .maybeSingle();
       if (ans?.goal) setGoal(ans.goal);
@@ -126,8 +128,42 @@ function Onboarding() {
       if (ans?.reminder_time)
         setReminderTime(String(ans.reminder_time).slice(0, 5));
       if (ans?.join_code) setJoinCode(ans.join_code);
+
+      // Assign A/B variants once and persist them so the same user always
+      // sees the same variant across sessions.
+      const v1 = (ans?.variant_screen1 as Variant | null) ?? assignVariant();
+      const v10 = (ans?.variant_screen10 as Variant | null) ?? assignVariant();
+      setVariantScreen1(v1);
+      setVariantScreen10(v10);
+      if (!ans?.variant_screen1 || !ans?.variant_screen10) {
+        await supabase.from("onboarding_answers").upsert(
+          {
+            user_id: user.id,
+            variant_screen1: v1,
+            variant_screen10: v10,
+          },
+          { onConflict: "user_id" },
+        );
+        void track(
+          "onboarding_started",
+          { variant_screen1: v1, variant_screen10: v10 },
+        );
+      }
     })();
   }, [user.id]);
+
+  // Fire screen-view events once per screen so trial-start (Screen 1) and
+  // trial-to-paid (Screen 10) funnels can be computed per variant.
+  useEffect(() => {
+    if (step === 1 && !screen1ViewedRef.current) {
+      screen1ViewedRef.current = true;
+      void track("screen1_viewed", { variant_screen1: variantScreen1 });
+    }
+    if (step === 10 && !paywallViewedRef.current) {
+      paywallViewedRef.current = true;
+      void track("paywall_viewed", { variant_screen10: variantScreen10 }, { goal });
+    }
+  }, [step, variantScreen1, variantScreen10, goal]);
 
   // Persist on every step transition (best-effort, fire-and-forget).
   async function persist() {
@@ -148,6 +184,8 @@ function Onboarding() {
         daily_minutes: dailyMinutes,
         reminder_time: reminderTime + ":00",
         join_code: joinCode || null,
+        variant_screen1: variantScreen1,
+        variant_screen10: variantScreen10,
       },
       { onConflict: "user_id" },
     );
