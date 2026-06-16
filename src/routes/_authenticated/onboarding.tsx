@@ -60,7 +60,7 @@ function Onboarding() {
       })
       .eq("id", user.id);
     void skip;
-    navigate({ to: "/settings" });
+    navigate({ to: "/home" });
   }
 
   return (
