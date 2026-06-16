@@ -24,7 +24,7 @@ export async function track(
       event,
       variant_screen1: variants.variant_screen1 ?? null,
       variant_screen10: variants.variant_screen10 ?? null,
-      props,
+      props: props as never,
     });
   } catch {
     /* analytics must never break the UI */
