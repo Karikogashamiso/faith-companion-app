@@ -6,19 +6,17 @@ import type { Database } from "@/integrations/supabase/types";
 type Tradition = Database["public"]["Enums"]["tradition"];
 
 const TRADITIONS: { value: Tradition; label: string; blurb: string }[] = [
-  {
-    value: "non_denominational",
-    label: "Non-denominational / Just exploring",
-    blurb: "No assumptions. Just the text.",
-  },
+  { value: "non_denominational", label: "Non-denominational / Just exploring", blurb: "No assumptions. Just the text." },
   { value: "catholic", label: "Catholic", blurb: "Including the deuterocanon." },
   { value: "orthodox", label: "Orthodox", blurb: "Eastern & Oriental traditions." },
-  { value: "protestant", label: "Protestant", blurb: "Mainline & evangelical." },
   { value: "anglican", label: "Anglican / Episcopal", blurb: "Common Prayer rhythm." },
-  { value: "evangelical", label: "Evangelical", blurb: "Bible-centered emphasis." },
+  { value: "lutheran", label: "Lutheran", blurb: "Word and sacrament." },
+  { value: "methodist", label: "Methodist / Wesleyan", blurb: "Practical holiness." },
+  { value: "baptist", label: "Baptist", blurb: "Believer's baptism." },
+  { value: "reformed", label: "Reformed / Presbyterian", blurb: "Covenantal tradition." },
   { value: "pentecostal", label: "Pentecostal / Charismatic", blurb: "Spirit-led emphasis." },
-  { value: "messianic", label: "Messianic", blurb: "Yeshua in Jewish context." },
   { value: "other", label: "Other", blurb: "Something else, or in-between." },
+  { value: "unspecified", label: "Prefer not to say", blurb: "Skip for now." },
 ];
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
@@ -53,12 +51,15 @@ function Onboarding() {
 
   async function finish(skip = false) {
     setSaving(true);
-    const patch: Record<string, unknown> = { ai_enabled: aiEnabled };
-    if (tradition) patch.tradition = tradition;
-    if (versionId) patch.default_version_id = versionId;
-    if (!skip || tradition || versionId) {
-      await supabase.from("profiles").update(patch).eq("id", user.id);
-    }
+    await supabase
+      .from("profiles")
+      .update({
+        ai_enabled: aiEnabled,
+        ...(tradition ? { tradition } : {}),
+        ...(versionId ? { default_version_id: versionId } : {}),
+      })
+      .eq("id", user.id);
+    void skip;
     navigate({ to: "/settings" });
   }
 

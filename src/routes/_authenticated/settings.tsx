@@ -8,14 +8,16 @@ import type { Database } from "@/integrations/supabase/types";
 type Tradition = Database["public"]["Enums"]["tradition"];
 
 const TRADITION_LABELS: Record<Tradition, string> = {
+  unspecified: "Prefer not to say",
   non_denominational: "Non-denominational / Just exploring",
   catholic: "Catholic",
   orthodox: "Orthodox",
-  protestant: "Protestant",
   anglican: "Anglican / Episcopal",
-  evangelical: "Evangelical",
+  lutheran: "Lutheran",
+  methodist: "Methodist / Wesleyan",
+  baptist: "Baptist",
+  reformed: "Reformed / Presbyterian",
   pentecostal: "Pentecostal / Charismatic",
-  messianic: "Messianic",
   other: "Other",
 };
 
@@ -57,7 +59,7 @@ function Settings() {
         .maybeSingle(),
       supabase.from("bible_versions").select("id,name,abbreviation").order("abbreviation"),
     ]);
-    if (prof) setProfile(prof as Profile);
+    if (prof) setProfile(prof as unknown as Profile);
     if (vers) setVersions(vers);
   }
 
@@ -65,9 +67,11 @@ function Settings() {
     if (!profile) return;
     setSaving(true);
     setMsg(null);
-    const next = { ...profile, ...patch };
-    setProfile(next);
-    const { error } = await supabase.from("profiles").update(patch).eq("id", user.id);
+    setProfile({ ...profile, ...patch });
+    const { error } = await supabase
+      .from("profiles")
+      .update(patch as never)
+      .eq("id", user.id);
     setSaving(false);
     setMsg(error ? `Error: ${error.message}` : "Saved");
     setTimeout(() => setMsg(null), 1500);
