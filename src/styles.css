@@ -79,7 +79,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Sanctuary Modern palette (custom, addressable via bg-*/text-*/border-*) */
+  /* Sanctuary Modern palette (custom, addressable via bg-, text-, border- prefixes) */
   --color-scripture-cream: var(--scripture-cream);
   --color-navy-deep: var(--navy-deep);
   --color-on-primary: var(--on-primary);
