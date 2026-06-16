@@ -14,16 +14,417 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bible_versions: {
+        Row: {
+          abbreviation: string
+          created_at: string
+          id: string
+          is_public_domain: boolean
+          language: string
+          license_notes: string
+          name: string
+        }
+        Insert: {
+          abbreviation: string
+          created_at?: string
+          id?: string
+          is_public_domain?: boolean
+          language?: string
+          license_notes: string
+          name: string
+        }
+        Update: {
+          abbreviation?: string
+          created_at?: string
+          id?: string
+          is_public_domain?: boolean
+          language?: string
+          license_notes?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      churches: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          region: string | null
+          verified: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          region?: string | null
+          verified?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          region?: string | null
+          verified?: boolean
+        }
+        Relationships: []
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: Database["public"]["Enums"]["group_role"]
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["group_role"]
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["group_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          church_id: string | null
+          created_at: string
+          id: string
+          join_code: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          church_id?: string | null
+          created_at?: string
+          id?: string
+          join_code: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          church_id?: string | null
+          created_at?: string
+          id?: string
+          join_code?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_church_id_fkey"
+            columns: ["church_id"]
+            isOneToOne: false
+            referencedRelation: "churches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_days: {
+        Row: {
+          day_number: number
+          id: string
+          passage_ref: string
+          plan_id: string
+          prayer_md: string | null
+          reflection_md: string | null
+        }
+        Insert: {
+          day_number: number
+          id?: string
+          passage_ref: string
+          plan_id: string
+          prayer_md?: string | null
+          reflection_md?: string | null
+        }
+        Update: {
+          day_number?: number
+          id?: string
+          passage_ref?: string
+          plan_id?: string
+          prayer_md?: string | null
+          reflection_md?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_days_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "reading_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prayer_requests: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          group_id: string
+          id: string
+          status: Database["public"]["Enums"]["prayer_status"]
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          group_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["prayer_status"]
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["prayer_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prayer_requests_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prayer_responses: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          prayed: boolean
+          request_id: string
+          responder_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          prayed?: boolean
+          request_id: string
+          responder_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          prayed?: boolean
+          request_id?: string
+          responder_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prayer_responses_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "prayer_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          ai_enabled: boolean
+          created_at: string
+          display_name: string | null
+          id: string
+          tradition: Database["public"]["Enums"]["tradition"]
+          updated_at: string
+        }
+        Insert: {
+          ai_enabled?: boolean
+          created_at?: string
+          display_name?: string | null
+          id: string
+          tradition?: Database["public"]["Enums"]["tradition"]
+          updated_at?: string
+        }
+        Update: {
+          ai_enabled?: boolean
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          tradition?: Database["public"]["Enums"]["tradition"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reading_plans: {
+        Row: {
+          created_at: string
+          day_count: number
+          description: string | null
+          id: string
+          is_premium: boolean
+          title: string
+          tradition: Database["public"]["Enums"]["tradition"] | null
+        }
+        Insert: {
+          created_at?: string
+          day_count: number
+          description?: string | null
+          id?: string
+          is_premium?: boolean
+          title: string
+          tradition?: Database["public"]["Enums"]["tradition"] | null
+        }
+        Update: {
+          created_at?: string
+          day_count?: number
+          description?: string | null
+          id?: string
+          is_premium?: boolean
+          title?: string
+          tradition?: Database["public"]["Enums"]["tradition"] | null
+        }
+        Relationships: []
+      }
+      user_plan_progress: {
+        Row: {
+          completed_at: string
+          day_completed: number
+          id: string
+          plan_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          day_completed: number
+          id?: string
+          plan_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          day_completed?: number
+          id?: string
+          plan_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_plan_progress_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "reading_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verses: {
+        Row: {
+          book: string
+          chapter: number
+          id: number
+          text: string
+          verse: number
+          version_id: string
+        }
+        Insert: {
+          book: string
+          chapter: number
+          id?: number
+          text: string
+          verse: number
+          version_id: string
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          id?: number
+          text?: string
+          verse?: number
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verses_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "bible_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_access_request: {
+        Args: { _request_id: string; _user_id: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      group_role: "owner" | "member"
+      prayer_status: "open" | "answered" | "archived"
+      tradition:
+        | "catholic"
+        | "orthodox"
+        | "reformed"
+        | "baptist"
+        | "methodist"
+        | "lutheran"
+        | "pentecostal"
+        | "anglican"
+        | "non_denominational"
+        | "other"
+        | "unspecified"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +551,23 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      group_role: ["owner", "member"],
+      prayer_status: ["open", "answered", "archived"],
+      tradition: [
+        "catholic",
+        "orthodox",
+        "reformed",
+        "baptist",
+        "methodist",
+        "lutheran",
+        "pentecostal",
+        "anglican",
+        "non_denominational",
+        "other",
+        "unspecified",
+      ],
+    },
   },
 } as const
