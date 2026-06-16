@@ -17,6 +17,7 @@ import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
+import { Route as AuthenticatedCompanionRouteImport } from './routes/_authenticated/companion'
 import { Route as AuthenticatedBibleRouteImport } from './routes/_authenticated/bible'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
 import { Route as ApiPublicWidgetVerseOfTheDayRouteImport } from './routes/api/public/widget/verse-of-the-day'
@@ -62,6 +63,11 @@ const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   path: '/groups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCompanionRoute = AuthenticatedCompanionRouteImport.update({
+  id: '/companion',
+  path: '/companion',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBibleRoute = AuthenticatedBibleRouteImport.update({
   id: '/bible',
   path: '/bible',
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bible': typeof AuthenticatedBibleRoute
+  '/companion': typeof AuthenticatedCompanionRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/bible': typeof AuthenticatedBibleRoute
+  '/companion': typeof AuthenticatedCompanionRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/bible': typeof AuthenticatedBibleRoute
+  '/_authenticated/companion': typeof AuthenticatedCompanionRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/bible'
+    | '/companion'
     | '/groups'
     | '/home'
     | '/onboarding'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/bible'
+    | '/companion'
     | '/groups'
     | '/home'
     | '/onboarding'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/bible'
+    | '/_authenticated/companion'
     | '/_authenticated/groups'
     | '/_authenticated/home'
     | '/_authenticated/onboarding'
@@ -248,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGroupsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/companion': {
+      id: '/_authenticated/companion'
+      path: '/companion'
+      fullPath: '/companion'
+      preLoaderRoute: typeof AuthenticatedCompanionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/bible': {
       id: '/_authenticated/bible'
       path: '/bible'
@@ -314,6 +333,7 @@ const AuthenticatedGroupsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBibleRoute: typeof AuthenticatedBibleRoute
+  AuthenticatedCompanionRoute: typeof AuthenticatedCompanionRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -323,6 +343,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBibleRoute: AuthenticatedBibleRoute,
+  AuthenticatedCompanionRoute: AuthenticatedCompanionRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
