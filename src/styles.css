@@ -1,4 +1,4 @@
-@import "tailwindcss" source(none);
+@import "tailwindcss";
 @source "../src";
 @import "tw-animate-css";
 
@@ -79,7 +79,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Sanctuary Modern palette (custom, addressable via bg-*/text-*/border-*) */
+  /* Sanctuary Modern palette (custom, addressable via bg-, text-, border- prefixes) */
   --color-scripture-cream: var(--scripture-cream);
   --color-navy-deep: var(--navy-deep);
   --color-on-primary: var(--on-primary);
@@ -219,19 +219,11 @@
   direction: ltr;
   -webkit-font-feature-settings: "liga";
   -webkit-font-smoothing: antialiased;
-  font-variation-settings:
-    "FILL" 0,
-    "wght" 400,
-    "GRAD" 0,
-    "opsz" 24;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
 .material-symbols-outlined.is-filled {
-  font-variation-settings:
-    "FILL" 1,
-    "wght" 400,
-    "GRAD" 0,
-    "opsz" 24;
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
 }
 
 /* A gentle, reverent entrance for hero content. */

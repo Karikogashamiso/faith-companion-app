@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, SectionHeading } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
@@ -41,11 +41,10 @@ function computeStreak(dates: string[]): { current: number; longest: number } {
     }
     if (len > longest) longest = len;
   }
-  // current streak: count back from today (or yesterday — grace)
   let cur = 0;
   const cursor = new Date(todayLocalISO());
   if (!set.has(cursor.toISOString().slice(0, 10))) {
-    cursor.setDate(cursor.getDate() - 1); // grace: yesterday counts as "still on streak"
+    cursor.setDate(cursor.getDate() - 1);
   }
   while (set.has(cursor.toISOString().slice(0, 10))) {
     cur++;
@@ -94,7 +93,6 @@ function Home() {
       if (vot && Array.isArray(vot) && vot[0]) setVerse(vot[0] as Verse);
     }
 
-    // Pick the user's most recent in-progress plan (if any)
     const { data: progress } = await supabase
       .from("user_plan_progress")
       .select("plan_id, day_completed")
@@ -217,6 +215,32 @@ function Home() {
           </p>
         </section>
 
+        {/* Study Companion card */}
+        <section>
+          <Link
+            to="/study"
+            className="group block overflow-hidden rounded-xl border border-divider-soft bg-white transition-colors hover:border-wood-warm"
+          >
+            <div className="flex items-center gap-4 p-5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-crisis-blue text-primary">
+                <Icon name="auto_awesome" filled />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                  Ask the Companion
+                </p>
+                <p className="mt-0.5 text-sm text-on-surface-variant">
+                  Ask a question — every answer cites real verses we retrieved.
+                </p>
+              </div>
+              <Icon
+                name="arrow_forward"
+                className="text-xl text-outline transition-transform group-hover:translate-x-1"
+              />
+            </div>
+          </Link>
+        </section>
+
         {/* Today's journey (reading plan) */}
         <section className="space-y-stack-md">
           <SectionHeading
@@ -233,19 +257,51 @@ function Home() {
 
           {planDay ? (
             <div className="grid grid-cols-1 gap-gutter md:grid-cols-2">
-              <JourneyCard
-                icon="menu_book"
-                eyebrow="The Passage"
-                title={planDay.passage_ref}
-                body={planTitle ?? "Today's reading"}
-              />
+              <Link
+                to="/bible"
+                search={{ book: planDay.passage_ref.split(" ")[0], chapter: 1 }}
+                className="group cursor-default space-y-4 rounded-xl border border-divider-soft bg-white p-6 transition-colors hover:border-wood-warm"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
+                    <Icon name="menu_book" />
+                  </div>
+                  <Icon
+                    name="arrow_forward"
+                    className="text-outline transition-colors group-hover:text-wood-warm"
+                  />
+                </div>
+                <div>
+                  <p className="mb-1 text-sm font-semibold uppercase tracking-wide text-on-surface-variant">
+                    The Passage
+                  </p>
+                  <h4 className="font-serif text-xl text-primary">
+                    {planDay.passage_ref}
+                  </h4>
+                  <p className="mt-2 line-clamp-2 whitespace-pre-wrap text-on-surface-variant">
+                    {planTitle ?? "Today's reading"}
+                  </p>
+                </div>
+              </Link>
               {planDay.reflection_md && (
-                <JourneyCard
-                  icon="psychology"
-                  eyebrow="Reflection"
-                  title="Sit & reflect"
-                  body={planDay.reflection_md}
-                />
+                <div className="group cursor-default space-y-4 rounded-xl border border-divider-soft bg-white p-6 transition-colors hover:border-wood-warm">
+                  <div className="flex items-start justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
+                      <Icon name="psychology" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-1 text-sm font-semibold uppercase tracking-wide text-on-surface-variant">
+                      Reflection
+                    </p>
+                    <h4 className="font-serif text-xl text-primary">
+                      Sit & reflect
+                    </h4>
+                    <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-on-surface-variant">
+                      {planDay.reflection_md}
+                    </p>
+                  </div>
+                </div>
               )}
               {planDay.prayer_md && (
                 <div className="group flex cursor-default flex-col items-start gap-4 rounded-xl border border-divider-soft bg-crisis-blue p-6 transition-colors md:col-span-2">
@@ -317,39 +373,4 @@ function greetingForNow() {
   if (h < 12) return "Good Morning";
   if (h < 18) return "Good Afternoon";
   return "Good Evening";
-}
-
-function JourneyCard({
-  icon,
-  eyebrow,
-  title,
-  body,
-}: {
-  icon: string;
-  eyebrow: string;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div className="group cursor-default space-y-4 rounded-xl border border-divider-soft bg-white p-6 transition-colors hover:border-wood-warm">
-      <div className="flex items-start justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
-          <Icon name={icon} />
-        </div>
-        <Icon
-          name="arrow_forward"
-          className="text-outline transition-colors group-hover:text-wood-warm"
-        />
-      </div>
-      <div>
-        <p className="mb-1 text-sm font-semibold uppercase tracking-wide text-on-surface-variant">
-          {eyebrow}
-        </p>
-        <h4 className="font-serif text-xl text-primary">{title}</h4>
-        <p className="mt-2 line-clamp-2 whitespace-pre-wrap text-on-surface-variant">
-          {body}
-        </p>
-      </div>
-    </div>
-  );
 }

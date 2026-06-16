@@ -346,13 +346,21 @@ function SocialProof() {
   return (
     <section className="mx-auto max-w-6xl px-margin-mobile py-12 text-center">
       <p className="text-xs font-bold uppercase tracking-widest text-wood-warm">
-        Used by people who care about getting it right
+        Built for people who care about getting it right
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-6 text-sm text-on-surface-variant">
-        {/* Real ratings & logos appear here once they exist. */}
-        <span className="italic">Star rating — coming soon</span>
-        <span className="italic">Install count — coming soon</span>
-        <span className="italic">Partner churches — coming soon</span>
+        <span className="flex items-center gap-1.5">
+          <Icon name="verified" filled className="text-base text-wood-warm" />
+          Citation-locked AI
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Icon name="public" filled className="text-base text-wood-warm" />
+          Public-domain text
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Icon name="lock" filled className="text-base text-wood-warm" />
+          No data sold, ever
+        </span>
       </div>
     </section>
   );

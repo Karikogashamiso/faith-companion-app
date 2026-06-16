@@ -193,10 +193,9 @@ function PlanCard({
   return (
     <button
       onClick={() => {
-        // In the native app, this calls Purchases.purchasePackage(...)
-        // and the RevenueCat webhook updates the entitlement.
         alert(
-          `${id} → call RevenueCat Purchases.purchasePackage in the native client.`,
+          "Subscriptions are handled in the native app via RevenueCat. " +
+            "Download the Discipleship Companion from the App Store or Google Play to subscribe.",
         );
       }}
       className={`flex flex-col items-start gap-1 rounded-xl border bg-white p-5 text-left transition-all hover:border-wood-warm ${

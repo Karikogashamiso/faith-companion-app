@@ -20,6 +20,8 @@ function Bible() {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [highlights, setHighlights] = useState<Set<number>>(new Set());
   const [selected, setSelected] = useState<Verse | null>(null);
+  const [books, setBooks] = useState<string[]>([]);
+  const [maxChapter, setMaxChapter] = useState(1);
 
   useEffect(() => {
     void (async () => {
@@ -43,7 +45,6 @@ function Bible() {
   }, []);
 
   // Load books for selected version
-  const [books, setBooks] = useState<string[]>([]);
   useEffect(() => {
     if (!versionId) return;
     void (async () => {
@@ -58,7 +59,7 @@ function Bible() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [versionId]);
 
-  // Load chapter verses
+  // Load chapter verses and compute max chapter for this book
   useEffect(() => {
     if (!versionId || !book) return;
     void (async () => {
@@ -79,13 +80,23 @@ function Bible() {
           .in("verse_id", data.map((v: any) => v.id));
         setHighlights(new Set((h ?? []).map((x: any) => x.verse_id)));
       }
+
+      // Compute actual max chapter for this book+version
+      const { data: maxRow } = await supabase
+        .from("verses")
+        .select("chapter")
+        .eq("version_id", versionId)
+        .eq("book", book)
+        .order("chapter", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      setMaxChapter((maxRow?.chapter as number) ?? 1);
     })();
   }, [versionId, book, chapter]);
 
   const chapters = useMemo(() => {
-    // best-effort: 1..max found in DB; for small seed just 1..10
-    return Array.from({ length: 50 }, (_, i) => i + 1);
-  }, []);
+    return Array.from({ length: maxChapter }, (_, i) => i + 1);
+  }, [maxChapter]);
 
   async function toggleHighlight(v: Verse) {
     const { data: u } = await supabase.auth.getUser();
@@ -107,15 +118,25 @@ function Bible() {
     }
   }
 
+  function prevChapter() {
+    if (chapter > 1) setChapter(chapter - 1);
+  }
+  function nextChapter() {
+    if (chapter < maxChapter) setChapter(chapter + 1);
+  }
+
   return (
     <AppShell title="Bible">
       <div className="space-y-stack-md">
-        {/* Reference & translation selectors, styled as soft chips */}
+        {/* Reference & translation selectors */}
         <div className="flex flex-wrap items-center gap-2">
           <SelectChip
             icon="bookmark"
             value={book}
-            onChange={setBook}
+            onChange={(v) => {
+              setBook(v);
+              setChapter(1);
+            }}
             options={books.map((b) => ({ value: b, label: b }))}
           />
           <SelectChip
@@ -137,13 +158,31 @@ function Bible() {
           />
         </div>
 
-        <header className="border-b border-divider-soft pb-stack-sm">
+        <header className="flex items-center justify-between border-b border-divider-soft pb-stack-sm">
           <h1 className="font-serif text-3xl text-primary">
             {book} {chapter}
           </h1>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={prevChapter}
+              disabled={chapter <= 1}
+              aria-label="Previous chapter"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-white text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
+            >
+              <Icon name="arrow_back" className="text-base" />
+            </button>
+            <button
+              onClick={nextChapter}
+              disabled={chapter >= maxChapter}
+              aria-label="Next chapter"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-white text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
+            >
+              <Icon name="arrow_forward" className="text-base" />
+            </button>
+          </div>
         </header>
 
-        {/* Scripture body — serif, generous line-height for meditative reading */}
+        {/* Scripture body */}
         <article className="space-y-1 font-serif text-[19px] leading-9 text-on-surface">
           {verses.length === 0 ? (
             <p className="font-sans text-on-surface-variant">
