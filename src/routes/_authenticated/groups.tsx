@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AppShell, SectionHeading } from "@/components/app/app-shell";
+import { Icon } from "@/components/app/icon";
 
 export const Route = createFileRoute("/_authenticated/groups")({
   head: () => ({ meta: [{ title: "Groups · Discipleship Companion" }] }),
@@ -86,84 +88,109 @@ function GroupsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 p-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Groups</h1>
-        <Link to="/settings" className="text-sm text-muted-foreground hover:text-foreground">
-          Settings
-        </Link>
-      </header>
-
-      <p className="text-sm text-muted-foreground">
-        A small group, family, or church circle. Everything posted here is only
-        visible to members.
-      </p>
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          Your groups
-        </h2>
-        {groups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            You're not in any groups yet.
+    <AppShell title="Groups">
+      <div className="space-y-stack-lg">
+        <header className="space-y-2">
+          <h1 className="font-serif text-3xl text-primary">Groups</h1>
+          <p className="text-on-surface-variant">
+            A small group, family, or church circle. Everything posted here is
+            only visible to members.
           </p>
-        ) : (
-          <ul className="divide-y rounded-md border">
-            {groups.map((g) => (
-              <li key={g.id}>
-                <Link
-                  to="/groups/$groupId"
-                  params={{ groupId: g.id }}
-                  className="flex items-center justify-between p-4 hover:bg-muted/50"
-                >
-                  <span className="font-medium">{g.name}</span>
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {g.join_code}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+        </header>
+
+        <section className="space-y-3">
+          <SectionHeading>Your groups</SectionHeading>
+          {groups.length === 0 ? (
+            <div className="rounded-xl border border-divider-soft bg-white p-6 text-center">
+              <Icon
+                name="groups"
+                className="text-4xl text-on-surface-variant opacity-40"
+              />
+              <p className="mt-2 text-on-surface-variant">
+                You're not in any groups yet.
+              </p>
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {groups.map((g) => (
+                <li key={g.id}>
+                  <Link
+                    to="/groups/$groupId"
+                    params={{ groupId: g.id }}
+                    className="flex items-center justify-between rounded-xl border border-divider-soft bg-white p-4 transition-colors hover:border-wood-warm"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
+                        <Icon name="diversity_3" />
+                      </span>
+                      <span className="font-semibold text-primary">
+                        {g.name}
+                      </span>
+                    </span>
+                    <span className="rounded-lg bg-crisis-blue px-2 py-1 font-mono text-xs font-bold text-primary">
+                      {g.join_code}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="grid gap-gutter sm:grid-cols-2">
+          <form
+            onSubmit={joinGroup}
+            className="space-y-3 rounded-xl border border-divider-soft bg-white p-5"
+          >
+            <h2 className="flex items-center gap-2 font-serif text-xl text-primary">
+              <Icon name="login" className="text-base text-wood-warm" />
+              Join with a code
+            </h2>
+            <input
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="ABC123"
+              maxLength={12}
+              className="w-full rounded-lg border border-divider-soft bg-scripture-cream px-3 py-2.5 font-mono uppercase focus:border-primary focus:outline-none"
+            />
+            <button
+              disabled={busy}
+              className="h-11 w-full rounded-lg bg-primary px-4 text-sm font-semibold text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-50"
+            >
+              Join group
+            </button>
+          </form>
+
+          <form
+            onSubmit={createGroup}
+            className="space-y-3 rounded-xl border border-divider-soft bg-white p-5"
+          >
+            <h2 className="flex items-center gap-2 font-serif text-xl text-primary">
+              <Icon name="add_circle" className="text-base text-wood-warm" />
+              Create a group
+            </h2>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Group name"
+              maxLength={80}
+              className="w-full rounded-lg border border-divider-soft bg-scripture-cream px-3 py-2.5 focus:border-primary focus:outline-none"
+            />
+            <button
+              disabled={busy}
+              className="h-11 w-full rounded-lg border border-divider-soft bg-white px-4 text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
+            >
+              Create
+            </button>
+          </form>
+        </section>
+
+        {error && (
+          <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </p>
         )}
-      </section>
-
-      <section className="grid gap-6 sm:grid-cols-2">
-        <form onSubmit={joinGroup} className="space-y-2 rounded-md border p-4">
-          <h2 className="font-medium">Join with a code</h2>
-          <input
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            placeholder="ABC123"
-            maxLength={12}
-            className="w-full rounded border bg-background px-3 py-2 font-mono uppercase"
-          />
-          <button
-            disabled={busy}
-            className="h-10 w-full rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
-          >
-            Join group
-          </button>
-        </form>
-
-        <form onSubmit={createGroup} className="space-y-2 rounded-md border p-4">
-          <h2 className="font-medium">Create a group</h2>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Group name"
-            maxLength={80}
-            className="w-full rounded border bg-background px-3 py-2"
-          />
-          <button
-            disabled={busy}
-            className="h-10 w-full rounded-md border px-4 text-sm font-medium hover:bg-muted disabled:opacity-50"
-          >
-            Create
-          </button>
-        </form>
-      </section>
-
-      {error && <p className="text-sm text-destructive">{error}</p>}
-    </div>
+      </div>
+    </AppShell>
   );
 }

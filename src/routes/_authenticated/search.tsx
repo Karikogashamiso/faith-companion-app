@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AppShell } from "@/components/app/app-shell";
+import { Icon } from "@/components/app/icon";
 
 export const Route = createFileRoute("/_authenticated/search")({
   head: () => ({ meta: [{ title: "Search · Discipleship Companion" }] }),
@@ -39,42 +41,52 @@ function SearchPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 p-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Search</h1>
-        <Link to="/home" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Today
-        </Link>
-      </header>
+    <AppShell title="Search">
+      <div className="space-y-stack-md">
+        <h1 className="font-serif text-3xl text-primary">Search Scripture</h1>
 
-      <form onSubmit={submit} className="flex gap-2">
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="anxiety, love, beginning…"
-          className="flex-1 rounded border bg-background px-3 py-2 text-sm"
-        />
-        <button
-          disabled={busy}
-          className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
-          Search
-        </button>
-      </form>
+        <form onSubmit={submit} className="flex gap-2">
+          <div className="relative flex-1">
+            <Icon
+              name="search"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-outline"
+            />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="anxiety, love, beginning…"
+              className="h-12 w-full rounded-lg border border-divider-soft bg-white pl-10 pr-3 text-sm focus:border-primary focus:outline-none"
+            />
+          </div>
+          <button
+            disabled={busy}
+            className="h-12 rounded-lg bg-primary px-6 text-sm font-semibold text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-50"
+          >
+            Search
+          </button>
+        </form>
 
-      <ul className="space-y-2">
-        {hits.map((h) => (
-          <li key={h.id} className="rounded-md border p-3">
-            <p className="text-xs text-muted-foreground">
-              {h.book} {h.chapter}:{h.verse}
-            </p>
-            <p className="mt-1 text-sm leading-relaxed">{h.text}</p>
-          </li>
-        ))}
-        {!busy && q && hits.length === 0 && (
-          <li className="text-sm text-muted-foreground">No matches.</li>
-        )}
-      </ul>
-    </div>
+        <ul className="space-y-2">
+          {hits.map((h) => (
+            <li
+              key={h.id}
+              className="rounded-xl border border-divider-soft bg-white p-4"
+            >
+              <span className="inline-flex items-center gap-1 rounded-lg bg-crisis-blue px-2 py-0.5 text-xs font-bold text-primary">
+                {h.book} {h.chapter}:{h.verse}
+              </span>
+              <p className="mt-2 font-serif text-[17px] leading-relaxed text-on-surface">
+                {h.text}
+              </p>
+            </li>
+          ))}
+          {!busy && q && hits.length === 0 && (
+            <li className="rounded-xl border border-divider-soft bg-white p-6 text-center text-sm text-on-surface-variant">
+              No matches.
+            </li>
+          )}
+        </ul>
+      </div>
+    </AppShell>
   );
 }

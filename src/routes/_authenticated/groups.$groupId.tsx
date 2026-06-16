@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AppShell } from "@/components/app/app-shell";
+import { Icon } from "@/components/app/icon";
 
 export const Route = createFileRoute("/_authenticated/groups/$groupId")({
   head: () => ({ meta: [{ title: "Group · Discipleship Companion" }] }),
@@ -128,8 +130,20 @@ function GroupHome() {
     if (!error) setMyPrayed(new Set([...myPrayed, reqId]));
   }
 
-  if (error) return <p className="p-6 text-sm text-destructive">{error}</p>;
-  if (!group) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
+  if (error)
+    return (
+      <AppShell title="Group">
+        <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </p>
+      </AppShell>
+    );
+  if (!group)
+    return (
+      <AppShell title="Group">
+        <p className="text-sm text-on-surface-variant">Loading…</p>
+      </AppShell>
+    );
 
   const isOwner = me === group.owner_id;
   const threeDaysAgo = Date.now() - 3 * 24 * 3600 * 1000;
@@ -141,129 +155,168 @@ function GroupHome() {
   );
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 p-6">
-      <header className="space-y-2">
-        <Link to="/groups" className="text-sm text-muted-foreground hover:text-foreground">
-          ← All groups
-        </Link>
-        <h1 className="text-2xl font-semibold">{group.name}</h1>
-        <p className="text-sm text-muted-foreground">
-          {members.length} {members.length === 1 ? "member" : "members"} ·
-          {" "}share this code to invite:{" "}
-          <span className="font-mono">{group.join_code}</span>
-        </p>
-      </header>
-
-      {followups.length > 0 && (
-        <section className="space-y-2 rounded-md border border-primary/30 bg-primary/5 p-4">
-          <h2 className="text-sm font-medium">Want to check in?</h2>
-          <p className="text-xs text-muted-foreground">
-            You prayed for these earlier — see how things are going.
-          </p>
-          <ul className="space-y-1 text-sm">
-            {followups.map((r) => (
-              <li key={r.id} className="line-clamp-1">
-                · {r.body}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          Prayer requests
-        </h2>
-        <form onSubmit={postRequest} className="space-y-2">
-          <textarea
-            value={newRequest}
-            onChange={(e) => setNewRequest(e.target.value)}
-            placeholder="Share what's on your heart…"
-            rows={3}
-            maxLength={1000}
-            className="w-full rounded border bg-background px-3 py-2 text-sm"
-          />
-          <button
-            disabled={busy || !newRequest.trim()}
-            className="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
+    <AppShell title={group.name}>
+      <div className="space-y-stack-lg">
+        <header className="space-y-2">
+          <Link
+            to="/groups"
+            className="inline-flex items-center gap-1 text-sm text-on-surface-variant hover:text-primary"
           >
-            Post request
-          </button>
-        </form>
-
-        {requests.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No requests yet. Be the first to share.
+            <Icon name="arrow_back" className="text-base" />
+            All groups
+          </Link>
+          <h1 className="font-serif text-3xl text-primary">{group.name}</h1>
+          <p className="flex flex-wrap items-center gap-1 text-sm text-on-surface-variant">
+            <Icon name="group" className="text-base text-wood-warm" />
+            {members.length} {members.length === 1 ? "member" : "members"} · share
+            this code to invite:{" "}
+            <span className="rounded-lg bg-crisis-blue px-2 py-0.5 font-mono text-xs font-bold text-primary">
+              {group.join_code}
+            </span>
           </p>
-        ) : (
-          <ul className="space-y-3">
-            {requests.map((r) => {
-              const author = profiles[r.author_id];
-              return (
-                <li key={r.id} className="rounded-md border p-4">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>
-                      {author?.display_name ?? "Member"} · {timeAgo(r.created_at)}
-                    </span>
-                    {r.status === "answered" && (
-                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
-                        Answered
+        </header>
+
+        {followups.length > 0 && (
+          <section className="space-y-2 rounded-xl border border-divider-soft bg-crisis-blue p-5">
+            <h2 className="flex items-center gap-2 font-serif text-lg text-primary">
+              <Icon name="favorite" filled className="text-base text-wood-warm" />
+              Want to check in?
+            </h2>
+            <p className="text-xs text-on-surface-variant">
+              You prayed for these earlier — see how things are going.
+            </p>
+            <ul className="space-y-1 text-sm text-on-surface">
+              {followups.map((r) => (
+                <li key={r.id} className="line-clamp-1">
+                  · {r.body}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section className="space-y-3">
+          <h2 className="font-serif text-2xl text-primary">Prayer requests</h2>
+          <form
+            onSubmit={postRequest}
+            className="space-y-2 rounded-xl border border-divider-soft bg-white p-4"
+          >
+            <textarea
+              value={newRequest}
+              onChange={(e) => setNewRequest(e.target.value)}
+              placeholder="Share what's on your heart…"
+              rows={3}
+              maxLength={1000}
+              className="w-full resize-none rounded-lg border border-divider-soft bg-scripture-cream px-3 py-2 text-sm focus:border-primary focus:outline-none"
+            />
+            <button
+              disabled={busy || !newRequest.trim()}
+              className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-50"
+            >
+              <Icon name="send" className="text-base" />
+              Post request
+            </button>
+          </form>
+
+          {requests.length === 0 ? (
+            <p className="rounded-xl border border-divider-soft bg-white p-6 text-center text-sm text-on-surface-variant">
+              No requests yet. Be the first to share.
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {requests.map((r) => {
+                const author = profiles[r.author_id];
+                return (
+                  <li
+                    key={r.id}
+                    className="rounded-xl border border-divider-soft bg-white p-5"
+                  >
+                    <div className="flex items-center justify-between text-xs text-on-surface-variant">
+                      <span className="flex items-center gap-2">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary-container text-xs font-bold text-on-secondary-container">
+                          {(author?.display_name ?? "M").charAt(0).toUpperCase()}
+                        </span>
+                        {author?.display_name ?? "Member"} · {timeAgo(r.created_at)}
                       </span>
-                    )}
-                  </div>
-                  <p className="mt-2 whitespace-pre-wrap text-sm">{r.body}</p>
-                  {r.testimony && (
-                    <p className="mt-2 rounded bg-emerald-50 p-2 text-sm italic text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200">
-                      “{r.testimony}”
+                      {r.status === "answered" && (
+                        <span className="flex items-center gap-1 rounded-full bg-secondary-container px-2 py-0.5 font-semibold text-on-secondary-container">
+                          <Icon name="check" className="text-sm" />
+                          Answered
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-3 whitespace-pre-wrap text-on-surface">
+                      {r.body}
                     </p>
-                  )}
-                  <div className="mt-3 flex items-center gap-3">
-                    <button
-                      onClick={() => prayFor(r.id)}
-                      disabled={myPrayed.has(r.id)}
-                      className="text-sm text-primary hover:underline disabled:text-muted-foreground disabled:no-underline"
-                    >
-                      {myPrayed.has(r.id) ? "✓ You prayed" : "I prayed for this"}
-                    </button>
-                    <Link
-                      to="/groups/$groupId/requests/$requestId"
-                      params={{ groupId, requestId: r.id }}
-                      className="text-sm text-muted-foreground hover:text-foreground"
-                    >
-                      Open →
-                    </Link>
-                  </div>
+                    {r.testimony && (
+                      <p className="mt-3 rounded-lg bg-crisis-blue p-3 font-serif text-sm italic text-primary">
+                        “{r.testimony}”
+                      </p>
+                    )}
+                    <div className="mt-4 flex items-center gap-4 border-t border-divider-soft pt-3">
+                      <button
+                        onClick={() => prayFor(r.id)}
+                        disabled={myPrayed.has(r.id)}
+                        className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-wood-warm disabled:text-on-surface-variant"
+                      >
+                        <Icon
+                          name="front_hand"
+                          filled={myPrayed.has(r.id)}
+                          className="text-base"
+                        />
+                        {myPrayed.has(r.id) ? "You prayed" : "I prayed for this"}
+                      </button>
+                      <Link
+                        to="/groups/$groupId/requests/$requestId"
+                        params={{ groupId, requestId: r.id }}
+                        className="ml-auto flex items-center gap-1 text-sm text-on-surface-variant hover:text-primary"
+                      >
+                        Open
+                        <Icon name="arrow_forward" className="text-base" />
+                      </Link>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+
+        <section className="space-y-2">
+          <h2 className="font-serif text-2xl text-primary">Members</h2>
+          <ul className="overflow-hidden rounded-xl border border-divider-soft bg-white text-sm">
+            {members.map((m, i) => {
+              const p = profiles[m.user_id];
+              return (
+                <li
+                  key={m.user_id}
+                  className={`flex items-center justify-between p-4 ${
+                    i > 0 ? "border-t border-divider-soft" : ""
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container text-xs font-bold text-primary">
+                      {(p?.display_name ?? "M").charAt(0).toUpperCase()}
+                    </span>
+                    <span className="font-medium text-on-surface">
+                      {p?.display_name ?? "Member"}
+                    </span>
+                  </span>
+                  <span className="text-xs text-on-surface-variant">
+                    {m.role}
+                    {p?.share_progress ? " · sharing progress" : ""}
+                  </span>
                 </li>
               );
             })}
           </ul>
-        )}
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          Members
-        </h2>
-        <ul className="divide-y rounded-md border text-sm">
-          {members.map((m) => {
-            const p = profiles[m.user_id];
-            return (
-              <li key={m.user_id} className="flex items-center justify-between p-3">
-                <span>{p?.display_name ?? "Member"}</span>
-                <span className="text-xs text-muted-foreground">
-                  {m.role}
-                  {p?.share_progress ? " · sharing progress" : ""}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-        {isOwner && (
-          <p className="pt-2 text-xs text-muted-foreground">
-            You're the owner. Invite by sharing the join code above.
-          </p>
-        )}
-      </section>
-    </div>
+          {isOwner && (
+            <p className="pt-2 text-xs text-on-surface-variant">
+              You're the owner. Invite by sharing the join code above.
+            </p>
+          )}
+        </section>
+      </div>
+    </AppShell>
   );
 }

@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { AppShell } from "@/components/app/app-shell";
+import { Icon } from "@/components/app/icon";
 
 export const Route = createFileRoute("/_authenticated/bible")({
   head: () => ({ meta: [{ title: "Bible · Discipleship Companion" }] }),
@@ -106,92 +108,90 @@ function Bible() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4 p-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Bible</h1>
-        <Link to="/home" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Today
-        </Link>
-      </header>
+    <AppShell title="Bible">
+      <div className="space-y-stack-md">
+        {/* Reference & translation selectors, styled as soft chips */}
+        <div className="flex flex-wrap items-center gap-2">
+          <SelectChip
+            icon="bookmark"
+            value={book}
+            onChange={setBook}
+            options={books.map((b) => ({ value: b, label: b }))}
+          />
+          <SelectChip
+            value={String(chapter)}
+            onChange={(v) => setChapter(Number(v))}
+            options={chapters.map((c) => ({
+              value: String(c),
+              label: `Chapter ${c}`,
+            }))}
+          />
+          <SelectChip
+            icon="translate"
+            value={versionId ?? ""}
+            onChange={setVersionId}
+            options={versions.map((v) => ({
+              value: v.id,
+              label: v.abbreviation,
+            }))}
+          />
+        </div>
 
-      <div className="flex flex-wrap gap-2">
-        <select
-          value={versionId ?? ""}
-          onChange={(e) => setVersionId(e.target.value)}
-          className="rounded border bg-background px-3 py-2 text-sm"
-        >
-          {versions.map((v) => (
-            <option key={v.id} value={v.id}>
-              {v.abbreviation} — {v.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={book}
-          onChange={(e) => setBook(e.target.value)}
-          className="rounded border bg-background px-3 py-2 text-sm"
-        >
-          {books.map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
-        <select
-          value={chapter}
-          onChange={(e) => setChapter(Number(e.target.value))}
-          className="rounded border bg-background px-3 py-2 text-sm"
-        >
-          {chapters.map((c) => (
-            <option key={c} value={c}>
-              Chapter {c}
-            </option>
-          ))}
-        </select>
-      </div>
+        <header className="border-b border-divider-soft pb-stack-sm">
+          <h1 className="font-serif text-3xl text-primary">
+            {book} {chapter}
+          </h1>
+        </header>
 
-      <article className="space-y-2 leading-relaxed">
-        {verses.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No verses for this chapter in the current translation.
-          </p>
-        ) : (
-          verses.map((v) => (
-            <p
-              key={v.id}
-              onClick={() => setSelected(v)}
-              className={`cursor-pointer rounded px-2 py-1 -mx-2 hover:bg-muted ${
-                highlights.has(v.id) ? "bg-yellow-100 dark:bg-yellow-900/30" : ""
-              }`}
-            >
-              <sup className="mr-1 text-xs text-muted-foreground">{v.verse}</sup>
-              {v.text}
+        {/* Scripture body — serif, generous line-height for meditative reading */}
+        <article className="space-y-1 font-serif text-[19px] leading-9 text-on-surface">
+          {verses.length === 0 ? (
+            <p className="font-sans text-on-surface-variant">
+              No verses for this chapter in the current translation.
             </p>
-          ))
-        )}
-      </article>
+          ) : (
+            verses.map((v) => (
+              <p
+                key={v.id}
+                onClick={() => setSelected(v)}
+                className={`-mx-2 cursor-pointer rounded-lg px-2 py-1 transition-colors hover:bg-surface-container ${
+                  highlights.has(v.id) ? "bg-secondary-container/40" : ""
+                }`}
+              >
+                <sup className="mr-1.5 align-super font-sans text-xs font-bold text-wood-warm">
+                  {v.verse}
+                </sup>
+                {v.text}
+              </p>
+            ))
+          )}
+        </article>
+      </div>
 
       {selected && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-primary/40 backdrop-blur-sm sm:items-center"
           onClick={() => setSelected(null)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md space-y-3 rounded-t-xl bg-background p-5 sm:rounded-xl"
+            className="w-full max-w-md space-y-4 rounded-t-xl border border-divider-soft bg-scripture-cream p-6 shadow-[0_4px_20px_rgba(4,22,46,0.08)] sm:rounded-xl"
           >
-            <p className="text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1 rounded-lg bg-crisis-blue px-2.5 py-1 text-xs font-bold text-primary">
               {selected.book} {selected.chapter}:{selected.verse}
+            </span>
+            <p className="font-serif text-lg leading-relaxed text-on-surface">
+              {selected.text}
             </p>
-            <p className="text-base leading-relaxed">{selected.text}</p>
-            <div className="flex flex-wrap gap-2 pt-2">
+            <div className="flex flex-wrap items-center gap-2 pt-1">
               <button
                 onClick={() => {
                   void toggleHighlight(selected);
                   setSelected(null);
                 }}
-                className="h-9 rounded-md border px-3 text-sm hover:bg-muted"
+                className="flex h-10 items-center gap-1.5 rounded-lg border border-divider-soft bg-white px-3 text-sm font-medium text-primary hover:border-wood-warm"
               >
+                <Icon name="ink_highlighter" className="text-base" />
                 {highlights.has(selected.id) ? "Remove highlight" : "Highlight"}
               </button>
               <button
@@ -200,13 +200,14 @@ function Bible() {
                     `${selected.text} — ${selected.book} ${selected.chapter}:${selected.verse}`,
                   );
                 }}
-                className="h-9 rounded-md border px-3 text-sm hover:bg-muted"
+                className="flex h-10 items-center gap-1.5 rounded-lg border border-divider-soft bg-white px-3 text-sm font-medium text-primary hover:border-wood-warm"
               >
+                <Icon name="content_copy" className="text-base" />
                 Copy
               </button>
               <button
                 onClick={() => setSelected(null)}
-                className="ml-auto h-9 rounded-md px-3 text-sm text-muted-foreground hover:text-foreground"
+                className="ml-auto flex h-10 items-center rounded-lg px-3 text-sm text-on-surface-variant hover:text-primary"
               >
                 Close
               </button>
@@ -214,6 +215,39 @@ function Bible() {
           </div>
         </div>
       )}
+    </AppShell>
+  );
+}
+
+function SelectChip({
+  value,
+  onChange,
+  options,
+  icon,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  icon?: string;
+}) {
+  return (
+    <div className="relative inline-flex items-center gap-1.5 rounded-lg border border-divider-soft bg-white px-3 py-2 text-sm font-semibold text-primary">
+      {icon && <Icon name={icon} className="text-base text-wood-warm" />}
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="cursor-pointer appearance-none bg-transparent pr-4 font-semibold text-primary focus:outline-none"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <Icon
+        name="expand_more"
+        className="pointer-events-none absolute right-2 text-base text-outline"
+      />
     </div>
   );
 }

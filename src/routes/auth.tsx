@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { Icon } from "@/components/app/icon";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -77,16 +78,25 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-6">
+    <div className="flex min-h-screen items-center justify-center bg-scripture-cream px-margin-mobile">
+      <div className="w-full max-w-sm space-y-stack-md">
         <div className="text-center">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Home
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-sm text-on-surface-variant hover:text-primary"
+          >
+            <Icon name="arrow_back" className="text-base" />
+            Home
           </Link>
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight text-foreground">
+          <div className="mt-stack-md flex justify-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-on-primary">
+              <Icon name="menu_book" className="text-3xl" />
+            </div>
+          </div>
+          <h1 className="mt-stack-md font-serif text-3xl tracking-tight text-primary">
             {mode === "signin" ? "Welcome back" : "Create your account"}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-on-surface-variant">
             {mode === "signin"
               ? "Continue your reading rhythm."
               : "A quiet companion for daily Scripture."}
@@ -97,23 +107,25 @@ function AuthPage() {
           <button
             onClick={() => handleOAuth("google")}
             disabled={loading}
-            className="h-11 w-full rounded-md border border-input bg-background text-sm font-medium text-foreground transition-colors hover:bg-accent disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-white text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
           >
             Continue with Google
           </button>
           <button
             onClick={() => handleOAuth("apple")}
             disabled={loading}
-            className="h-11 w-full rounded-md border border-input bg-background text-sm font-medium text-foreground transition-colors hover:bg-accent disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-white text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
           >
             Continue with Apple
           </button>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground">or email</span>
-          <div className="h-px flex-1 bg-border" />
+          <div className="h-px flex-1 bg-divider-soft" />
+          <span className="text-xs uppercase tracking-wider text-on-surface-variant">
+            or email
+          </span>
+          <div className="h-px flex-1 bg-divider-soft" />
         </div>
 
         <form onSubmit={handleEmail} className="space-y-3">
@@ -123,7 +135,7 @@ function AuthPage() {
               placeholder="Display name (optional)"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-12 w-full rounded-lg border border-divider-soft bg-white px-4 text-sm focus:border-primary focus:outline-none"
             />
           )}
           <input
@@ -132,7 +144,7 @@ function AuthPage() {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+            className="h-12 w-full rounded-lg border border-divider-soft bg-white px-4 text-sm focus:border-primary focus:outline-none"
           />
           <input
             type="password"
@@ -141,7 +153,7 @@ function AuthPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+            className="h-12 w-full rounded-lg border border-divider-soft bg-white px-4 text-sm focus:border-primary focus:outline-none"
           />
           {error && (
             <p className="text-sm text-destructive" role="alert">
@@ -151,7 +163,7 @@ function AuthPage() {
           <button
             type="submit"
             disabled={loading}
-            className="h-11 w-full rounded-md bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+            className="h-12 w-full rounded-lg bg-primary text-sm font-semibold text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-50"
           >
             {loading
               ? "Working…"
@@ -161,12 +173,12 @@ function AuthPage() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-on-surface-variant">
           {mode === "signin" ? "New here? " : "Already have an account? "}
           <button
             type="button"
             onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="font-medium text-foreground underline-offset-4 hover:underline"
+            className="font-semibold text-primary underline-offset-4 hover:underline"
           >
             {mode === "signin" ? "Create an account" : "Sign in"}
           </button>
