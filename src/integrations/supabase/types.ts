@@ -71,6 +71,36 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          props: Json
+          user_id: string
+          variant_screen1: string | null
+          variant_screen10: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          props?: Json
+          user_id: string
+          variant_screen1?: string | null
+          variant_screen10?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          props?: Json
+          user_id?: string
+          variant_screen1?: string | null
+          variant_screen10?: string | null
+        }
+        Relationships: []
+      }
       bible_versions: {
         Row: {
           abbreviation: string
@@ -294,6 +324,8 @@ export type Database = {
           struggles: string[]
           updated_at: string
           user_id: string
+          variant_screen1: string | null
+          variant_screen10: string | null
         }
         Insert: {
           completed_at?: string | null
@@ -305,6 +337,8 @@ export type Database = {
           struggles?: string[]
           updated_at?: string
           user_id: string
+          variant_screen1?: string | null
+          variant_screen10?: string | null
         }
         Update: {
           completed_at?: string | null
@@ -316,6 +350,8 @@ export type Database = {
           struggles?: string[]
           updated_at?: string
           user_id?: string
+          variant_screen1?: string | null
+          variant_screen10?: string | null
         }
         Relationships: []
       }

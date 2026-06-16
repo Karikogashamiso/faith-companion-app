@@ -1,11 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { askStudy } from "@/lib/ai-study.functions";
+import { track, assignVariant } from "@/lib/analytics";
 import type { Database } from "@/integrations/supabase/types";
 
 type Tradition = Database["public"]["Enums"]["tradition"];
+type Variant = "A" | "B";
 
 // ---------------------------------------------------------------------------
 // Static option sets
@@ -92,6 +94,10 @@ function Onboarding() {
   const [aiEnabled, setAiEnabled] = useState(true);
   const [joinCode, setJoinCode] = useState("");
   const [saving, setSaving] = useState(false);
+  const [variantScreen1, setVariantScreen1] = useState<Variant>("A");
+  const [variantScreen10, setVariantScreen10] = useState<Variant>("A");
+  const screen1ViewedRef = useRef(false);
+  const paywallViewedRef = useRef(false);
 
   // Load any prior partial answers + the user's display name.
   useEffect(() => {
@@ -110,7 +116,9 @@ function Onboarding() {
 
       const { data: ans } = await supabase
         .from("onboarding_answers")
-        .select("goal, journey_stage, struggles, daily_minutes, reminder_time, join_code")
+        .select(
+          "goal, journey_stage, struggles, daily_minutes, reminder_time, join_code, variant_screen1, variant_screen10",
+        )
         .eq("user_id", user.id)
         .maybeSingle();
       if (ans?.goal) setGoal(ans.goal);
@@ -120,8 +128,42 @@ function Onboarding() {
       if (ans?.reminder_time)
         setReminderTime(String(ans.reminder_time).slice(0, 5));
       if (ans?.join_code) setJoinCode(ans.join_code);
+
+      // Assign A/B variants once and persist them so the same user always
+      // sees the same variant across sessions.
+      const v1 = (ans?.variant_screen1 as Variant | null) ?? assignVariant();
+      const v10 = (ans?.variant_screen10 as Variant | null) ?? assignVariant();
+      setVariantScreen1(v1);
+      setVariantScreen10(v10);
+      if (!ans?.variant_screen1 || !ans?.variant_screen10) {
+        await supabase.from("onboarding_answers").upsert(
+          {
+            user_id: user.id,
+            variant_screen1: v1,
+            variant_screen10: v10,
+          },
+          { onConflict: "user_id" },
+        );
+        void track(
+          "onboarding_started",
+          { variant_screen1: v1, variant_screen10: v10 },
+        );
+      }
     })();
   }, [user.id]);
+
+  // Fire screen-view events once per screen so trial-start (Screen 1) and
+  // trial-to-paid (Screen 10) funnels can be computed per variant.
+  useEffect(() => {
+    if (step === 1 && !screen1ViewedRef.current) {
+      screen1ViewedRef.current = true;
+      void track("screen1_viewed", { variant_screen1: variantScreen1 });
+    }
+    if (step === 10 && !paywallViewedRef.current) {
+      paywallViewedRef.current = true;
+      void track("paywall_viewed", { variant_screen10: variantScreen10 }, { goal });
+    }
+  }, [step, variantScreen1, variantScreen10, goal]);
 
   // Persist on every step transition (best-effort, fire-and-forget).
   async function persist() {
@@ -142,6 +184,8 @@ function Onboarding() {
         daily_minutes: dailyMinutes,
         reminder_time: reminderTime + ":00",
         join_code: joinCode || null,
+        variant_screen1: variantScreen1,
+        variant_screen10: variantScreen10,
       },
       { onConflict: "user_id" },
     );
@@ -161,6 +205,11 @@ function Onboarding() {
       .from("onboarding_answers")
       .update({ completed_at: new Date().toISOString() })
       .eq("user_id", user.id);
+    void track(
+      toCompanion ? "paywall_start_companion" : "paywall_continue_free",
+      { variant_screen1: variantScreen1, variant_screen10: variantScreen10 },
+      { goal, from_step: step },
+    );
     setSaving(false);
     navigate({ to: toCompanion ? "/companion" : "/home" });
   }
@@ -199,15 +248,14 @@ function Onboarding() {
 
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pb-10 pt-8">
         {step === 1 && (
-          <Pane
-            title="Understand the Bible, build a daily habit, and never feel alone in it."
-            subtitle="Answers grounded in real Scripture — it never makes things up."
-            primary={{ label: "Get started", onClick: next }}
-          >
-            <p className="pt-4 text-xs text-muted-foreground">
-              You can sign in with Apple or Google later — no rush.
-            </p>
-          </Pane>
+          <Screen1
+            variant={variantScreen1}
+            name={name}
+            onContinue={() => {
+              void track("screen1_cta_clicked", { variant_screen1: variantScreen1 });
+              void next();
+            }}
+          />
         )}
 
         {step === 2 && (
@@ -451,6 +499,8 @@ function Onboarding() {
 
         {step === 10 && (
           <PaywallScreen
+            variant={variantScreen10}
+            name={name}
             goal={goal}
             saving={saving}
             onStartCompanion={() => finish(true)}
@@ -576,18 +626,89 @@ function AhaScreen({
 // ---------------------------------------------------------------------------
 // SCREEN 10 — Paywall (Calm-style, honest)
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// SCREEN 1 — Welcome (A/B variants)
+//
+// Variant A is the existing copy ("copy bank"). Variant B is an alternate
+// outcome-led headline to test against it. Both share the same CTA so the
+// trial-start funnel is comparable per variant.
+// ---------------------------------------------------------------------------
+function Screen1({
+  variant,
+  name,
+  onContinue,
+}: {
+  variant: Variant;
+  name: string;
+  onContinue: () => void;
+}) {
+  const greeting = name ? `, ${name}` : "";
+  const copy =
+    variant === "A"
+      ? {
+          title: `Understand the Bible, build a daily habit, and never feel alone in it.`,
+          subtitle:
+            "Answers grounded in real Scripture — it never makes things up.",
+          cta: "Get started",
+        }
+      : {
+          title: `Welcome${greeting}. Five minutes a day. Real Scripture. No guesswork.`,
+          subtitle:
+            "A gentle daily rhythm with a study companion that only quotes verses it can show you.",
+          cta: "Start my 5-minute day",
+        };
+
+  return (
+    <Pane
+      title={copy.title}
+      subtitle={copy.subtitle}
+      primary={{ label: copy.cta, onClick: onContinue }}
+    >
+      <p className="pt-4 text-xs text-muted-foreground">
+        You can sign in with Apple or Google later — no rush.
+      </p>
+    </Pane>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SCREEN 10 — Paywall (A/B variants)
+//
+// Variant A: outcome-led, annual highlighted (existing copy bank).
+// Variant B: trust-led, identical pricing, different headline + ordering.
+// In BOTH variants the "Continue with the free version" link is always
+// visible and tappable. No countdown timers, no pre-checked upsells.
+// ---------------------------------------------------------------------------
 function PaywallScreen({
+  variant,
+  name,
   goal,
   saving,
   onStartCompanion,
   onContinueFree,
 }: {
+  variant: Variant;
+  name: string;
   goal: string | null;
   saving: boolean;
   onStartCompanion: () => void;
   onContinueFree: () => void;
 }) {
   const phrase = goal ? GOAL_PHRASE[goal] ?? "go deeper" : "go deeper";
+  const greeting = name ? `${name}, ` : "";
+
+  const headline =
+    variant === "A"
+      ? `To ${phrase}, unlock your full plan.`
+      : `${greeting}your plan to ${phrase} is ready.`;
+
+  const subtitle =
+    variant === "A"
+      ? "Outcomes, not features. Pick what fits — or stay on the free plan."
+      : "Try Companion free for 14 days. Bible reading, search, and community stay free, forever.";
+
+  const ctaLabel =
+    variant === "A" ? "Start my plan" : "Start 14-day free trial";
 
   return (
     <div className="flex flex-1 flex-col">
@@ -595,12 +716,8 @@ function PaywallScreen({
         <p className="text-xs uppercase tracking-wider text-muted-foreground">
           You're all set
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          To {phrase}, unlock your full plan.
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Outcomes, not features. Pick what fits — or stay on the free plan.
-        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">{headline}</h1>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
       </div>
 
       <div className="space-y-3">
@@ -625,17 +742,19 @@ function PaywallScreen({
         disabled={saving}
         className="mt-6 h-12 w-full rounded-md bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
       >
-        {saving ? "One moment…" : "Start my plan"}
+        {saving ? "One moment…" : ctaLabel}
       </button>
 
       <p className="mt-2 text-center text-xs text-muted-foreground">
-        Cancel anytime · The Bible & community are always free.
+        Cancel anytime · The Bible &amp; community are always free.
       </p>
 
+      {/* Free path: ALWAYS visible & tappable. No interstitial nag. */}
       <button
         onClick={onContinueFree}
         disabled={saving}
-        className="mt-6 text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+        className="mt-6 self-center text-sm text-muted-foreground underline underline-offset-2 hover:text-foreground"
+        data-testid="continue-free"
       >
         Continue with the free version
       </button>
