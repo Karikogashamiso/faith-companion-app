@@ -107,6 +107,27 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_activity: {
+        Row: {
+          activity_date: string
+          created_at: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          activity_date: string
+          created_at?: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          activity_date?: string
+          created_at?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           group_id: string
@@ -396,6 +417,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_highlights: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          note: string | null
+          user_id: string
+          verse_id: number
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          user_id: string
+          verse_id: number
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          user_id?: string
+          verse_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_highlights_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_plan_progress: {
         Row: {
           completed_at: string
@@ -528,6 +584,16 @@ export type Database = {
         }[]
       }
       shares_group_with: { Args: { _a: string; _b: string }; Returns: boolean }
+      verse_of_the_day: {
+        Args: { p_date?: string; p_version_id: string }
+        Returns: {
+          book: string
+          chapter: number
+          id: number
+          text: string
+          verse: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
