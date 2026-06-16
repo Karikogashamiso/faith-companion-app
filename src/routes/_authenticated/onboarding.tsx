@@ -1,11 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { askStudy } from "@/lib/ai-study.functions";
+import { track, assignVariant } from "@/lib/analytics";
 import type { Database } from "@/integrations/supabase/types";
 
 type Tradition = Database["public"]["Enums"]["tradition"];
+type Variant = "A" | "B";
 
 // ---------------------------------------------------------------------------
 // Static option sets
