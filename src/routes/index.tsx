@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { Icon } from "@/components/app/icon";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-scripture-cream text-on-surface">
       <SiteNav />
       <main>
         <Hero />
@@ -62,21 +63,30 @@ function Landing() {
 // ---------------------------------------------------------------------------
 function SiteNav() {
   return (
-    <header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <Link to="/" className="text-sm font-semibold tracking-tight">
-          Discipleship Companion
+    <header className="sticky top-0 z-30 border-b border-divider-soft bg-scripture-cream/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-margin-mobile py-3">
+        <Link to="/" className="flex items-center gap-2">
+          <Icon name="menu_book" className="text-2xl text-primary" />
+          <span className="font-serif text-lg font-bold tracking-tight text-primary">
+            Discipleship Companion
+          </span>
         </Link>
-        <nav className="flex items-center gap-4 text-sm">
-          <a href="#how" className="text-muted-foreground hover:text-foreground">
+        <nav className="flex items-center gap-5 text-sm">
+          <a
+            href="#how"
+            className="hidden text-on-surface-variant hover:text-primary sm:inline"
+          >
             How it works
           </a>
-          <a href="#pricing" className="text-muted-foreground hover:text-foreground">
+          <a
+            href="#pricing"
+            className="hidden text-on-surface-variant hover:text-primary sm:inline"
+          >
             Pricing
           </a>
           <Link
             to="/auth"
-            className="rounded-md bg-primary px-3 py-1.5 text-primary-foreground hover:bg-primary/90"
+            className="rounded-lg bg-primary px-4 py-2 font-semibold text-on-primary transition-colors hover:bg-navy-deep"
           >
             Open the app
           </Link>
@@ -91,25 +101,31 @@ function SiteNav() {
 // ---------------------------------------------------------------------------
 function Hero() {
   return (
-    <section className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-16 md:grid-cols-2 md:py-24">
-      <div className="space-y-6">
-        <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
+    <section className="mx-auto grid max-w-6xl items-center gap-stack-lg px-margin-mobile py-16 md:grid-cols-2 md:py-24">
+      <div className="peaceful-fade-in space-y-stack-md">
+        <div className="inline-flex items-center gap-2 rounded-full border border-divider-soft bg-crisis-blue px-3 py-1">
+          <Icon name="auto_awesome" filled className="text-base text-primary" />
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">
+            Historic Orthodoxy
+          </span>
+        </div>
+        <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-primary md:text-[40px]">
           Understand the Bible.
           <br />
           Build the habit.
           <br />
-          <span className="text-primary">Never alone.</span>
+          Never alone.
         </h1>
-        <p className="max-w-md text-base text-muted-foreground md:text-lg">
+        <p className="max-w-md text-lg leading-relaxed text-on-surface-variant">
           Answers grounded in real Scripture — it never makes things up.
         </p>
         <div className="flex flex-wrap gap-3" aria-label="Install the app">
           <StoreBadge store="ios" />
           <StoreBadge store="android" />
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-on-surface-variant">
           Or{" "}
-          <Link to="/auth" className="underline hover:text-foreground">
+          <Link to="/auth" className="font-semibold text-primary underline">
             try it in your browser
           </Link>
           .
@@ -125,29 +141,37 @@ function PhoneMockup() {
     <div
       role="img"
       aria-label="Phone preview showing a daily verse and a tappable AI question"
-      className="mx-auto w-full max-w-[280px]"
+      className="peaceful-fade-in mx-auto w-full max-w-[300px]"
     >
-      <div className="relative aspect-[9/19] rounded-[2.5rem] border-8 border-foreground/80 bg-background shadow-2xl">
-        <div className="absolute inset-x-12 top-2 h-4 rounded-b-xl bg-foreground/80" />
-        <div className="absolute inset-3 flex flex-col gap-3 overflow-hidden rounded-[2rem] bg-muted p-4">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+      <div className="relative aspect-[9/19] rounded-[2.5rem] border-8 border-primary bg-scripture-cream shadow-2xl">
+        <div className="absolute inset-x-12 top-2 h-4 rounded-b-xl bg-primary" />
+        <div className="absolute inset-3 flex flex-col gap-3 overflow-hidden rounded-[2rem] bg-primary p-5 text-scripture-cream">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-on-primary-container">
             Today · Day 3
           </p>
-          <p className="text-sm font-medium leading-snug">
+          <div className="flex justify-center pt-2">
+            <Icon
+              name="format_quote"
+              className="text-2xl text-on-primary-container opacity-50"
+            />
+          </div>
+          <p className="text-center font-serif text-base italic leading-snug">
             “Be still, and know that I am God.”
           </p>
-          <p className="text-[11px] text-muted-foreground">Psalm 46:10</p>
-          <div className="mt-2 space-y-1 rounded-md bg-background p-2 text-[11px]">
-            <p className="font-medium">Ask</p>
-            <p className="text-muted-foreground">
+          <p className="text-center text-[11px] font-semibold uppercase tracking-widest text-on-primary-container">
+            Psalm 46:10
+          </p>
+          <div className="mt-2 space-y-1 rounded-lg bg-scripture-cream/95 p-3 text-[11px] text-on-surface">
+            <p className="font-semibold text-primary">Ask</p>
+            <p className="text-on-surface-variant">
               What does the Bible say about worry?
             </p>
           </div>
-          <div className="mt-auto flex gap-1">
-            <span className="rounded-full bg-background px-2 py-0.5 text-[9px]">
+          <div className="mt-auto flex gap-1.5">
+            <span className="rounded-lg bg-crisis-blue px-2 py-0.5 text-[9px] font-bold text-primary">
               Phil 4:6
             </span>
-            <span className="rounded-full bg-background px-2 py-0.5 text-[9px]">
+            <span className="rounded-lg bg-crisis-blue px-2 py-0.5 text-[9px] font-bold text-primary">
               Matt 6:34
             </span>
           </div>
@@ -166,11 +190,9 @@ function StoreBadge({ store }: { store: "ios" | "android" }) {
     <a
       href={href}
       aria-label={label}
-      className="inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-background hover:opacity-90"
+      className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-scripture-cream transition-colors hover:bg-navy-deep"
     >
-      <span aria-hidden className="text-xl">
-        {store === "ios" ? "" : "▶"}
-      </span>
+      <Icon name={store === "ios" ? "smartphone" : "play_arrow"} filled />
       <span className="flex flex-col leading-tight">
         <span className="text-[9px] uppercase tracking-wider opacity-75">
           {store === "ios" ? "Download on the" : "Get it on"}
@@ -225,24 +247,27 @@ function LiveDemo() {
   return (
     <section
       id="demo"
-      className="border-y bg-muted/30 px-6 py-16"
+      className="border-y border-divider-soft bg-surface-container-low px-margin-mobile py-16"
       aria-labelledby="demo-heading"
     >
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-3xl space-y-stack-md">
         <div className="space-y-2 text-center">
-          <p className="text-xs uppercase tracking-wider text-primary">
+          <p className="text-xs font-bold uppercase tracking-widest text-wood-warm">
             See it for yourself
           </p>
-          <h2 id="demo-heading" className="text-2xl font-semibold md:text-3xl">
+          <h2
+            id="demo-heading"
+            className="font-serif text-3xl text-primary md:text-[32px]"
+          >
             Ask a real question. Get a real answer.
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-on-surface-variant">
             Every answer quotes only verses we actually retrieved — with the
             reference attached.
           </p>
         </div>
 
-        <div className="rounded-lg border bg-background p-4 shadow-sm">
+        <div className="rounded-xl border border-divider-soft bg-white p-5 shadow-sm">
           <label htmlFor="demo-q" className="sr-only">
             Your question
           </label>
@@ -252,13 +277,18 @@ function LiveDemo() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="What does the Bible say about…"
-              className="h-11 flex-1 rounded-md border border-input bg-background px-3 text-sm"
+              className="h-12 flex-1 rounded-lg border border-divider-soft bg-scripture-cream px-4 text-sm focus:border-primary focus:outline-none"
             />
             <button
               onClick={ask}
               disabled={loading || q.trim().length < 3}
-              className="h-11 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
+              className="flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-6 text-sm font-semibold text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-40"
             >
+              {loading ? (
+                <Icon name="progress_activity" className="animate-spin" />
+              ) : (
+                <Icon name="search" />
+              )}
               {loading ? "Searching…" : "Ask"}
             </button>
           </div>
@@ -267,7 +297,7 @@ function LiveDemo() {
               <button
                 key={s}
                 onClick={() => setQ(s)}
-                className="rounded-full border bg-background px-3 py-1 text-xs text-muted-foreground hover:bg-accent"
+                className="rounded-lg border border-divider-soft bg-scripture-cream px-3 py-1.5 text-xs text-on-surface-variant transition-colors hover:border-wood-warm hover:text-primary"
               >
                 {s}
               </button>
@@ -275,8 +305,8 @@ function LiveDemo() {
           </div>
 
           {answer && (
-            <div className="mt-4 space-y-3 border-t pt-4">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
+            <div className="mt-4 space-y-3 border-t border-divider-soft pt-4">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-on-surface">
                 {answer}
               </p>
               {citations.length > 0 && (
@@ -284,8 +314,9 @@ function LiveDemo() {
                   {citations.map((c) => (
                     <span
                       key={`${c.book}-${c.chapter}-${c.verse}`}
-                      className="rounded-full border bg-muted px-2 py-0.5 text-xs"
+                      className="flex items-center gap-1 rounded-lg bg-crisis-blue px-2.5 py-1 text-xs font-bold text-primary"
                     >
+                      <Icon name="verified" filled className="text-sm" />
                       {c.book} {c.chapter}:{c.verse}
                     </span>
                   ))}
@@ -294,11 +325,14 @@ function LiveDemo() {
             </div>
           )}
           {err && (
-            <p className="mt-4 border-t pt-4 text-sm text-destructive">{err}</p>
+            <p className="mt-4 border-t border-divider-soft pt-4 text-sm text-destructive">
+              {err}
+            </p>
           )}
         </div>
-        <p className="text-center text-xs text-muted-foreground">
-          Limited to a few questions per visitor — install the app for unlimited use.
+        <p className="text-center text-xs text-on-surface-variant">
+          Limited to a few questions per visitor — install the app for unlimited
+          use.
         </p>
       </div>
     </section>
@@ -310,11 +344,11 @@ function LiveDemo() {
 // ---------------------------------------------------------------------------
 function SocialProof() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-12 text-center">
-      <p className="text-xs uppercase tracking-wider text-muted-foreground">
+    <section className="mx-auto max-w-6xl px-margin-mobile py-12 text-center">
+      <p className="text-xs font-bold uppercase tracking-widest text-wood-warm">
         Used by people who care about getting it right
       </p>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-6 text-sm text-on-surface-variant">
         {/* Real ratings & logos appear here once they exist. */}
         <span className="italic">Star rating — coming soon</span>
         <span className="italic">Install count — coming soon</span>
@@ -330,29 +364,38 @@ function SocialProof() {
 function Differentiator() {
   const cards = [
     {
+      icon: "verified",
       title: "Never invents Scripture",
       body: "Every AI answer is grounded in verses we actually retrieve — and every reference is linked back to the text.",
     },
     {
+      icon: "diversity_3",
       title: "Knows your tradition",
       body: "From Catholic to Orthodox to Baptist to non-denominational, your tradition shapes how things are framed.",
     },
     {
+      icon: "groups",
       title: "Real people, not just a bot",
       body: "Join a group, share a prayer request, follow a plan together. The app helps you show up for each other.",
     },
   ];
   return (
-    <section className="bg-muted/30 px-6 py-16">
+    <section className="bg-surface-container-low px-margin-mobile py-16">
       <div className="mx-auto max-w-6xl">
-        <h2 className="mb-10 text-center text-2xl font-semibold md:text-3xl">
+        <h2 className="mb-10 text-center font-serif text-3xl text-primary md:text-[32px]">
           Why this one is different
         </h2>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-gutter md:grid-cols-3">
           {cards.map((c) => (
-            <article key={c.title} className="rounded-lg border bg-background p-6">
-              <h3 className="text-base font-semibold">{c.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{c.body}</p>
+            <article
+              key={c.title}
+              className="rounded-xl border border-divider-soft bg-white p-6"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-crisis-blue text-primary">
+                <Icon name={c.icon} />
+              </div>
+              <h3 className="mt-4 font-serif text-xl text-primary">{c.title}</h3>
+              <p className="mt-2 text-on-surface-variant">{c.body}</p>
             </article>
           ))}
         </div>
@@ -366,23 +409,38 @@ function Differentiator() {
 // ---------------------------------------------------------------------------
 function HowItWorks() {
   const steps = [
-    { n: "1", title: "Pick your tradition & goal", body: "A 60-second setup tailors the app to you." },
-    { n: "2", title: "Get a daily plan", body: "A short reading, a reflection, and a prayer. 5 minutes." },
-    { n: "3", title: "Grow with your group", body: "Pray with your church, family, or small group." },
+    {
+      n: "1",
+      title: "Pick your tradition & goal",
+      body: "A 60-second setup tailors the app to you.",
+    },
+    {
+      n: "2",
+      title: "Get a daily plan",
+      body: "A short reading, a reflection, and a prayer. 5 minutes.",
+    },
+    {
+      n: "3",
+      title: "Grow with your group",
+      body: "Pray with your church, family, or small group.",
+    },
   ];
   return (
-    <section id="how" className="mx-auto max-w-6xl px-6 py-16">
-      <h2 className="mb-10 text-center text-2xl font-semibold md:text-3xl">
+    <section id="how" className="mx-auto max-w-6xl px-margin-mobile py-16">
+      <h2 className="mb-10 text-center font-serif text-3xl text-primary md:text-[32px]">
         How it works
       </h2>
-      <ol className="grid gap-6 md:grid-cols-3">
+      <ol className="grid gap-gutter md:grid-cols-3">
         {steps.map((s) => (
-          <li key={s.n} className="rounded-lg border p-6">
-            <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+          <li
+            key={s.n}
+            className="rounded-xl border border-divider-soft bg-white p-6"
+          >
+            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-primary font-serif text-sm font-semibold text-on-primary">
               {s.n}
             </div>
-            <h3 className="text-base font-semibold">{s.title}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{s.body}</p>
+            <h3 className="font-serif text-xl text-primary">{s.title}</h3>
+            <p className="mt-1 text-on-surface-variant">{s.body}</p>
           </li>
         ))}
       </ol>
@@ -395,43 +453,68 @@ function HowItWorks() {
 // ---------------------------------------------------------------------------
 function Pricing() {
   return (
-    <section id="pricing" className="bg-muted/30 px-6 py-16">
-      <div className="mx-auto max-w-4xl space-y-8">
+    <section
+      id="pricing"
+      className="bg-surface-container-low px-margin-mobile py-16"
+    >
+      <div className="mx-auto max-w-4xl space-y-stack-lg">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold md:text-3xl">
+          <h2 className="font-serif text-3xl text-primary md:text-[32px]">
             The Bible is free. Always.
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-on-surface-variant">
             Reading, search, the daily verse, and community are free forever.
             Companion unlocks deeper study & group tools.
           </p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <article className="rounded-lg border bg-background p-6">
-            <h3 className="text-lg font-semibold">Free</h3>
-            <p className="text-sm text-muted-foreground">Forever, no card.</p>
-            <ul className="mt-4 space-y-1 text-sm">
-              <li>· Full Bible & translations</li>
-              <li>· Search, daily verse, widget</li>
-              <li>· One reading plan</li>
-              <li>· Groups & prayer requests</li>
-              <li>· A daily allowance of AI study</li>
+        <div className="grid gap-gutter md:grid-cols-2">
+          <article className="rounded-xl border border-divider-soft bg-white p-6">
+            <h3 className="font-serif text-2xl text-primary">Free</h3>
+            <p className="text-sm text-on-surface-variant">Forever, no card.</p>
+            <ul className="mt-4 space-y-2 text-sm">
+              {[
+                "Full Bible & translations",
+                "Search, daily verse, widget",
+                "One reading plan",
+                "Groups & prayer requests",
+                "A daily allowance of AI study",
+              ].map((f) => (
+                <li key={f} className="flex items-center gap-2 text-on-surface">
+                  <Icon
+                    name="check_circle"
+                    filled
+                    className="text-base text-wood-warm"
+                  />
+                  {f}
+                </li>
+              ))}
             </ul>
           </article>
-          <article className="rounded-lg border-2 border-primary bg-background p-6">
-            <h3 className="text-lg font-semibold">Companion</h3>
-            <p className="text-sm text-muted-foreground">
+          <article className="rounded-xl border-2 border-primary bg-white p-6">
+            <h3 className="font-serif text-2xl text-primary">Companion</h3>
+            <p className="text-sm text-on-surface-variant">
               $4.99/mo or $39.99/yr · 14-day free trial · no weekly tier
             </p>
-            <ul className="mt-4 space-y-1 text-sm">
-              <li>· Unlimited AI study sessions</li>
-              <li>· Multiple plans & saved study notes</li>
-              <li>· Group leader tools</li>
-              <li>· Early access to new translations</li>
+            <ul className="mt-4 space-y-2 text-sm">
+              {[
+                "Unlimited AI study sessions",
+                "Multiple plans & saved study notes",
+                "Group leader tools",
+                "Early access to new translations",
+              ].map((f) => (
+                <li key={f} className="flex items-center gap-2 text-on-surface">
+                  <Icon
+                    name="check_circle"
+                    filled
+                    className="text-base text-primary"
+                  />
+                  {f}
+                </li>
+              ))}
             </ul>
           </article>
         </div>
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-center text-xs text-on-surface-variant">
           Cancel anytime. No dark patterns. We never sell your data.
         </p>
       </div>
@@ -466,22 +549,24 @@ function FAQ() {
     },
   ];
   return (
-    <section className="mx-auto max-w-3xl px-6 py-16">
-      <h2 className="mb-8 text-center text-2xl font-semibold md:text-3xl">
+    <section className="mx-auto max-w-3xl px-margin-mobile py-16">
+      <h2 className="mb-8 text-center font-serif text-3xl text-primary md:text-[32px]">
         Honest answers to honest questions
       </h2>
       <dl className="space-y-3">
         {items.map((it) => (
           <details
             key={it.q}
-            className="group rounded-lg border bg-background p-4 open:bg-muted/30"
+            className="group rounded-xl border border-divider-soft bg-white p-4 open:bg-surface-container-low"
           >
-            <summary className="cursor-pointer list-none text-sm font-medium">
-              <span className="mr-2 text-muted-foreground group-open:hidden">+</span>
-              <span className="mr-2 hidden text-muted-foreground group-open:inline">−</span>
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 font-semibold text-primary">
               {it.q}
+              <Icon
+                name="add"
+                className="text-on-surface-variant transition-transform group-open:rotate-45"
+              />
             </summary>
-            <p className="mt-2 text-sm text-muted-foreground">{it.a}</p>
+            <p className="mt-2 text-sm text-on-surface-variant">{it.a}</p>
           </details>
         ))}
       </dl>
@@ -494,12 +579,21 @@ function FAQ() {
 // ---------------------------------------------------------------------------
 function FinalCta() {
   return (
-    <section className="bg-primary/5 px-6 py-16 text-center">
+    <section className="border-t border-divider-soft bg-surface-container-low px-margin-mobile py-16 text-center">
       <div className="mx-auto max-w-2xl space-y-5">
-        <h2 className="text-2xl font-semibold md:text-3xl">
+        <div className="flex justify-center">
+          <Icon
+            name="format_quote"
+            className="text-3xl text-on-surface-variant opacity-30"
+          />
+        </div>
+        <p className="mx-auto max-w-md font-serif text-[22px] italic leading-8 text-on-surface-variant">
+          “Thy word is a lamp unto my feet, and a light unto my path.”
+        </p>
+        <h2 className="font-serif text-3xl text-primary md:text-[32px]">
           Five minutes a day. A real difference.
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-on-surface-variant">
           Start today — your tradition, your pace, your people.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
@@ -508,7 +602,7 @@ function FinalCta() {
         </div>
         <Link
           to="/auth"
-          className="inline-block text-sm text-muted-foreground underline hover:text-foreground"
+          className="inline-block text-sm font-semibold text-primary underline"
         >
           Or open it in your browser
         </Link>
@@ -519,7 +613,7 @@ function FinalCta() {
 
 function SiteFooter() {
   return (
-    <footer className="border-t px-6 py-8 text-center text-xs text-muted-foreground">
+    <footer className="border-t border-divider-soft bg-scripture-cream px-margin-mobile py-8 text-center text-xs text-on-surface-variant">
       <p>© {new Date().getFullYear()} Discipleship Companion. Built carefully.</p>
     </footer>
   );

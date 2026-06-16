@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { askStudy } from "@/lib/ai-study.functions";
 import { track, assignVariant } from "@/lib/analytics";
 import type { Database } from "@/integrations/supabase/types";
+import { Icon } from "@/components/app/icon";
 
 type Tradition = Database["public"]["Enums"]["tradition"];
 type Variant = "A" | "B";
@@ -13,11 +14,11 @@ type Variant = "A" | "B";
 // Static option sets
 // ---------------------------------------------------------------------------
 const GOALS = [
-  { value: "grow_faith", label: "Grow my faith", emoji: "🌱" },
-  { value: "understand_bible", label: "Understand the Bible better", emoji: "📖" },
-  { value: "peace_anxiety", label: "Find peace / manage anxiety", emoji: "🕊️" },
-  { value: "habit", label: "Build a consistent habit", emoji: "🔁" },
-  { value: "reconnect", label: "Reconnect with God", emoji: "✨" },
+  { value: "grow_faith", label: "Grow my faith", icon: "auto_awesome" },
+  { value: "understand_bible", label: "Understand the Bible better", icon: "menu_book" },
+  { value: "peace_anxiety", label: "Find peace / manage anxiety", icon: "self_improvement" },
+  { value: "habit", label: "Build a consistent habit", icon: "calendar_month" },
+  { value: "reconnect", label: "Reconnect with God", icon: "favorite" },
 ] as const;
 
 const TRADITIONS: { value: Tradition; label: string }[] = [
@@ -215,38 +216,44 @@ function Onboarding() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-scripture-cream">
       {/* Progress + back/skip */}
-      <header className="space-y-3 px-6 pt-6">
-        <div className="flex h-1 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full bg-primary transition-all"
-            style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
-          />
-        </div>
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
+      <header className="space-y-3 px-margin-mobile pt-6">
+        <div className="flex items-center justify-between">
           {step > 1 && step < TOTAL_STEPS ? (
-            <button onClick={back} className="hover:text-foreground">
-              ← Back
+            <button
+              onClick={back}
+              aria-label="Back"
+              className="flex h-8 w-8 items-center justify-center text-primary hover:text-wood-warm"
+            >
+              <Icon name="arrow_back_ios_new" className="text-lg" />
             </button>
           ) : (
-            <span />
+            <span className="h-8 w-8" />
           )}
-          <span>Step {step} of {TOTAL_STEPS}</span>
+          <span className="text-sm font-semibold uppercase tracking-widest text-wood-warm">
+            Onboarding Progress
+          </span>
           {step < TOTAL_STEPS ? (
             <button
               onClick={() => finish(false)}
-              className="hover:text-foreground"
+              className="h-8 text-xs font-medium text-on-surface-variant hover:text-primary"
             >
               Skip
             </button>
           ) : (
-            <span />
+            <span className="h-8 w-8" />
           )}
+        </div>
+        <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-surface-container-high">
+          <div
+            className="h-full rounded-full bg-wood-warm transition-all"
+            style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
+          />
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-6 pb-10 pt-8">
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col px-margin-mobile pb-10 pt-8">
         {step === 1 && (
           <Screen1
             variant={variantScreen1}
@@ -268,16 +275,18 @@ function Onboarding() {
               disabled: !goal,
             }}
           >
-            <div className="space-y-2">
+            <div className="space-y-3">
               {GOALS.map((g) => (
                 <Card
                   key={g.value}
                   selected={goal === g.value}
                   onClick={() => setGoal(g.value)}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{g.emoji}</span>
-                    <span className="text-sm font-medium">{g.label}</span>
+                  <div className="flex items-center gap-4">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-crisis-blue text-primary">
+                      <Icon name={g.icon} />
+                    </span>
+                    <span className="font-semibold text-primary">{g.label}</span>
                   </div>
                 </Card>
               ))}
@@ -712,40 +721,45 @@ function PaywallScreen({
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="space-y-2 pb-6 pt-4">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">
+      <div className="space-y-2 pb-6 pt-2 text-center">
+        <p className="text-xs font-bold uppercase tracking-widest text-wood-warm">
           You're all set
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight">{headline}</h1>
-        <p className="text-sm text-muted-foreground">{subtitle}</p>
+        <h1 className="font-serif text-[28px] font-semibold leading-tight tracking-tight text-primary">
+          {headline}
+        </h1>
+        <p className="text-on-surface-variant">{subtitle}</p>
       </div>
 
       <div className="space-y-3">
-        <div className="rounded-md border-2 border-primary p-4">
+        <div className="rounded-xl border-2 border-primary bg-white p-5">
           <div className="flex items-baseline justify-between">
-            <p className="text-sm font-medium">Annual · recommended</p>
-            <p className="text-xs text-primary">14-day free trial</p>
+            <p className="font-semibold text-primary">Annual · recommended</p>
+            <span className="rounded-lg bg-crisis-blue px-2 py-0.5 text-xs font-bold text-primary">
+              14-day free trial
+            </span>
           </div>
-          <p className="mt-1 text-2xl font-semibold">$39.99 / year</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="mt-1 font-serif text-3xl text-primary">$39.99 / year</p>
+          <p className="text-xs text-on-surface-variant">
             ≈ $3.33 / month · best value
           </p>
         </div>
-        <div className="rounded-md border p-4">
-          <p className="text-sm font-medium">Monthly</p>
-          <p className="mt-1 text-2xl font-semibold">$4.99 / month</p>
+        <div className="rounded-xl border border-divider-soft bg-white p-5">
+          <p className="font-semibold text-primary">Monthly</p>
+          <p className="mt-1 font-serif text-3xl text-primary">$4.99 / month</p>
         </div>
       </div>
 
       <button
         onClick={onStartCompanion}
         disabled={saving}
-        className="mt-6 h-12 w-full rounded-md bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
+        className="mt-6 h-14 w-full rounded-lg bg-primary text-sm font-semibold uppercase tracking-wide text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-40"
       >
         {saving ? "One moment…" : ctaLabel}
       </button>
 
-      <p className="mt-2 text-center text-xs text-muted-foreground">
+      <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-on-surface-variant">
+        <Icon name="lock_open" className="text-sm text-wood-warm" />
         Cancel anytime · The Bible &amp; community are always free.
       </p>
 
@@ -753,7 +767,7 @@ function PaywallScreen({
       <button
         onClick={onContinueFree}
         disabled={saving}
-        className="mt-6 self-center text-sm text-muted-foreground underline underline-offset-2 hover:text-foreground"
+        className="mt-6 self-center text-sm font-medium text-on-surface-variant underline underline-offset-2 hover:text-primary"
         data-testid="continue-free"
       >
         Continue with the free version
@@ -778,17 +792,17 @@ function Pane({
 }) {
   return (
     <div className="flex flex-1 flex-col">
-      <div className="space-y-2 pb-6 pt-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+      <div className="space-y-2 pb-8 pt-2 text-center">
+        <h1 className="font-serif text-[28px] font-semibold leading-tight tracking-tight text-primary">
           {title}
         </h1>
-        <p className="text-sm text-muted-foreground">{subtitle}</p>
+        <p className="text-on-surface-variant">{subtitle}</p>
       </div>
       <div className="flex-1">{children}</div>
       <button
         onClick={primary.onClick}
         disabled={primary.disabled}
-        className="mt-6 h-11 w-full rounded-md bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-40"
+        className="mt-8 h-14 w-full rounded-lg bg-primary text-sm font-semibold uppercase tracking-wide text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-40"
       >
         {primary.label}
       </button>
@@ -808,10 +822,10 @@ function Card({
   return (
     <button
       onClick={onClick}
-      className={`w-full rounded-lg border p-3 text-left transition-colors ${
+      className={`w-full rounded-xl border bg-white p-4 text-left transition-all ${
         selected
-          ? "border-primary bg-primary/5"
-          : "border-input hover:bg-accent"
+          ? "border-2 border-primary shadow-sm"
+          : "border border-divider-soft hover:border-wood-warm"
       }`}
     >
       {children}
@@ -821,18 +835,22 @@ function Card({
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between rounded-md border p-3 text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value}</span>
+    <div className="flex items-center justify-between rounded-xl border border-divider-soft bg-white p-4 text-sm">
+      <span className="text-on-surface-variant">{label}</span>
+      <span className="font-semibold text-primary">{value}</span>
     </div>
   );
 }
 
 function Quote({ text, author }: { text: string; author: string }) {
   return (
-    <figure className="rounded-md border p-4">
-      <blockquote className="text-sm">&ldquo;{text}&rdquo;</blockquote>
-      <figcaption className="mt-1 text-xs text-muted-foreground">— {author}</figcaption>
+    <figure className="rounded-xl border border-divider-soft bg-white p-4">
+      <blockquote className="font-serif italic text-on-surface">
+        &ldquo;{text}&rdquo;
+      </blockquote>
+      <figcaption className="mt-2 text-xs uppercase tracking-wide text-wood-warm">
+        — {author}
+      </figcaption>
     </figure>
   );
 }
