@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import { getLocalizedPricing } from "@/lib/pricing";
 
 export const Route = createFileRoute("/_authenticated/companion")({
   head: () => ({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/_authenticated/companion")({
 
 function CompanionPaywall() {
   const { entitlement, aiUsedToday, aiDailyLimit } = useEntitlement();
+  const pricing = getLocalizedPricing();
   const isCompanion = entitlement?.isCompanion ?? false;
 
   return (
@@ -111,30 +113,36 @@ function CompanionPaywall() {
         </section>
 
         {!isCompanion && (
-          <section className="grid gap-3 sm:grid-cols-3">
-            <PlanCard
-              id="companion_weekly"
-              label="Weekly"
-              price="$2.99"
-              cadence="per week"
-              note="Most flexible"
-            />
-            <PlanCard
-              id="companion_monthly"
-              label="Monthly"
-              price="$4.99"
-              cadence="per month"
-              note=""
-            />
-            <PlanCard
-              id="companion_annual"
-              label="Annual"
-              price="$39.99"
-              cadence="per year"
-              note="Best value · save ~33%"
-              highlight
-            />
-          </section>
+          <>
+            <section className="grid gap-3 sm:grid-cols-3">
+              <PlanCard
+                id="companion_weekly"
+                label="Weekly"
+                price={pricing.weekly}
+                cadence="per week"
+                note="Most flexible"
+              />
+              <PlanCard
+                id="companion_monthly"
+                label="Monthly"
+                price={pricing.monthly}
+                cadence="per month"
+                note=""
+              />
+              <PlanCard
+                id="companion_annual"
+                label="Annual"
+                price={pricing.annual}
+                cadence="per year"
+                note={`${pricing.annualPerMonth}/mo · best value`}
+                highlight
+              />
+            </section>
+            <p className="text-center text-xs text-on-surface-variant">
+              Shown in your local currency · billed securely through the App
+              Store / Google Play.
+            </p>
+          </>
         )}
 
         <section className="space-y-2 rounded-xl border border-divider-soft bg-surface-container-low p-5 text-sm text-on-surface-variant">
