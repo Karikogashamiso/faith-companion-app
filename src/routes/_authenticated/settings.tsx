@@ -6,6 +6,7 @@ import { deleteMyAccount } from "@/lib/account.functions";
 import type { Database } from "@/integrations/supabase/types";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import { Button, Card, IconBadge } from "@/components/app/ui";
 
 type Tradition = Database["public"]["Enums"]["tradition"];
 
@@ -124,30 +125,31 @@ function Settings() {
           <h2 className="text-xs font-semibold uppercase tracking-widest text-wood-warm">
             Account
           </h2>
-          <div className="rounded-xl border border-divider-soft bg-card p-4">
+          <Card padding="sm">
             <div className="text-xs uppercase tracking-wide text-on-surface-variant">
               Signed in as
             </div>
             <div className="text-sm font-medium text-primary">{user.email}</div>
-          </div>
-          <Link
-            to="/companion"
-            className="flex items-center justify-between rounded-xl border border-divider-soft bg-card p-4 transition-colors hover:border-wood-warm"
-          >
-            <span className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-on-primary">
-                <Icon name="diamond" filled />
-              </span>
-              <span>
-                <span className="block text-sm font-semibold text-primary">
-                  Companion
+          </Card>
+          <Link to="/companion" className="block">
+            <Card
+              padding="sm"
+              interactive
+              className="flex items-center justify-between"
+            >
+              <span className="flex items-center gap-3">
+                <IconBadge name="diamond" filled tone="ink" />
+                <span>
+                  <span className="block text-sm font-semibold text-primary">
+                    Companion
+                  </span>
+                  <span className="block text-xs text-on-surface-variant">
+                    Unlimited study, plans & leader tools
+                  </span>
                 </span>
-                <span className="block text-xs text-on-surface-variant">
-                  Unlimited study, plans & leader tools
-                </span>
               </span>
-            </span>
-            <Icon name="arrow_forward" className="text-on-surface-variant" />
+              <Icon name="arrow_forward" className="text-on-surface-variant" />
+            </Card>
           </Link>
         </section>
 
@@ -209,7 +211,7 @@ function Settings() {
           />
         </Field>
 
-        <section className="rounded-xl border border-divider-soft bg-card p-4">
+        <Card padding="sm">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <Icon name="auto_awesome" className="mt-0.5 text-wood-warm" />
@@ -237,22 +239,15 @@ function Settings() {
               />
             </button>
           </div>
-        </section>
+        </Card>
 
         <section className="space-y-2 border-t border-divider-soft pt-6">
-          <button
-            onClick={signOut}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-card text-sm font-semibold text-primary transition-colors hover:border-wood-warm"
-          >
-            <Icon name="logout" className="text-base" />
+          <Button variant="secondary" block leftIcon="logout" onClick={signOut}>
             Sign out
-          </button>
-          <button
-            onClick={handleDelete}
-            className="h-12 w-full rounded-lg border border-destructive/40 bg-card text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
-          >
+          </Button>
+          <Button variant="destructive" block onClick={handleDelete}>
             Delete account
-          </button>
+          </Button>
           <p className="pt-2 text-center text-xs text-on-surface-variant">
             Deleting your account is permanent.
           </p>
