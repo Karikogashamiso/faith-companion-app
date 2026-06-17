@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { askStudy, flagAnswer } from "@/lib/ai-study.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useEntitlement } from "@/hooks/use-entitlement";
@@ -20,6 +21,9 @@ type Message =
 
 export const Route = createFileRoute("/_authenticated/study")({
   head: () => ({ meta: [{ title: "Study · Discipleship Companion" }] }),
+  validateSearch: (s: Record<string, unknown>): { q?: string } => ({
+    q: typeof s.q === "string" ? s.q.slice(0, 300) : undefined,
+  }),
   component: StudyPage,
 });
 
@@ -34,6 +38,7 @@ const SUGGESTIONS = [
 function StudyPage() {
   const askStudyFn = useServerFn(askStudy);
   const flagFn = useServerFn(flagAnswer);
+  const { q: initialQ } = Route.useSearch();
   const { entitlement, aiUsedToday, aiDailyLimit, reload } = useEntitlement();
   const isCompanion = entitlement?.isCompanion ?? false;
   const freeRemaining = Math.max(0, aiDailyLimit - aiUsedToday);
@@ -42,23 +47,61 @@ function StudyPage() {
   const [question, setQuestion] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [listening, setListening] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const askedInitial = useRef(false);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history, busy, error]);
 
-  async function submit(e?: React.FormEvent) {
+  // Deep-link: "Ask about this verse" arrives as ?q=… and auto-asks once.
+  useEffect(() => {
+    if (initialQ && !askedInitial.current) {
+      askedInitial.current = true;
+      void submit(undefined, initialQ);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQ]);
+
+  function startVoice() {
+    const SR =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) {
+      toast("Voice input isn't supported on this browser.");
+      return;
+    }
+    const rec = new SR();
+    rec.lang = "en-US";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    setListening(true);
+    rec.onresult = (ev: any) => {
+      const t = ev.results?.[0]?.[0]?.transcript ?? "";
+      if (t) setQuestion((q) => (q ? q + " " : "") + t);
+    };
+    rec.onend = () => setListening(false);
+    rec.onerror = () => setListening(false);
+    try {
+      rec.start();
+    } catch {
+      setListening(false);
+    }
+  }
+
+  async function submit(e?: React.FormEvent, override?: string) {
     e?.preventDefault();
-    if (!question.trim() || busy) return;
-    const q = question.trim();
+    const q = (override ?? question).trim();
+    if (!q || busy) return;
     setQuestion("");
     setError(null);
     setBusy(true);
+    // Conversation memory: send the recent turns so follow-ups stay coherent.
+    const memory = history.slice(-6).map((m) => ({ role: m.role, text: m.text }));
     setHistory((h) => [...h, { role: "user", text: q }]);
 
     try {
-      const result = await askStudyFn({ data: { question: q } });
+      const result = await askStudyFn({ data: { question: q, context: memory } });
       if (result.disabled) {
         setHistory((h) => [
           ...h,
@@ -244,10 +287,23 @@ function StudyPage() {
             <input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Ask about a verse, topic, or struggle…"
+              placeholder={listening ? "Listening…" : "Ask about a verse, topic, or struggle…"}
               disabled={busy || (!isCompanion && freeRemaining === 0)}
               className="h-11 flex-1 bg-transparent px-3 text-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none"
             />
+            <button
+              type="button"
+              onClick={startVoice}
+              disabled={busy || listening}
+              aria-label="Voice input"
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                listening
+                  ? "bg-destructive/10 text-destructive"
+                  : "text-on-surface-variant hover:text-primary"
+              }`}
+            >
+              <Icon name="mic" filled={listening} />
+            </button>
             <button
               type="submit"
               disabled={busy || !question.trim() || (!isCompanion && freeRemaining === 0)}

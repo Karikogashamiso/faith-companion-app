@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { dailyDevotional } from "@/lib/ai-study.functions";
 import { AppShell, SectionHeading } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import { computeStreak, todayLocalISO } from "@/lib/streak";
@@ -41,8 +43,42 @@ function Home() {
   const [xp, setXp] = useState(0);
   const season = currentSeason();
 
+  const devotionalFn = useServerFn(dailyDevotional);
+  const [devo, setDevo] = useState<{
+    reflection: string;
+    prayer: string;
+    verse_ref: string;
+  } | null>(null);
+  const [devoLoading, setDevoLoading] = useState(true);
+
   useEffect(() => {
     void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user.id]);
+
+  // The daily AI reflection (cached server-side once per day).
+  useEffect(() => {
+    let cancelled = false;
+    setDevoLoading(true);
+    void (async () => {
+      try {
+        const r = await devotionalFn();
+        if (!cancelled && r && !r.disabled) {
+          setDevo({
+            reflection: r.reflection,
+            prayer: r.prayer,
+            verse_ref: r.verse_ref,
+          });
+        }
+      } catch {
+        /* devotional is a bonus — never block the page */
+      } finally {
+        if (!cancelled) setDevoLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.id]);
 
@@ -269,6 +305,29 @@ function Home() {
             )}
           </div>
         </section>
+
+        {/* Today's AI reflection (grounded on the verse of the day) */}
+        {devoLoading ? (
+          <div className="h-32 animate-pulse rounded-xl border border-divider-soft bg-surface-container-low" />
+        ) : devo ? (
+          <section className="space-y-3 rounded-xl border border-divider-soft bg-white p-6">
+            <div className="flex items-center gap-2">
+              <Icon name="auto_awesome" filled className="text-wood-warm" />
+              <p className="text-sm font-semibold uppercase tracking-widest text-wood-warm">
+                Today's Reflection
+              </p>
+            </div>
+            <p className="leading-relaxed text-on-surface">{devo.reflection}</p>
+            <div className="rounded-lg bg-crisis-blue p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                A prayer
+              </p>
+              <p className="mt-1 font-serif italic text-on-surface">
+                {devo.prayer}
+              </p>
+            </div>
+          </section>
+        ) : null}
 
         {/* Primary CTA */}
         <section>

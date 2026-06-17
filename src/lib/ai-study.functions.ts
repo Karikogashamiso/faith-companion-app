@@ -26,6 +26,18 @@ type RetrievedVerse = {
 
 const AskInput = z.object({
   question: z.string().min(3).max(500),
+  // Recent conversation turns, so follow-up questions stay coherent. Memory
+  // informs the model's phrasing only — retrieval/citations still come from
+  // the current question alone, so the guardrail is unaffected.
+  context: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        text: z.string().max(4000),
+      }),
+    )
+    .max(8)
+    .optional(),
 });
 
 // ---------------------------------------------------------------------------
@@ -161,12 +173,20 @@ export const askStudy = createServerFn({ method: "POST" })
     const gateway = createLovableAiGatewayProvider(apiKey);
     const system = buildSystemPrompt({ tradition, crisis, candidates: retrieved });
 
+    const messages = [
+      ...(data.context ?? []).map((m) => ({
+        role: m.role,
+        content: m.text,
+      })),
+      { role: "user" as const, content: data.question },
+    ];
+
     let raw = "";
     try {
       const result = await generateText({
         model: gateway(CHAT_MODEL),
         system,
-        prompt: data.question,
+        messages,
       });
       raw = result.text;
     } catch (err) {
@@ -252,6 +272,85 @@ export const flagAnswer = createServerFn({ method: "POST" })
     });
     if (error) throw error;
     return { ok: true as const };
+  });
+
+// ---------------------------------------------------------------------------
+// dailyDevotional — a personalized daily reflection on the user's verse of the
+// day. Cached once per user per day. Grounded on the real verse text only.
+// ---------------------------------------------------------------------------
+export const dailyDevotional = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("ai_enabled, tradition, default_version_id")
+      .eq("id", userId)
+      .maybeSingle();
+    if (profile && !profile.ai_enabled) return { disabled: true as const };
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    const { data: cached } = await supabase
+      .from("daily_devotionals")
+      .select("verse_ref, reflection, prayer")
+      .eq("user_id", userId)
+      .eq("devo_date", today)
+      .maybeSingle();
+    if (cached) return { disabled: false as const, ...cached };
+
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) return { disabled: true as const };
+
+    let versionId = profile?.default_version_id ?? null;
+    if (!versionId) {
+      const { data: v } = await supabase
+        .from("bible_versions")
+        .select("id")
+        .eq("abbreviation", "WEB")
+        .maybeSingle();
+      versionId = v?.id ?? null;
+    }
+    if (!versionId) return { disabled: true as const };
+
+    const { data: vot } = await supabase.rpc("verse_of_the_day", {
+      p_version_id: versionId,
+    });
+    const verse = Array.isArray(vot) ? (vot[0] as RetrievedVerse | undefined) : undefined;
+    if (!verse) return { disabled: true as const };
+    const ref = `${verse.book} ${verse.chapter}:${verse.verse}`;
+    const tradition = profile?.tradition ?? "unspecified";
+
+    const gateway = createLovableAiGatewayProvider(apiKey);
+    const system = `You write a brief daily devotional for a Christian app. You are given ONE already-verified verse. Reflect on THIS verse only — never quote or cite any other verse, and never invent verse text. Be warm, pastoral, and concrete. Honor the reader's tradition where relevant. Output EXACTLY two labeled sections and nothing else:
+REFLECTION: <50-70 words, second person>
+PRAYER: <one or two sentences, first person>`;
+    const prompt = `Verse (${ref}, for a ${tradition} reader): "${verse.text}"`;
+
+    let raw = "";
+    try {
+      const r = await generateText({ model: gateway(CHAT_MODEL), system, prompt });
+      raw = r.text;
+    } catch {
+      return { disabled: true as const };
+    }
+
+    const reflection = (
+      raw.match(/REFLECTION:\s*([\s\S]*?)(?:\n\s*PRAYER:|$)/i)?.[1] ?? ""
+    ).trim();
+    const prayer = (raw.match(/PRAYER:\s*([\s\S]*)$/i)?.[1] ?? "").trim();
+    if (!reflection || !prayer) return { disabled: true as const };
+
+    await supabase.from("daily_devotionals").insert({
+      user_id: userId,
+      devo_date: today,
+      verse_ref: ref,
+      reflection,
+      prayer,
+    });
+
+    return { disabled: false as const, verse_ref: ref, reflection, prayer };
   });
 
 // ---------------------------------------------------------------------------
