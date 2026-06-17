@@ -102,6 +102,7 @@ function CompanionPaywall() {
             accent="primary"
             items={[
               "Unlimited AI study sessions",
+              "Full audio library — guided prayer, Scripture & sleep",
               "Multiple reading plans & saved study notes",
               "Group leader tools: larger groups, plan scheduling, exports",
               "Early access to new translations as licensing allows",
