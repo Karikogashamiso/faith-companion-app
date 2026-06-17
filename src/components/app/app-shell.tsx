@@ -4,7 +4,7 @@ import { Icon } from "./icon";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
-  to: "/home" | "/bible" | "/groups" | "/settings";
+  to: "/home" | "/bible" | "/listen" | "/groups" | "/settings";
   label: string;
   icon: string;
 };
@@ -12,6 +12,7 @@ type NavItem = {
 const NAV: NavItem[] = [
   { to: "/home", label: "Sanctuary", icon: "home" },
   { to: "/bible", label: "Bible", icon: "menu_book" },
+  { to: "/listen", label: "Listen", icon: "headphones" },
   { to: "/groups", label: "Groups", icon: "group" },
   { to: "/settings", label: "Settings", icon: "settings" },
 ];
