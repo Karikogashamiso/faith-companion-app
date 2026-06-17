@@ -39,3 +39,45 @@ must be configured.
 > The same script works for any additional public-domain translation; for
 > licensed translations (NIV, ESV, …) confirm distribution rights first and set
 > `bible_versions.is_public_domain = false`.
+
+## Bible translations (the common options)
+
+The catalog migration seeds the **public-domain** translations across
+traditions — these you can ship freely:
+
+| Abbr | Translation | Tradition | Status |
+|------|-------------|-----------|--------|
+| WEB  | World English Bible | General (modern) | Public domain — ship now |
+| KJV  | King James Version | Protestant (classic) | Public domain |
+| ASV  | American Standard Version | Protestant | Public domain |
+| YLT  | Young's Literal Translation | Study/literal | Public domain |
+| BBE  | Bible in Basic English | Simple English/ESL | Public domain |
+| DRA  | Douay-Rheims | **Catholic** canon | Public domain |
+
+Seeded rows are hidden in the reader until they have verse text. Ingest each
+with the same script, overriding the version:
+
+```bash
+VERSION_ABBR=KJV VERSION_NAME="King James Version" \
+SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… WEB_BIBLE_JSON=./kjv.json \
+  node scripts/ingest-web-bible.mjs
+```
+
+### Licensed translations (require a publisher agreement)
+
+The most-requested modern versions are **copyrighted** — do **not** add their
+text without a signed license. Once licensed, add them exactly like above with
+`is_public_domain=false`:
+
+| Translation | Publisher to license from |
+|-------------|---------------------------|
+| NIV | Biblica / Zondervan |
+| ESV | Crossway |
+| NLT | Tyndale House |
+| NKJV | Thomas Nelson (HarperCollins) |
+| NASB / AMP | The Lockman Foundation |
+| CSB | Holman / Lifeway |
+| NABRE, NRSV-CE | (Catholic) USCCB / NCC |
+
+Many publishers also offer the **API.Bible** (American Bible Society) gateway,
+which can simplify licensing several at once.
