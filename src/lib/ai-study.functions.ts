@@ -104,18 +104,18 @@ export const askStudy = createServerFn({ method: "POST" })
     //     counter can never be tampered with from the client.
     const FREE_DAILY_LIMIT = 5;
     const { data: gate, error: gateErr } = await supabase.rpc(
-      "consume_ai_session",
+      "consume_ai_session" as any,
       { _limit: FREE_DAILY_LIMIT },
     );
     if (gateErr) throw gateErr;
     const allowance = Array.isArray(gate) ? gate[0] : gate;
-    if (allowance && !allowance.allowed) {
+    if (allowance && !(allowance as any).allowed) {
       return {
         disabled: true as const,
-        message: `You've used your ${allowance.day_limit} free AI study sessions for today. Tomorrow the count resets — or unlock unlimited with Companion. Scripture reading, search, and prayer are always free.`,
+        message: `You've used your ${(allowance as any).day_limit} free AI study sessions for today. Tomorrow the count resets — or unlock unlimited with Companion. Scripture reading, search, and prayer are always free.`,
         paywall: true as const,
-        used: allowance.used,
-        limit: allowance.day_limit,
+        used: (allowance as any).used,
+        limit: (allowance as any).day_limit,
       };
     }
 
