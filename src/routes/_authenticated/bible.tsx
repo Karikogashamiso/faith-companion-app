@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import { Button, Sheet } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/bible")({
   head: () => ({ meta: [{ title: "Bible · Discipleship Companion" }] }),
@@ -174,8 +175,8 @@ function Bible() {
           </div>
         </header>
 
-        {/* Scripture body */}
-        <article className="space-y-1 font-serif text-[19px] leading-9 text-on-surface">
+        {/* Scripture body — calm, book-like reading at a ~66ch measure */}
+        <article className="measure mx-auto space-y-1 text-on-surface">
           {verses.length === 0 ? (
             <p className="font-sans text-on-surface-variant">
               No verses for this chapter in the current translation.
@@ -185,7 +186,7 @@ function Bible() {
               <p
                 key={v.id}
                 onClick={() => setSelected(v)}
-                className={`-mx-2 cursor-pointer rounded-lg px-2 py-1 transition-colors hover:bg-surface-container ${
+                className={`text-scripture -mx-2 cursor-pointer rounded-lg px-2 py-1 transition-gentle hover:bg-surface-container ${
                   highlights.has(v.id) ? "bg-secondary-container/40" : ""
                 }`}
               >
@@ -200,22 +201,17 @@ function Bible() {
       </div>
 
       {selected && (
-        <div
-          className="fixed inset-0 z-[60] flex items-end justify-center bg-primary/40 backdrop-blur-sm sm:items-center"
-          onClick={() => setSelected(null)}
+        <Sheet
+          open
+          onClose={() => setSelected(null)}
+          title={`${selected.book} ${selected.chapter}:${selected.verse}`}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md space-y-4 rounded-t-xl border border-divider-soft bg-scripture-cream p-6 shadow-[0_4px_20px_rgba(4,22,46,0.08)] sm:rounded-xl"
-          >
-            <span className="inline-flex items-center gap-1 rounded-lg bg-crisis-blue px-2.5 py-1 text-xs font-bold text-primary">
-              {selected.book} {selected.chapter}:{selected.verse}
-            </span>
-            <p className="font-serif text-lg leading-relaxed text-on-surface">
-              {selected.text}
-            </p>
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <button
+          <div className="space-y-4">
+            <p className="text-scripture text-on-surface">{selected.text}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                leftIcon="auto_awesome"
                 onClick={() =>
                   navigate({
                     to: "/study",
@@ -224,41 +220,43 @@ function Bible() {
                     },
                   })
                 }
-                className="flex h-10 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-semibold text-on-primary hover:bg-navy-deep"
               >
-                <Icon name="auto_awesome" filled className="text-base" />
                 Ask
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                leftIcon="ink_highlighter"
                 onClick={() => {
                   void toggleHighlight(selected);
                   setSelected(null);
                 }}
-                className="flex h-10 items-center gap-1.5 rounded-lg border border-divider-soft bg-card px-3 text-sm font-medium text-primary hover:border-wood-warm"
               >
-                <Icon name="ink_highlighter" className="text-base" />
                 {highlights.has(selected.id) ? "Remove highlight" : "Highlight"}
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                leftIcon="content_copy"
                 onClick={() => {
                   void navigator.clipboard?.writeText(
                     `${selected.text} — ${selected.book} ${selected.chapter}:${selected.verse}`,
                   );
                 }}
-                className="flex h-10 items-center gap-1.5 rounded-lg border border-divider-soft bg-card px-3 text-sm font-medium text-primary hover:border-wood-warm"
               >
-                <Icon name="content_copy" className="text-base" />
                 Copy
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="ml-auto"
                 onClick={() => setSelected(null)}
-                className="ml-auto flex h-10 items-center rounded-lg px-3 text-sm text-on-surface-variant hover:text-primary"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
-        </div>
+        </Sheet>
       )}
     </AppShell>
   );
