@@ -93,7 +93,7 @@ function AuthPage() {
               <Icon name="menu_book" className="text-3xl" />
             </div>
           </div>
-          <h1 className="mt-stack-md font-headline-md text-headline-md tracking-tight text-primary">
+          <h1 className="mt-stack-md font-serif text-2xl tracking-tight text-primary">
             {mode === "signin" ? "Welcome back" : "Create your account"}
           </h1>
           <p className="mt-1 text-sm text-on-surface-variant">
