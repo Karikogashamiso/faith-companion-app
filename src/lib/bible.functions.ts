@@ -37,10 +37,12 @@ export const explainChapter = createServerFn({ method: "POST" })
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("ai_enabled")
+      .select("ai_enabled, ai_provider")
       .eq("id", userId)
       .maybeSingle();
     if (profile && !profile.ai_enabled) return { disabled: true as const };
+
+    const chapterModel = modelForProvider((profile as any)?.ai_provider);
 
     // Cache hit?
     const { data: cached } = await (supabase as any)
