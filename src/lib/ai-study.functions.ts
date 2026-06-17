@@ -21,6 +21,10 @@ const PROVIDER_MODELS: Record<string, string> = {
   api_bible: "google/gemini-3-flash-preview",
 };
 
+function modelForProvider(provider: string | null | undefined): string {
+  return PROVIDER_MODELS[provider ?? ""] ?? DEFAULT_CHAT_MODEL;
+}
+
 type RetrievedVerse = {
   id: number;
   book: string;
