@@ -15,7 +15,7 @@ import {
 import { ALL_DAYS, DAY_LETTERS, describeDays, formatTime } from "@/lib/reminders";
 
 export const Route = createFileRoute("/_authenticated/reminders")({
-  head: () => ({ meta: [{ title: "Reminders · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Reminders · Faith Companion" }] }),
   component: Reminders,
 });
 

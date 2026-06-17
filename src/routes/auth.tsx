@@ -8,7 +8,7 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Sign in · Discipleship Companion" },
+      { title: "Sign in · Faith Companion" },
       { name: "description", content: "Sign in or create your account." },
     ],
   }),
@@ -155,7 +155,7 @@ function AuthPage() {
               <Icon name="menu_book" className="text-3xl" />
             </div>
           </div>
-          <h1 className="mt-stack-md font-serif text-3xl tracking-tight text-primary">
+          <h1 className="mt-stack-md font-serif text-2xl tracking-tight text-primary">
             {titles[mode].h}
           </h1>
           <p className="mt-1 text-sm text-on-surface-variant">

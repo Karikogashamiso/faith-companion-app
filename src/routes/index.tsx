@@ -5,13 +5,13 @@ import { Icon } from "@/components/app/icon";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Discipleship Companion — Bible, daily habit, real community" },
+      { title: "Faith Companion — Bible, daily habit, real community" },
       {
         name: "description",
         content:
           "Understand the Bible, build a daily habit, and never feel alone in it. Answers grounded in real Scripture — it never makes things up.",
       },
-      { property: "og:title", content: "Discipleship Companion" },
+      { property: "og:title", content: "Faith Companion" },
       {
         property: "og:description",
         content:
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "MobileApplication",
-          name: "Discipleship Companion",
+          name: "Faith Companion",
           applicationCategory: "LifestyleApplication",
           operatingSystem: "iOS, Android",
           description:
@@ -68,7 +68,7 @@ function SiteNav() {
         <Link to="/" className="flex items-center gap-2">
           <Icon name="menu_book" className="text-2xl text-primary" />
           <span className="font-serif text-lg font-bold tracking-tight text-primary">
-            Discipleship Companion
+            Faith Companion
           </span>
         </Link>
         <nav className="flex items-center gap-5 text-sm">
@@ -145,7 +145,7 @@ function PhoneMockup() {
     >
       <div className="relative aspect-[9/19] rounded-[2.5rem] border-8 border-primary bg-scripture-cream shadow-2xl">
         <div className="absolute inset-x-12 top-2 h-4 rounded-b-xl bg-primary" />
-        <div className="absolute inset-3 flex flex-col gap-3 overflow-hidden rounded-[2rem] bg-primary p-5 text-scripture-cream">
+        <div className="absolute inset-3 flex flex-col gap-3 overflow-hidden rounded-[2rem] bg-primary p-5 text-primary-foreground">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-on-primary-container">
             Today · Day 3
           </p>
@@ -190,7 +190,7 @@ function StoreBadge({ store }: { store: "ios" | "android" }) {
     <a
       href={href}
       aria-label={label}
-      className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-scripture-cream transition-colors hover:bg-navy-deep"
+      className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-primary-foreground transition-colors hover:bg-navy-deep"
     >
       <Icon name={store === "ios" ? "smartphone" : "play_arrow"} filled />
       <span className="flex flex-col leading-tight">
@@ -622,7 +622,7 @@ function FinalCta() {
 function SiteFooter() {
   return (
     <footer className="border-t border-divider-soft bg-scripture-cream px-margin-mobile py-8 text-center text-xs text-on-surface-variant">
-      <p>© {new Date().getFullYear()} Discipleship Companion. Built carefully.</p>
+      <p>© {new Date().getFullYear()} Faith Companion. Built carefully.</p>
     </footer>
   );
 }

@@ -7,7 +7,7 @@ import { Icon } from "@/components/app/icon";
 export const Route = createFileRoute(
   "/_authenticated/groups/$groupId/requests/$requestId",
 )({
-  head: () => ({ meta: [{ title: "Prayer request · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Prayer request · Faith Companion" }] }),
   component: RequestDetail,
 });
 

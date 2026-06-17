@@ -33,8 +33,8 @@
   --radius-4xl: 2rem;
 
   /* ---- Type families ----------------------------------------------------- */
-  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-serif: "Source Serif 4", ui-serif, Georgia, Cambria, serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: "Libre Baskerville", ui-serif, Georgia, Cambria, "Times New Roman", serif;
 
   /* ---- Type scale: 6 steps + display, on a calm modular rhythm ----------- */
   --text-xs: 0.75rem; /* 12 */
@@ -63,15 +63,15 @@
   --spacing-margin-mobile: 20px;
   --spacing-margin-desktop: 64px;
 
-  /* ---- Elevation: three gentle, warm-tinted shadows (no harsh borders) --- */
-  --shadow-2xs: 0 1px 2px rgba(38, 28, 14, 0.04);
-  --shadow-xs: 0 1px 2px rgba(38, 28, 14, 0.05);
-  --shadow-sm: 0 1px 2px rgba(38, 28, 14, 0.05), 0 1px 3px rgba(38, 28, 14, 0.05);
-  --shadow: 0 2px 6px rgba(38, 28, 14, 0.06);
-  --shadow-md: 0 4px 12px rgba(30, 22, 10, 0.07);
-  --shadow-lg: 0 10px 28px rgba(24, 18, 8, 0.09);
-  --shadow-xl: 0 18px 44px rgba(24, 18, 8, 0.11);
-  --shadow-2xl: 0 28px 64px rgba(20, 15, 6, 0.14);
+  /* ---- Elevation: deep, candle-warmed shadows for the midnight palette --- */
+  --shadow-2xs: 0 1px 2px rgba(4, 6, 16, 0.30);
+  --shadow-xs: 0 1px 2px rgba(4, 6, 16, 0.35);
+  --shadow-sm: 0 1px 2px rgba(4, 6, 16, 0.35), 0 1px 3px rgba(4, 6, 16, 0.30);
+  --shadow: 0 2px 8px rgba(4, 6, 16, 0.40);
+  --shadow-md: 0 6px 18px rgba(2, 4, 12, 0.45);
+  --shadow-lg: 0 14px 40px rgba(2, 4, 12, 0.55);
+  --shadow-xl: 0 24px 60px rgba(2, 4, 12, 0.65);
+  --shadow-2xl: 0 36px 80px rgba(0, 2, 8, 0.75);
 
   /* ---- Motion: slow, gentle ease-out ------------------------------------- */
   --ease-gentle: cubic-bezier(0.22, 1, 0.36, 1);
@@ -139,140 +139,144 @@
 }
 
 /* ============================================================================
- * LIGHT — warm parchment daylight
+ * SANCTUARY — warm midnight (deep ink-brown), candle gold, parchment text.
+ * Exact tokens from the Faith Companion design system.
  * ========================================================================== */
 :root {
-  /* Ink → container ramp (the one intentional navy family) */
-  --primary: #0d1f38; /* deep ink */
-  --primary-foreground: #f8f3ec;
-  --navy-deep: #16294a; /* hover / structural */
-  --primary-container: #1d3354; /* lifted navy surface */
-  --on-primary-container: #a6b6d2; /* legible on navy */
-  --on-primary: #f8f3ec;
+  /* Candle gold — the single sacred highlight */
+  --primary: #e6c364;
+  --primary-foreground: #3d2e00;
+  --navy-deep: #110e03;
+  --primary-container: #c9a84c;
+  --on-primary-container: #503d00;
+  --on-primary: #3d2e00;
 
-  /* Parchment surfaces (warm; cards lifted just off the page) */
-  --background: #f7f2ea; /* warm sand page */
-  --scripture-cream: #f7f2ea; /* page/app-bg + light-on-ink text */
-  --card: #fffdf9; /* warm white card */
-  --card-foreground: #211d18;
-  --popover: #fffdf9;
-  --popover-foreground: #211d18;
-  --surface-container-lowest: #fffdf9;
-  --surface-container-low: #f2ece1; /* sunken tint / skeleton */
-  --surface-container: #ece4d6;
-  --surface-container-high: #e6dccc;
-  --surface-container-highest: #e0d5c2;
+  /* Warm-ink night surfaces */
+  --background: #171307;
+  --scripture-cream: #171307;       /* page-surface alias */
+  --card: #231f12;
+  --card-foreground: #ebe2cc;
+  --popover: #2e2a1b;
+  --popover-foreground: #ebe2cc;
+  --surface-container-lowest: #110e03;
+  --surface-container-low: #1f1b0e;
+  --surface-container: #231f12;
+  --surface-container-high: #2e2a1b;
+  --surface-container-highest: #393525;
+  --surface-bright: #3e392a;
+  --surface-variant: #393525;
 
-  /* Wood accent + warm-amber container (streaks, achievements) */
-  --wood-warm: #97713f;
-  --secondary-container: #fbd8a4;
-  --on-secondary-container: #6a4d24;
+  /* Gold accent (streaks, sacred moments) */
+  --wood-warm: #e6c364;
+  --secondary-container: #3c456c;   /* Vesper Indigo for AI/pastoral */
+  --on-secondary-container: #aab3e0;
 
-  /* Calm/info tint reserved for AI & pastoral moments + a warm alt tint */
-  --crisis-blue: #e6eef4;
-  --accent-soft: #f3e9da;
+  /* Calm tints — moonlit blue for AI/pastoral */
+  --crisis-blue: #3c456c;
+  --accent-soft: #2a2412;
 
-  /* Ink text + warm neutrals */
-  --foreground: #211d18;
-  --on-surface: #211d18;
-  --on-surface-variant: #5c564d; /* warm muted (AA on cream) */
-  --outline: #8a8275;
-  --outline-variant: #cabfae;
-  --divider-soft: #e7ddcd;
+  /* Parchment text on warm ink */
+  --foreground: #ebe2cc;
+  --on-surface: #ebe2cc;
+  --on-surface-variant: #d0c5b2;
+  --outline: #99907e;
+  --outline-variant: #4d4637;
+  --divider-soft: #4d4637;
 
-  /* shadcn neutrals mapped onto the warm system */
-  --secondary: #ece4d6;
-  --secondary-foreground: #0d1f38;
-  --muted: #f2ece1;
-  --muted-foreground: #5c564d;
-  --accent: #ece4d6;
-  --accent-foreground: #0d1f38;
-  --border: #e7ddcd;
-  --input: #cabfae;
-  --ring: #0d1f38;
+  /* shadcn neutrals mapped onto the warm-ink system */
+  --secondary: #bcc4f3;
+  --secondary-foreground: #252e54;
+  --muted: #1f1b0e;
+  --muted-foreground: #d0c5b2;
+  --accent: #2e2a1b;
+  --accent-foreground: #e6c364;
+  --border: #4d4637;
+  --input: #393525;
+  --ring: #e6c364;
 
-  --destructive: #b3261e;
-  --destructive-foreground: #fffdf9;
+  --destructive: #ffb4ab;
+  --destructive-foreground: #690005;
 
   --radius: 0.625rem;
 
-  --chart-1: #0d1f38;
-  --chart-2: #97713f;
-  --chart-3: #1d3354;
-  --chart-4: #a6b6d2;
-  --chart-5: #fbd8a4;
+  --chart-1: #e6c364;
+  --chart-2: #bcc4f3;
+  --chart-3: #ebe2cc;
+  --chart-4: #c9a84c;
+  --chart-5: #ffe08f;
 
-  --sidebar: #f7f2ea;
-  --sidebar-foreground: #211d18;
-  --sidebar-primary: #0d1f38;
-  --sidebar-primary-foreground: #f8f3ec;
-  --sidebar-accent: #ece4d6;
-  --sidebar-accent-foreground: #0d1f38;
-  --sidebar-border: #e7ddcd;
-  --sidebar-ring: #0d1f38;
+  --sidebar: #110e03;
+  --sidebar-foreground: #ebe2cc;
+  --sidebar-primary: #e6c364;
+  --sidebar-primary-foreground: #3d2e00;
+  --sidebar-accent: #231f12;
+  --sidebar-accent-foreground: #ebe2cc;
+  --sidebar-border: #4d4637;
+  --sidebar-ring: #e6c364;
 }
 
 /* ============================================================================
- * DARK — dusk / candlelight (warm charcoal, never pure black)
- * Tokens flip coherently: primary becomes warm parchment, scripture-cream
- * becomes the dark page so token-based surfaces read correctly at night.
+ * DARK — deepest compline (slightly quieter ink)
  * ========================================================================== */
 .dark {
-  --primary: #d8c4a0; /* candle parchment */
-  --primary-foreground: #1a140c;
-  --navy-deep: #e7d8ba;
-  --primary-container: #2b2419;
-  --on-primary-container: #d8c4a0;
-  --on-primary: #1a140c;
+  --primary: #e6c364;
+  --primary-foreground: #3d2e00;
+  --navy-deep: #0a0700;
+  --primary-container: #c9a84c;
+  --on-primary-container: #503d00;
+  --on-primary: #3d2e00;
 
-  --background: #16130d; /* warm near-black */
-  --scripture-cream: #16130d;
-  --card: #211c14;
-  --card-foreground: #ece4d6;
-  --popover: #211c14;
-  --popover-foreground: #ece4d6;
-  --surface-container-lowest: #1b1610;
-  --surface-container-low: #211c14;
-  --surface-container: #28221a;
-  --surface-container-high: #322b20;
-  --surface-container-highest: #3d3427;
+  --background: #110e03;
+  --scripture-cream: #110e03;
+  --card: #1f1b0e;
+  --card-foreground: #ebe2cc;
+  --popover: #2e2a1b;
+  --popover-foreground: #ebe2cc;
+  --surface-container-lowest: #0a0700;
+  --surface-container-low: #171307;
+  --surface-container: #1f1b0e;
+  --surface-container-high: #2e2a1b;
+  --surface-container-highest: #393525;
+  --surface-bright: #3e392a;
+  --surface-variant: #393525;
 
-  --wood-warm: #cda86f;
-  --secondary-container: #4a3a1f;
-  --on-secondary-container: #fbd8a4;
+  --wood-warm: #e6c364;
+  --secondary-container: #3c456c;
+  --on-secondary-container: #aab3e0;
 
-  --crisis-blue: #20303f;
-  --accent-soft: #2a2316;
+  --crisis-blue: #3c456c;
+  --accent-soft: #1c1808;
 
-  --foreground: #ece4d6;
-  --on-surface: #ece4d6;
-  --on-surface-variant: #c4b9a6;
-  --outline: #9a9082;
-  --outline-variant: #4d463a;
-  --divider-soft: #322b20;
+  --foreground: #ebe2cc;
+  --on-surface: #ebe2cc;
+  --on-surface-variant: #d0c5b2;
+  --outline: #99907e;
+  --outline-variant: #4d4637;
+  --divider-soft: #4d4637;
 
-  --secondary: #28221a;
-  --secondary-foreground: #ece4d6;
-  --muted: #211c14;
-  --muted-foreground: #c4b9a6;
-  --accent: #322b20;
-  --accent-foreground: #ece4d6;
-  --border: #322b20;
-  --input: #4d463a;
-  --ring: #d8c4a0;
+  --secondary: #bcc4f3;
+  --secondary-foreground: #252e54;
+  --muted: #171307;
+  --muted-foreground: #d0c5b2;
+  --accent: #2e2a1b;
+  --accent-foreground: #e6c364;
+  --border: #4d4637;
+  --input: #393525;
+  --ring: #e6c364;
 
   --destructive: #ffb4ab;
-  --destructive-foreground: #16130d;
+  --destructive-foreground: #690005;
 
-  --sidebar: #16130d;
-  --sidebar-foreground: #ece4d6;
-  --sidebar-primary: #d8c4a0;
-  --sidebar-primary-foreground: #1a140c;
-  --sidebar-accent: #322b20;
-  --sidebar-accent-foreground: #ece4d6;
-  --sidebar-border: #322b20;
-  --sidebar-ring: #d8c4a0;
+  --sidebar: #0a0700;
+  --sidebar-foreground: #ebe2cc;
+  --sidebar-primary: #e6c364;
+  --sidebar-primary-foreground: #3d2e00;
+  --sidebar-accent: #1f1b0e;
+  --sidebar-accent-foreground: #ebe2cc;
+  --sidebar-border: #4d4637;
+  --sidebar-ring: #e6c364;
 }
+
 
 @layer base {
   * {
@@ -283,16 +287,38 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Subtle candle-vignette: warm gold breath at the top, deeper indigo
+       falling to the corners. Stays fixed so scroll feels reverent. */
+    background-image:
+      radial-gradient(
+        ellipse 80% 50% at 50% -10%,
+        color-mix(in oklab, var(--color-primary) 10%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 60% 40% at 50% 110%,
+        color-mix(in oklab, var(--color-primary-container) 40%, transparent),
+        transparent 70%
+      );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
 
-  /* Headings & Scripture default to the serif "voice of the church". */
+  /* Headings: Libre Baskerville, slightly tightened, parchment-warm */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    color: var(--color-foreground);
+  }
+  h1 {
+    letter-spacing: -0.018em;
   }
 }
 
@@ -302,11 +328,35 @@
   .text-scripture {
     font-family: var(--font-serif);
     font-size: 1.1875rem; /* 19 */
-    line-height: 1.85;
-    letter-spacing: 0.003em;
+    line-height: 1.95;
+    letter-spacing: 0.005em;
+    color: var(--color-foreground);
   }
   .measure {
     max-width: 38rem; /* ~66ch */
+  }
+
+  /* Gold hairline — a single sacred divider, like a candle's gilded edge. */
+  .gold-rule {
+    height: 1px;
+    width: 100%;
+    background-image: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in oklab, var(--color-primary) 70%, transparent) 50%,
+      transparent
+    );
+  }
+
+  /* Gold drop-cap for opening prose. */
+  .drop-cap::first-letter {
+    font-family: var(--font-serif);
+    float: left;
+    font-size: 3.4em;
+    line-height: 0.85;
+    padding: 0.1em 0.12em 0 0;
+    color: var(--color-primary);
+    font-weight: 700;
   }
 
   /* Gentle, reusable interaction transition. */
@@ -316,11 +366,74 @@
     transition-timing-function: var(--ease-gentle);
     transition-duration: var(--duration-base);
   }
+
+  /* Soft candle-glow used sparingly on focal CTAs / hero gold elements. */
+  .candle-glow {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-primary) 35%, transparent),
+      0 0 24px color-mix(in oklab, var(--color-primary) 22%, transparent),
+      0 8px 32px rgba(0, 2, 8, 0.55);
+  }
+
+
+
+  /* Candle-vignette: warm golden breath at the top of the page. */
+  .candle-vignette {
+    background: radial-gradient(
+      circle at 50% -20%,
+      rgba(230, 195, 100, 0.15) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+
+  /* Glass card — translucent panel with backdrop blur, soft outline. */
+  .glass-card {
+    background: rgba(35, 31, 18, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(77, 70, 55, 0.4);
+  }
+
+  /* Gilded divider — same as gold-rule but at 30% opacity (subtler). */
+  .gilded-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #e6c364 50%, transparent 100%);
+    opacity: 0.3;
+  }
+
+  /* Verse number — small superscript marker before each verse. */
+  .verse-number {
+    font-size: 0.7em;
+    vertical-align: super;
+    margin-right: 4px;
+    color: var(--color-outline);
+    font-weight: 600;
+  }
+
+  /* Active/selected verse — highlighted with gold tint + left border. */
+  .active-verse {
+    background-color: rgba(230, 195, 100, 0.1);
+    border-left: 2px solid var(--color-primary);
+    padding-left: 8px;
+    margin-left: -10px;
+  }
+
+  /* Wide-tracking caps label — used everywhere for category metadata. */
+  .label-caps {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.15em;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
 }
 
 /* Google Material Symbols (outlined) — iconography. */
 .material-symbols-outlined {
   font-family: "Material Symbols Outlined";
+
   font-weight: normal;
   font-style: normal;
   line-height: 1;

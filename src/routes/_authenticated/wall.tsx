@@ -9,13 +9,12 @@ import {
   Button,
   Card,
   EmptyState,
-  ScreenTitle,
   Skeleton,
   Textarea,
 } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/wall")({
-  head: () => ({ meta: [{ title: "Prayer Wall · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Prayer Wall · Faith Companion" }] }),
   component: Wall,
 });
 
@@ -98,10 +97,12 @@ function Wall() {
   return (
     <AppShell title="Prayer Wall">
       <div className="space-y-stack-md">
-        <ScreenTitle
-          title="Prayer Wall"
-          subtitle="Share what's on your heart, and pray for others around the world. You're never praying alone."
-        />
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h3 className="font-serif text-2xl text-primary">Community Feed</h3>
+          <span className="label-caps text-primary">LATEST</span>
+        </div>
+        <div className="gold-rule" />
 
         {/* Composer */}
         <Card className="space-y-3">
@@ -149,32 +150,39 @@ function Wall() {
                 (prayedLocal.has(p.id) && !feed.data!.prayed.has(p.id) ? 1 : 0);
               return (
                 <li key={p.id}>
-                  <Card>
-                    <div className="flex items-center gap-2 text-xs text-on-surface-variant">
-                      <Avatar name={p.author_name} className="h-7 w-7" />
-                      {p.author_name} · {timeAgo(p.created_at)}
+                  <div className="glass-card rounded-xl p-5 transition-all duration-300 hover:shadow-[0_4px_20px_rgba(230,195,100,0.1)]">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full border border-primary/30 p-0.5">
+                        <Avatar name={p.author_name} className="h-full w-full rounded-full" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-on-surface">{p.author_name}</p>
+                        <p className="text-xs text-on-surface-variant uppercase tracking-wider">{timeAgo(p.created_at)}</p>
+                      </div>
                     </div>
-                    <p className="mt-3 whitespace-pre-wrap text-on-surface">
+                    <p className="whitespace-pre-wrap text-on-surface mb-4">
                       {p.body}
                     </p>
-                    <div className="mt-4 flex items-center justify-between border-t border-divider-soft pt-3">
-                      <button
-                        onClick={() => pray(p.id)}
-                        disabled={prayed}
-                        className={`flex items-center gap-1.5 text-sm font-semibold transition-gentle ${
-                          prayed
-                            ? "text-on-surface-variant"
-                            : "text-primary hover:text-wood-warm"
-                        }`}
-                      >
-                        <Icon name="front_hand" filled={prayed} className="text-base" />
-                        {prayed ? "You prayed" : "I'll pray"}
-                      </button>
+                    <div className="flex items-center justify-between pt-4 border-t border-outline-variant/30">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => pray(p.id)}
+                          disabled={prayed}
+                          className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all active:scale-95 ${
+                            prayed
+                              ? "bg-primary-container text-on-primary-container"
+                              : "bg-surface-variant text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container"
+                          }`}
+                        >
+                          <Icon name="front_hand" filled={prayed} className="text-base" />
+                          <span className="label-caps">{prayed ? "AMEN" : "I'LL PRAY"}</span>
+                        </button>
+                      </div>
                       <span className="text-xs text-on-surface-variant">
                         {count} {count === 1 ? "prayer" : "prayers"}
                       </span>
                     </div>
-                  </Card>
+                  </div>
                 </li>
               );
             })}

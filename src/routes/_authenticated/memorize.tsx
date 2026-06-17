@@ -22,7 +22,7 @@ import {
 import { todayLocalISO } from "@/lib/streak";
 
 export const Route = createFileRoute("/_authenticated/memorize")({
-  head: () => ({ meta: [{ title: "Memorize · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Memorize · Faith Companion" }] }),
   component: Memorize,
 });
 

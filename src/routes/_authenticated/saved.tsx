@@ -6,13 +6,12 @@ import { Icon } from "@/components/app/icon";
 import {
   Chip,
   EmptyState,
-  ScreenTitle,
   SectionHeader,
   Skeleton,
 } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/saved")({
-  head: () => ({ meta: [{ title: "Saved · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Saved · Faith Companion" }] }),
   component: Saved,
 });
 
@@ -65,10 +64,13 @@ function Saved() {
   return (
     <AppShell title="Saved">
       <div className="space-y-stack-md">
-        <ScreenTitle
-          title="Saved verses"
-          subtitle="Verses you've bookmarked, organized into collections. Tap any verse in the reader to save it."
-        />
+        <div className="mb-stack-lg text-center">
+          <h2 className="font-serif text-3xl text-primary mb-unit">My Journal</h2>
+          <p className="text-on-surface-variant">
+            Pour out your heart before Him; God is a refuge for us.
+          </p>
+          <div className="gold-rule mt-stack-md" />
+        </div>
 
         {q.isLoading ? (
           <div className="space-y-2">
@@ -87,11 +89,11 @@ function Saved() {
               <SectionHeader eyebrow={`${groups[c].length} verses`}>
                 {c}
               </SectionHeader>
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {groups[c].map((b) => (
                   <li
                     key={b.id}
-                    className="rounded-xl border border-divider-soft bg-card p-4"
+                    className="glass-card p-4 rounded-xl hover:shadow-[0_0_20px_rgba(230,195,100,0.05)] transition-all group cursor-pointer"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <Chip tone="info">

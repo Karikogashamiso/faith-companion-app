@@ -73,7 +73,7 @@ const GOAL_PHRASE: Record<string, string> = {
 // Route
 // ---------------------------------------------------------------------------
 export const Route = createFileRoute("/_authenticated/onboarding")({
-  head: () => ({ meta: [{ title: "Welcome · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Welcome · Faith Companion" }] }),
   component: Onboarding,
 });
 

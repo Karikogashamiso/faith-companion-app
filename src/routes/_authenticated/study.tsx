@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -16,11 +16,24 @@ type Message =
       text: string;
       candidates: Candidate[];
       crisis?: string;
+      tradition?: string;
       stripped?: string[];
     };
 
 export const Route = createFileRoute("/_authenticated/study")({
-  head: () => ({ meta: [{ title: "Study · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Study · Faith Companion" }] }),
+  beforeLoad: async () => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("ai_enabled")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+    if (profile && profile.ai_enabled === false) {
+      throw redirect({ to: "/settings" });
+    }
+  },
   validateSearch: (s: Record<string, unknown>): { q?: string } => ({
     q: typeof s.q === "string" ? s.q.slice(0, 300) : undefined,
   }),
@@ -119,6 +132,7 @@ function StudyPage() {
             text: result.answer,
             candidates: result.candidates ?? [],
             crisis: result.crisis,
+            tradition: result.tradition,
             stripped: result.stripped,
           },
         ]);
@@ -200,6 +214,25 @@ function StudyPage() {
                     <Icon name="auto_awesome" className="text-sm" />
                   </span>
                   <div className="max-w-[90%] space-y-3">
+                    {(msg.tradition || (msg.crisis && msg.crisis !== "none")) && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {msg.tradition && msg.tradition !== "unspecified" && (
+                          <span className="rounded-full bg-secondary-container px-2.5 py-0.5 text-[11px] font-semibold capitalize text-on-secondary-container">
+                            {msg.tradition} lens
+                          </span>
+                        )}
+                        {msg.crisis === "pastoral" && (
+                          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900">
+                            Pastoral care
+                          </span>
+                        )}
+                        {msg.crisis === "crisis" && (
+                          <span className="rounded-full bg-destructive/15 px-2.5 py-0.5 text-[11px] font-semibold text-destructive">
+                            Crisis support
+                          </span>
+                        )}
+                      </div>
+                    )}
                     <div className="whitespace-pre-wrap text-sm leading-relaxed text-on-surface">
                       {msg.text}
                     </div>

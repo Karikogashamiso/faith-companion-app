@@ -8,7 +8,7 @@ import { levelFromXp } from "@/lib/gamification";
 import { addDays, computeStreak, todayLocalISO } from "@/lib/streak";
 
 export const Route = createFileRoute("/_authenticated/profile")({
-  head: () => ({ meta: [{ title: "Progress · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Progress · Faith Companion" }] }),
   component: Profile,
 });
 

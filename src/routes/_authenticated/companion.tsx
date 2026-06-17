@@ -1,14 +1,27 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import { getLocalizedPricing } from "@/lib/pricing";
 
 export const Route = createFileRoute("/_authenticated/companion")({
+  beforeLoad: async () => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("ai_enabled")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+    if (profile && profile.ai_enabled === false) {
+      throw redirect({ to: "/settings" });
+    }
+  },
   head: () => ({
     meta: [
-      { title: "Companion · Discipleship Companion" },
+      { title: "Companion · Faith Companion" },
       {
         name: "description",
         content:
@@ -157,7 +170,7 @@ function CompanionPaywall() {
             onClick={() =>
               toast("Restore purchases", {
                 description:
-                  "Open the Discipleship Companion mobile app to restore a previous purchase.",
+                  "Open the Faith Companion mobile app to restore a previous purchase.",
               })
             }
             className="font-semibold text-primary hover:underline"
@@ -215,7 +228,7 @@ function PlanCard({
       onClick={() => {
         toast("Continue in the mobile app", {
           description:
-            "Subscriptions are managed in the Discipleship Companion app — download it from the App Store or Google Play to start your plan.",
+            "Subscriptions are managed in the Faith Companion app — download it from the App Store or Google Play to start your plan.",
         });
       }}
       className={`flex flex-col items-start gap-1 rounded-xl border bg-card p-5 text-left transition-all hover:border-wood-warm ${

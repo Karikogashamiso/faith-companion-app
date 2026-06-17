@@ -16,7 +16,7 @@ import {
 } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/groups")({
-  head: () => ({ meta: [{ title: "Groups · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Groups · Faith Companion" }] }),
   component: GroupsPage,
 });
 

@@ -13,7 +13,7 @@ import {
 } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/listen")({
-  head: () => ({ meta: [{ title: "Listen · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Listen · Faith Companion" }] }),
   component: Listen,
 });
 
@@ -156,14 +156,14 @@ function Listen() {
               className="flex items-center justify-between gap-4"
             >
               <div>
-                <p className="font-serif text-lg text-scripture-cream">
+                <p className="font-serif text-lg text-primary-foreground">
                   Unlock the full library
                 </p>
                 <p className="text-sm text-on-primary-container">
                   Hundreds of guided prayers, audio Scripture & sleep sessions
                 </p>
               </div>
-              <Icon name="diamond" filled className="text-2xl text-scripture-cream" />
+              <Icon name="diamond" filled className="text-2xl text-primary-foreground" />
             </Card>
           </Link>
         )}

@@ -9,7 +9,7 @@ import { Icon } from "@/components/app/icon";
 import { Button, Card, Chip, ScreenTitle, Skeleton } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/search")({
-  head: () => ({ meta: [{ title: "Search · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Search · Faith Companion" }] }),
   component: SearchPage,
 });
 
