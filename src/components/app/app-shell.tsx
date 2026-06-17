@@ -59,7 +59,7 @@ export function AppShell({
             <Icon name="menu" />
           </Link>
 
-          <h1 className="font-headline-md text-headline-md font-bold text-primary">
+          <h1 className="font-serif text-2xl font-bold text-primary">
             {title ?? "Faith Companion"}
           </h1>
 
