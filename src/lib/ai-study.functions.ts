@@ -292,13 +292,13 @@ export const dailyDevotional = createServerFn({ method: "POST" })
 
     const today = new Date().toISOString().slice(0, 10);
 
-    const { data: cached } = await supabase
+    const { data: cached } = await (supabase as any)
       .from("daily_devotionals")
       .select("verse_ref, reflection, prayer")
       .eq("user_id", userId)
       .eq("devo_date", today)
       .maybeSingle();
-    if (cached) return { disabled: false as const, ...cached };
+    if (cached) return { disabled: false as const, ...(cached as any) };
 
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) return { disabled: true as const };
