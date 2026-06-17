@@ -6,7 +6,17 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { stripUnsanctionedRefs, type VerseRef } from "./bible-refs.server";
 
-const CHAT_MODEL = "google/gemini-3-flash-preview";
+const DEFAULT_CHAT_MODEL = "google/gemini-3-flash-preview";
+
+const PROVIDER_MODELS: Record<string, string> = {
+  openai: "openai/gpt-4o-mini",
+  anthropic: "anthropic/claude-3-haiku",
+  api_bible: "google/gemini-3-flash-preview",
+};
+
+function modelForProvider(provider: string | null | undefined): string {
+  return PROVIDER_MODELS[provider ?? ""] ?? DEFAULT_CHAT_MODEL;
+}
 
 const Input = z.object({
   version_id: z.string(),
