@@ -342,7 +342,7 @@ PRAYER: <one or two sentences, first person>`;
     const prayer = (raw.match(/PRAYER:\s*([\s\S]*)$/i)?.[1] ?? "").trim();
     if (!reflection || !prayer) return { disabled: true as const };
 
-    await supabase.from("daily_devotionals").insert({
+    await (supabase as any).from("daily_devotionals").insert({
       user_id: userId,
       devo_date: today,
       verse_ref: ref,
