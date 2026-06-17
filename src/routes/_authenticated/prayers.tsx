@@ -31,6 +31,8 @@ function Prayers() {
   const { user } = Route.useRouteContext();
   const qc = useQueryClient();
   const [body, setBody] = useState("");
+  const [answeringId, setAnsweringId] = useState<string | null>(null);
+  const [answerNote, setAnswerNote] = useState("");
   const key = ["personal-prayers", user.id];
 
   const q = useQuery({
@@ -61,19 +63,22 @@ function Prayers() {
   });
 
   const answer = useMutation({
-    mutationFn: async (p: Prayer) => {
-      const note = window.prompt("How was it answered? (optional)") ?? null;
+    mutationFn: async ({ id, note }: { id: string; note: string }) => {
       const { error } = await (supabase as any)
         .from("personal_prayers")
         .update({
           answered: true,
-          answered_note: note,
+          answered_note: note.trim() || null,
           answered_at: new Date().toISOString(),
         })
-        .eq("id", p.id);
+        .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onSuccess: () => {
+      setAnsweringId(null);
+      setAnswerNote("");
+      qc.invalidateQueries({ queryKey: key });
+    },
   });
 
   const remove = useMutation({
@@ -133,21 +138,57 @@ function Prayers() {
                         <p className="whitespace-pre-wrap text-on-surface">
                           {p.body}
                         </p>
-                        <div className="flex items-center gap-4 border-t border-divider-soft pt-3 text-sm">
-                          <button
-                            onClick={() => answer.mutate(p)}
-                            className="flex items-center gap-1.5 font-semibold text-primary transition-gentle hover:text-wood-warm"
-                          >
-                            <Icon name="check_circle" className="text-base" />
-                            Mark answered
-                          </button>
-                          <button
-                            onClick={() => remove.mutate(p.id)}
-                            className="ml-auto text-on-surface-variant hover:text-destructive"
-                          >
-                            Remove
-                          </button>
-                        </div>
+                        {answeringId === p.id ? (
+                          <div className="space-y-2 border-t border-divider-soft pt-3">
+                            <Textarea
+                              value={answerNote}
+                              onChange={(e) => setAnswerNote(e.target.value)}
+                              rows={2}
+                              maxLength={400}
+                              placeholder="How was it answered? (optional)"
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                loading={answer.isPending}
+                                onClick={() =>
+                                  answer.mutate({ id: p.id, note: answerNote })
+                                }
+                              >
+                                Mark answered
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  setAnsweringId(null);
+                                  setAnswerNote("");
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-4 border-t border-divider-soft pt-3 text-sm">
+                            <button
+                              onClick={() => {
+                                setAnsweringId(p.id);
+                                setAnswerNote("");
+                              }}
+                              className="flex items-center gap-1.5 font-semibold text-primary transition-gentle hover:text-wood-warm"
+                            >
+                              <Icon name="check_circle" className="text-base" />
+                              Mark answered
+                            </button>
+                            <button
+                              onClick={() => remove.mutate(p.id)}
+                              className="ml-auto text-on-surface-variant hover:text-destructive"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        )}
                       </Card>
                     </li>
                   ))}
