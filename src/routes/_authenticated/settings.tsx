@@ -66,7 +66,7 @@ const TRADITION_LABELS: Record<Tradition, string> = {
 };
 
 export const Route = createFileRoute("/_authenticated/settings")({
-  head: () => ({ meta: [{ title: "Settings · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Settings · Faith Companion" }] }),
   component: Settings,
 });
 

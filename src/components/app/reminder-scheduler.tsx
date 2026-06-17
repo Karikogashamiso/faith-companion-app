@@ -22,7 +22,7 @@ export function ReminderScheduler() {
           : r.label || "Time to pray";
       const body =
         r.kind === "verse"
-          ? "Open Discipleship Companion for today's Scripture."
+          ? "Open Faith Companion for today's Scripture."
           : "Take a quiet moment to pray.";
       try {
         new Notification(title, { body });

@@ -7,7 +7,7 @@ import { getLocalizedPricing } from "@/lib/pricing";
 export const Route = createFileRoute("/_authenticated/companion")({
   head: () => ({
     meta: [
-      { title: "Companion · Discipleship Companion" },
+      { title: "Companion · Faith Companion" },
       {
         name: "description",
         content:
@@ -211,7 +211,7 @@ function PlanCard({
       onClick={() => {
         alert(
           "Subscriptions are handled in the native app via RevenueCat. " +
-            "Download the Discipleship Companion from the App Store or Google Play to subscribe.",
+            "Download the Faith Companion from the App Store or Google Play to subscribe.",
         );
       }}
       className={`flex flex-col items-start gap-1 rounded-xl border bg-card p-5 text-left transition-all hover:border-wood-warm ${

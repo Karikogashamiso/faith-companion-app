@@ -74,7 +74,7 @@ export function VerseImageSheet({
 
     ctx.fillStyle = "rgba(248,243,236,0.5)";
     ctx.font = "600 24px 'Hanken Grotesk', system-ui, sans-serif";
-    ctx.fillText("Discipleship Companion", W / 2, H - 96);
+    ctx.fillText("Faith Companion", W / 2, H - 96);
   }
 
   function wrap(ctx: CanvasRenderingContext2D, str: string, maxW: number) {

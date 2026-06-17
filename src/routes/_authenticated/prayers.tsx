@@ -15,7 +15,7 @@ import {
 } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/prayers")({
-  head: () => ({ meta: [{ title: "My Prayers · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "My Prayers · Faith Companion" }] }),
   component: Prayers,
 });
 

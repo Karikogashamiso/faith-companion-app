@@ -6,7 +6,7 @@ import { Icon } from "@/components/app/icon";
 import { Avatar, Button, Card, Chip, Textarea } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/groups/$groupId")({
-  head: () => ({ meta: [{ title: "Group · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Group · Faith Companion" }] }),
   component: GroupHome,
 });
 

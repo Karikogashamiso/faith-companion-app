@@ -21,7 +21,7 @@ type Message =
     };
 
 export const Route = createFileRoute("/_authenticated/study")({
-  head: () => ({ meta: [{ title: "Study · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Study · Faith Companion" }] }),
   validateSearch: (s: Record<string, unknown>): { q?: string } => ({
     q: typeof s.q === "string" ? s.q.slice(0, 300) : undefined,
   }),
