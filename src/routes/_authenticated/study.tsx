@@ -22,6 +22,18 @@ type Message =
 
 export const Route = createFileRoute("/_authenticated/study")({
   head: () => ({ meta: [{ title: "Study · Faith Companion" }] }),
+  beforeLoad: async () => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("ai_enabled")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+    if (profile && profile.ai_enabled === false) {
+      throw redirect({ to: "/settings" });
+    }
+  },
   validateSearch: (s: Record<string, unknown>): { q?: string } => ({
     q: typeof s.q === "string" ? s.q.slice(0, 300) : undefined,
   }),
