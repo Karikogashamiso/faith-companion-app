@@ -80,6 +80,39 @@ export type Database = {
         }
         Relationships: []
       }
+      flagged_answers: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          question: string
+          reason: string | null
+          refs: Json
+          resolved: boolean
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          question: string
+          reason?: string | null
+          refs?: Json
+          resolved?: boolean
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          question?: string
+          reason?: string | null
+          refs?: Json
+          resolved?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_study_logs: {
         Row: {
           answer: string
@@ -238,39 +271,6 @@ export type Database = {
           activity_date?: string
           created_at?: string
           source?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      flagged_answers: {
-        Row: {
-          answer: string
-          created_at: string
-          id: string
-          question: string
-          reason: string | null
-          refs: Json
-          resolved: boolean
-          user_id: string
-        }
-        Insert: {
-          answer: string
-          created_at?: string
-          id?: string
-          question: string
-          reason?: string | null
-          refs?: Json
-          resolved?: boolean
-          user_id: string
-        }
-        Update: {
-          answer?: string
-          created_at?: string
-          id?: string
-          question?: string
-          reason?: string | null
-          refs?: Json
-          resolved?: boolean
           user_id?: string
         }
         Relationships: []
@@ -797,10 +797,6 @@ export type Database = {
         Args: { p_version_id: string }
         Returns: { book: string; chapters: number }[]
       }
-      can_access_request: {
-        Args: { _request_id: string; _user_id: string }
-        Returns: boolean
-      }
       consume_ai_session: {
         Args: { _limit?: number }
         Returns: { allowed: boolean; used: number; day_limit: number }[]
@@ -808,6 +804,10 @@ export type Database = {
       demo_rate_check: {
         Args: { _ip: string; _max?: number; _window_seconds?: number }
         Returns: { allowed: boolean; remaining: number }[]
+      }
+      can_access_request: {
+        Args: { _request_id: string; _user_id: string }
+        Returns: boolean
       }
       has_role: {
         Args: {
