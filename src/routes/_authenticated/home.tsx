@@ -55,6 +55,7 @@ function Home() {
   const [xp, setXp] = useState(0);
   const season = currentSeason();
   const [resume, setResume] = useState<ReadingPosition | null>(null);
+  const [aiEnabled, setAiEnabled] = useState(true);
   useEffect(() => setResume(getReadingPosition()), []);
 
   const devotionalFn = useServerFn(dailyDevotional);
