@@ -292,13 +292,13 @@ export const dailyDevotional = createServerFn({ method: "POST" })
 
     const today = new Date().toISOString().slice(0, 10);
 
-    const { data: cached } = await supabase
+    const { data: cached } = await (supabase as any)
       .from("daily_devotionals")
       .select("verse_ref, reflection, prayer")
       .eq("user_id", userId)
       .eq("devo_date", today)
       .maybeSingle();
-    if (cached) return { disabled: false as const, ...cached };
+    if (cached) return { disabled: false as const, ...(cached as any) };
 
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) return { disabled: true as const };
@@ -342,7 +342,7 @@ PRAYER: <one or two sentences, first person>`;
     const prayer = (raw.match(/PRAYER:\s*([\s\S]*)$/i)?.[1] ?? "").trim();
     if (!reflection || !prayer) return { disabled: true as const };
 
-    await supabase.from("daily_devotionals").insert({
+    await (supabase as any).from("daily_devotionals").insert({
       user_id: userId,
       devo_date: today,
       verse_ref: ref,
