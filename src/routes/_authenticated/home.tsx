@@ -283,7 +283,7 @@ function Home() {
             />
             {verse ? (
               <>
-                <blockquote className="mx-auto max-w-lg font-serif text-xl italic leading-relaxed text-scripture-cream">
+                <blockquote className="mx-auto max-w-lg font-serif text-xl italic leading-relaxed text-primary-foreground">
                   &ldquo;{verse.text}&rdquo;
                 </blockquote>
                 <div className="flex flex-col items-center gap-3">
@@ -300,7 +300,7 @@ function Home() {
                 </div>
               </>
             ) : (
-              <p className="font-serif text-lg italic text-scripture-cream/70">
+              <p className="font-serif text-lg italic text-primary-foreground/70">
                 Loading today's verse…
               </p>
             )}
@@ -476,13 +476,13 @@ function Home() {
                 <p className="mb-1 text-sm font-semibold text-on-primary-container">
                   You're never praying alone
                 </p>
-                <p className="font-serif text-lg text-scripture-cream">
+                <p className="font-serif text-lg text-primary-foreground">
                   Pray with people around the world
                 </p>
               </div>
               <Icon
                 name="public"
-                className="text-2xl text-scripture-cream transition-transform group-hover:translate-x-1"
+                className="text-2xl text-primary-foreground transition-transform group-hover:translate-x-1"
               />
             </Card>
           </Link>
