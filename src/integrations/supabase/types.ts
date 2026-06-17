@@ -471,6 +471,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active_plan_id: string | null
           ai_enabled: boolean
           created_at: string
           daily_minutes: number | null
@@ -484,6 +485,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          active_plan_id?: string | null
           ai_enabled?: boolean
           created_at?: string
           daily_minutes?: number | null
@@ -497,6 +499,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          active_plan_id?: string | null
           ai_enabled?: boolean
           created_at?: string
           daily_minutes?: number | null

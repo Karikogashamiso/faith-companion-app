@@ -26,6 +26,9 @@ function Home() {
   const [planTitle, setPlanTitle] = useState<string | null>(null);
   const [streak, setStreak] = useState({ current: 0, longest: 0 });
   const [completedToday, setCompletedToday] = useState(false);
+  const [activePlanId, setActivePlanId] = useState<string | null>(null);
+  const [planCurrentDay, setPlanCurrentDay] = useState<number | null>(null);
+  const [planComplete, setPlanComplete] = useState(false);
 
   useEffect(() => {
     void load();
@@ -35,7 +38,7 @@ function Home() {
   async function load() {
     const { data: prof } = await supabase
       .from("profiles")
-      .select("default_version_id")
+      .select("default_version_id, active_plan_id")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -56,30 +59,43 @@ function Home() {
       if (vot && Array.isArray(vot) && vot[0]) setVerse(vot[0] as Verse);
     }
 
-    // Pick the user's most recent in-progress plan (if any)
-    const { data: progress } = await supabase
-      .from("user_plan_progress")
-      .select("plan_id, day_completed")
-      .eq("user_id", user.id)
-      .order("completed_at", { ascending: false })
-      .limit(1);
-
-    if (progress && progress[0]) {
-      const { plan_id, day_completed } = progress[0] as {
-        plan_id: string;
-        day_completed: number;
-      };
-      const [{ data: pd }, { data: rp }] = await Promise.all([
+    // Active reading plan → show the next uncompleted day.
+    const planId = (prof?.active_plan_id as string | null) ?? null;
+    setActivePlanId(planId);
+    setPlanDay(null);
+    setPlanComplete(false);
+    setPlanCurrentDay(null);
+    if (planId) {
+      const [{ data: plan }, { data: prog }] = await Promise.all([
         supabase
+          .from("reading_plans")
+          .select("title, day_count")
+          .eq("id", planId)
+          .maybeSingle(),
+        supabase
+          .from("user_plan_progress")
+          .select("day_completed")
+          .eq("user_id", user.id)
+          .eq("plan_id", planId)
+          .order("day_completed", { ascending: false })
+          .limit(1),
+      ]);
+      setPlanTitle((plan as { title: string } | null)?.title ?? null);
+      const dayCount = (plan as { day_count: number } | null)?.day_count ?? 0;
+      const maxDone = prog && prog[0] ? (prog[0].day_completed as number) : 0;
+      const nextDay = maxDone + 1;
+      if (nextDay <= dayCount) {
+        const { data: pd } = await supabase
           .from("plan_days")
           .select("id, day_number, passage_ref, reflection_md, prayer_md")
-          .eq("plan_id", plan_id)
-          .eq("day_number", day_completed + 1)
-          .maybeSingle(),
-        supabase.from("reading_plans").select("title").eq("id", plan_id).maybeSingle(),
-      ]);
-      setPlanDay(pd as PlanDay | null);
-      setPlanTitle((rp as { title: string } | null)?.title ?? null);
+          .eq("plan_id", planId)
+          .eq("day_number", nextDay)
+          .maybeSingle();
+        setPlanDay(pd as PlanDay | null);
+        setPlanCurrentDay(nextDay);
+      } else {
+        setPlanComplete(true);
+      }
     }
 
     const { data: act } = await supabase
@@ -97,6 +113,17 @@ function Home() {
     await supabase
       .from("daily_activity")
       .upsert({ user_id: user.id, activity_date: todayLocalISO(), source: "home" });
+    // Advance the active plan by recording the day just completed.
+    if (activePlanId && planCurrentDay) {
+      await supabase.from("user_plan_progress").upsert(
+        {
+          user_id: user.id,
+          plan_id: activePlanId,
+          day_completed: planCurrentDay,
+        },
+        { onConflict: "user_id,plan_id,day_completed" },
+      );
+    }
     void load();
   }
 
@@ -182,11 +209,12 @@ function Home() {
         <section className="space-y-stack-md">
           <SectionHeading
             trailing={
-              planDay ? (
-                <span className="text-sm font-semibold text-wood-warm">
-                  Day {planDay.day_number}
-                </span>
-              ) : null
+              <Link
+                to="/plans"
+                className="text-sm font-semibold text-wood-warm hover:text-primary"
+              >
+                {planDay ? `Day ${planDay.day_number}` : "Plans"}
+              </Link>
             }
           >
             Today's Journey
@@ -229,16 +257,34 @@ function Home() {
                 </div>
               )}
             </div>
+          ) : planComplete ? (
+            <div className="rounded-xl border border-divider-soft bg-crisis-blue p-6 text-center">
+              <Icon name="celebration" filled className="text-3xl text-wood-warm" />
+              <p className="mt-2 font-serif text-xl text-primary">
+                You finished {planTitle ?? "your plan"}.
+              </p>
+              <p className="mt-1 text-sm text-on-surface-variant">
+                Well done showing up. Ready for the next one?
+              </p>
+              <Link
+                to="/plans"
+                className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:text-wood-warm"
+              >
+                Browse reading plans
+                <Icon name="arrow_forward" className="text-base" />
+              </Link>
+            </div>
           ) : (
             <div className="rounded-xl border border-divider-soft bg-white p-6">
               <p className="text-on-surface-variant">
-                No active plan yet. Pick one anytime — there's no rush.
+                No active plan yet. A short daily reading is the easiest way to
+                build the habit — there's no rush.
               </p>
               <Link
-                to="/bible"
+                to="/plans"
                 className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-wood-warm hover:text-primary"
               >
-                Open the Bible
+                Browse reading plans
                 <Icon name="arrow_forward" className="text-base" />
               </Link>
             </div>
