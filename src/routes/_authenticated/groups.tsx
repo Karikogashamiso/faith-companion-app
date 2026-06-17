@@ -1,8 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { AppShell, SectionHeading } from "@/components/app/app-shell";
+import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import {
+  Button,
+  Card,
+  Chip,
+  EmptyState,
+  IconBadge,
+  Input,
+  ListRow,
+  ScreenTitle,
+  SectionHeader,
+} from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/groups")({
   head: () => ({ meta: [{ title: "Groups · Discipleship Companion" }] }),
@@ -89,26 +100,19 @@ function GroupsPage() {
   return (
     <AppShell title="Groups">
       <div className="space-y-stack-lg">
-        <header className="space-y-2">
-          <h1 className="font-serif text-3xl text-primary">Groups</h1>
-          <p className="text-on-surface-variant">
-            A small group, family, or church circle. Everything posted here is
-            only visible to members.
-          </p>
-        </header>
+        <ScreenTitle
+          title="Groups"
+          subtitle="A small group, family, or church circle. Everything posted here is only visible to members."
+        />
 
         <section className="space-y-3">
-          <SectionHeading>Your groups</SectionHeading>
+          <SectionHeader>Your groups</SectionHeader>
           {groups.length === 0 ? (
-            <div className="rounded-xl border border-divider-soft bg-card p-6 text-center">
-              <Icon
-                name="groups"
-                className="text-4xl text-on-surface-variant opacity-40"
-              />
-              <p className="mt-2 text-on-surface-variant">
-                You're not in any groups yet.
-              </p>
-            </div>
+            <EmptyState
+              icon="groups"
+              title="No groups yet"
+              description="Join one with a code, or start your own below."
+            />
           ) : (
             <ul className="space-y-2">
               {groups.map((g) => (
@@ -116,19 +120,17 @@ function GroupsPage() {
                   <Link
                     to="/groups/$groupId"
                     params={{ groupId: g.id }}
-                    className="flex items-center justify-between rounded-xl border border-divider-soft bg-card p-4 transition-colors hover:border-wood-warm"
+                    className="block"
                   >
-                    <span className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
-                        <Icon name="diversity_3" />
-                      </span>
-                      <span className="font-semibold text-primary">
-                        {g.name}
-                      </span>
-                    </span>
-                    <span className="rounded-lg bg-crisis-blue px-2 py-1 font-mono text-xs font-bold text-primary">
-                      {g.join_code}
-                    </span>
+                    <ListRow
+                      leading={<IconBadge name="diversity_3" tone="neutral" />}
+                      title={g.name}
+                      trailing={
+                        <Chip tone="info" className="font-mono">
+                          {g.join_code}
+                        </Chip>
+                      }
+                    />
                   </Link>
                 </li>
               ))}
@@ -137,50 +139,41 @@ function GroupsPage() {
         </section>
 
         <section className="grid gap-gutter sm:grid-cols-2">
-          <form
-            onSubmit={joinGroup}
-            className="space-y-3 rounded-xl border border-divider-soft bg-card p-5"
-          >
-            <h2 className="flex items-center gap-2 font-serif text-xl text-primary">
-              <Icon name="login" className="text-base text-wood-warm" />
-              Join with a code
-            </h2>
-            <input
-              value={code}
-              onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="ABC123"
-              maxLength={12}
-              className="w-full rounded-lg border border-divider-soft bg-scripture-cream px-3 py-2.5 font-mono uppercase focus:border-primary focus:outline-none"
-            />
-            <button
-              disabled={busy}
-              className="h-11 w-full rounded-lg bg-primary px-4 text-sm font-semibold text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-50"
-            >
-              Join group
-            </button>
+          <form onSubmit={joinGroup}>
+            <Card className="space-y-3">
+              <h2 className="flex items-center gap-2 font-serif text-xl text-primary">
+                <Icon name="login" className="text-base text-wood-warm" />
+                Join with a code
+              </h2>
+              <Input
+                value={code}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                placeholder="ABC123"
+                maxLength={12}
+                className="font-mono uppercase"
+              />
+              <Button type="submit" block disabled={busy}>
+                Join group
+              </Button>
+            </Card>
           </form>
 
-          <form
-            onSubmit={createGroup}
-            className="space-y-3 rounded-xl border border-divider-soft bg-card p-5"
-          >
-            <h2 className="flex items-center gap-2 font-serif text-xl text-primary">
-              <Icon name="add_circle" className="text-base text-wood-warm" />
-              Create a group
-            </h2>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Group name"
-              maxLength={80}
-              className="w-full rounded-lg border border-divider-soft bg-scripture-cream px-3 py-2.5 focus:border-primary focus:outline-none"
-            />
-            <button
-              disabled={busy}
-              className="h-11 w-full rounded-lg border border-divider-soft bg-card px-4 text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
-            >
-              Create
-            </button>
+          <form onSubmit={createGroup}>
+            <Card className="space-y-3">
+              <h2 className="flex items-center gap-2 font-serif text-xl text-primary">
+                <Icon name="add_circle" className="text-base text-wood-warm" />
+                Create a group
+              </h2>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Group name"
+                maxLength={80}
+              />
+              <Button type="submit" variant="secondary" block disabled={busy}>
+                Create
+              </Button>
+            </Card>
           </form>
         </section>
 
