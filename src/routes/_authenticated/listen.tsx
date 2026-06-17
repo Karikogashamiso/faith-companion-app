@@ -46,8 +46,8 @@ function Listen() {
   const tracksQuery = useQuery({
     queryKey: ["audio-tracks"],
     queryFn: async (): Promise<Track[]> => {
-      const { data, error } = await supabase
-        .from("audio_tracks" as any)
+      const { data, error } = await (supabase as any)
+        .from("audio_tracks")
         .select(
           "id, title, subtitle, category, narrator, duration_seconds, audio_url, is_premium",
         )
@@ -187,8 +187,8 @@ function Player({
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const { data } = await supabase
-        .from("audio_progress" as any)
+      const { data } = await (supabase as any)
+        .from("audio_progress")
         .select("position_seconds")
         .eq("user_id", userId)
         .eq("track_id", track.id)
@@ -204,7 +204,7 @@ function Player({
   }, [track.id, userId]);
 
   async function saveProgress(completed = false) {
-    await supabase.from("audio_progress" as any).upsert(
+    await (supabase as any).from("audio_progress").upsert(
       {
         user_id: userId,
         track_id: track.id,

@@ -47,8 +47,8 @@ function Home() {
   }, [user.id]);
 
   async function load() {
-      const { data: prof } = await supabase
-        .from("profiles" as any)
+      const { data: prof } = await (supabase as any)
+        .from("profiles")
         .select("default_version_id, active_plan_id")
         .eq("id", user.id)
         .maybeSingle();
@@ -120,8 +120,8 @@ function Home() {
     setStreak(computeStreak(dates));
     setCompletedToday(dates.includes(todayLocalISO()));
 
-    const { data: stats } = await supabase
-      .from("user_stats" as any)
+    const { data: stats } = await (supabase as any)
+      .from("user_stats")
       .select("xp")
       .eq("user_id", user.id)
       .maybeSingle();

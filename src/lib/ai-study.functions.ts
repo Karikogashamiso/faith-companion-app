@@ -243,7 +243,7 @@ export const flagAnswer = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => FlagInput.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { error } = await supabase.from("flagged_answers" as any).insert({
+    const { error } = await (supabase as any).from("flagged_answers").insert({
       user_id: userId,
       question: data.question,
       answer: data.answer,

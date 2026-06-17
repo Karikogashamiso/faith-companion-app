@@ -41,8 +41,8 @@ function Plans() {
   const activeQuery = useQuery({
     queryKey: ["active-plan", user.id],
     queryFn: async (): Promise<string | null> => {
-      const { data, error } = await supabase
-        .from("profiles" as any)
+      const { data, error } = await (supabase as any)
+        .from("profiles")
         .select("active_plan_id")
         .eq("id", user.id)
         .maybeSingle();
@@ -53,8 +53,8 @@ function Plans() {
 
   const start = useMutation({
     mutationFn: async (planId: string) => {
-      const { error } = await supabase
-        .from("profiles" as any)
+      const { error } = await (supabase as any)
+        .from("profiles")
         .update({ active_plan_id: planId })
         .eq("id", user.id);
       if (error) throw error;
