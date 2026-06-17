@@ -16,9 +16,13 @@ import { Route as AuthenticatedWallRouteImport } from './routes/_authenticated/w
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
+import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
+import { Route as AuthenticatedRemindersRouteImport } from './routes/_authenticated/reminders'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedPrayersRouteImport } from './routes/_authenticated/prayers'
 import { Route as AuthenticatedPlansRouteImport } from './routes/_authenticated/plans'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedMemorizeRouteImport } from './routes/_authenticated/memorize'
 import { Route as AuthenticatedListenRouteImport } from './routes/_authenticated/listen'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
@@ -65,9 +69,24 @@ const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
   path: '/search',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRemindersRoute = AuthenticatedRemindersRouteImport.update({
+  id: '/reminders',
+  path: '/reminders',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPrayersRoute = AuthenticatedPrayersRouteImport.update({
+  id: '/prayers',
+  path: '/prayers',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPlansRoute = AuthenticatedPlansRouteImport.update({
@@ -78,6 +97,11 @@ const AuthenticatedPlansRoute = AuthenticatedPlansRouteImport.update({
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMemorizeRoute = AuthenticatedMemorizeRouteImport.update({
+  id: '/memorize',
+  path: '/memorize',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedListenRoute = AuthenticatedListenRouteImport.update({
@@ -149,9 +173,13 @@ export interface FileRoutesByFullPath {
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/listen': typeof AuthenticatedListenRoute
+  '/memorize': typeof AuthenticatedMemorizeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/plans': typeof AuthenticatedPlansRoute
+  '/prayers': typeof AuthenticatedPrayersRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/reminders': typeof AuthenticatedRemindersRoute
+  '/saved': typeof AuthenticatedSavedRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
@@ -171,9 +199,13 @@ export interface FileRoutesByTo {
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/listen': typeof AuthenticatedListenRoute
+  '/memorize': typeof AuthenticatedMemorizeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/plans': typeof AuthenticatedPlansRoute
+  '/prayers': typeof AuthenticatedPrayersRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/reminders': typeof AuthenticatedRemindersRoute
+  '/saved': typeof AuthenticatedSavedRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
@@ -195,9 +227,13 @@ export interface FileRoutesById {
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/listen': typeof AuthenticatedListenRoute
+  '/_authenticated/memorize': typeof AuthenticatedMemorizeRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/plans': typeof AuthenticatedPlansRoute
+  '/_authenticated/prayers': typeof AuthenticatedPrayersRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/reminders': typeof AuthenticatedRemindersRoute
+  '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
@@ -219,9 +255,13 @@ export interface FileRouteTypes {
     | '/groups'
     | '/home'
     | '/listen'
+    | '/memorize'
     | '/onboarding'
     | '/plans'
+    | '/prayers'
     | '/profile'
+    | '/reminders'
+    | '/saved'
     | '/search'
     | '/settings'
     | '/study'
@@ -241,9 +281,13 @@ export interface FileRouteTypes {
     | '/groups'
     | '/home'
     | '/listen'
+    | '/memorize'
     | '/onboarding'
     | '/plans'
+    | '/prayers'
     | '/profile'
+    | '/reminders'
+    | '/saved'
     | '/search'
     | '/settings'
     | '/study'
@@ -264,9 +308,13 @@ export interface FileRouteTypes {
     | '/_authenticated/groups'
     | '/_authenticated/home'
     | '/_authenticated/listen'
+    | '/_authenticated/memorize'
     | '/_authenticated/onboarding'
     | '/_authenticated/plans'
+    | '/_authenticated/prayers'
     | '/_authenticated/profile'
+    | '/_authenticated/reminders'
+    | '/_authenticated/saved'
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/study'
@@ -338,11 +386,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSearchRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/saved': {
+      id: '/_authenticated/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof AuthenticatedSavedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reminders': {
+      id: '/_authenticated/reminders'
+      path: '/reminders'
+      fullPath: '/reminders'
+      preLoaderRoute: typeof AuthenticatedRemindersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prayers': {
+      id: '/_authenticated/prayers'
+      path: '/prayers'
+      fullPath: '/prayers'
+      preLoaderRoute: typeof AuthenticatedPrayersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/plans': {
@@ -357,6 +426,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/memorize': {
+      id: '/_authenticated/memorize'
+      path: '/memorize'
+      fullPath: '/memorize'
+      preLoaderRoute: typeof AuthenticatedMemorizeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/listen': {
@@ -472,9 +548,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedListenRoute: typeof AuthenticatedListenRoute
+  AuthenticatedMemorizeRoute: typeof AuthenticatedMemorizeRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPlansRoute: typeof AuthenticatedPlansRoute
+  AuthenticatedPrayersRoute: typeof AuthenticatedPrayersRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedRemindersRoute: typeof AuthenticatedRemindersRoute
+  AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
@@ -488,9 +568,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedListenRoute: AuthenticatedListenRoute,
+  AuthenticatedMemorizeRoute: AuthenticatedMemorizeRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPlansRoute: AuthenticatedPlansRoute,
+  AuthenticatedPrayersRoute: AuthenticatedPrayersRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedRemindersRoute: AuthenticatedRemindersRoute,
+  AuthenticatedSavedRoute: AuthenticatedSavedRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudyRoute: AuthenticatedStudyRoute,

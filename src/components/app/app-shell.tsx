@@ -5,23 +5,24 @@ import { ReminderScheduler } from "./reminder-scheduler";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
-  to: "/home" | "/bible" | "/listen" | "/groups" | "/settings";
+  to: "/home" | "/bible" | "/saved" | "/wall";
   label: string;
   icon: string;
 };
 
+// Faith Companion bottom rail — Today / Library / Journal / Community.
 const NAV: NavItem[] = [
-  { to: "/home", label: "Sanctuary", icon: "home" },
-  { to: "/bible", label: "Bible", icon: "menu_book" },
-  { to: "/listen", label: "Listen", icon: "headphones" },
-  { to: "/groups", label: "Groups", icon: "group" },
-  { to: "/settings", label: "Settings", icon: "settings" },
+  { to: "/home", label: "Today", icon: "auto_stories" },
+  { to: "/bible", label: "Library", icon: "menu_book" },
+  { to: "/saved", label: "Journal", icon: "edit_note" },
+  { to: "/wall", label: "Community", icon: "groups" },
 ];
 
 /**
  * The standard authenticated chrome: a glassy top app bar and a bottom
- * navigation rail, rendered in the Sanctuary Modern style. Content is
- * constrained to a 720px "reading width" column on larger screens.
+ * navigation rail in the Sanctuary / Faith Companion style. Content is
+ * constrained to a 720px "reading width" column on larger screens. The
+ * fixed candle-vignette warms the top of every page.
  */
 export function AppShell({
   children,
@@ -35,7 +36,10 @@ export function AppShell({
   maxWidth?: string;
 }) {
   return (
-    <div className="min-h-screen bg-scripture-cream text-on-surface">
+    <div className="relative min-h-screen bg-background text-on-surface">
+      {/* Fixed candle-vignette wash — warm gold breath above the fold. */}
+      <div className="pointer-events-none fixed inset-0 z-0 candle-vignette" />
+
       <ReminderScheduler />
       <a
         href="#main-content"
@@ -43,33 +47,36 @@ export function AppShell({
       >
         Skip to content
       </a>
-      <header className="fixed top-0 z-50 w-full border-b border-divider-soft bg-scripture-cream/90 backdrop-blur-md">
-        <div
-          className={cn(
-            "mx-auto flex h-16 w-full items-center justify-between px-margin-mobile",
-            maxWidth,
-          )}
-        >
-          <Link to="/home" className="flex items-center gap-2">
-            <Icon name="menu_book" className="text-2xl text-primary" />
-            <span className="font-serif text-lg font-bold tracking-tight text-primary">
-              {title ?? "Discipleship Companion"}
-            </span>
+
+      {/* Top app bar: menu · serif wordmark · avatar */}
+      <header className="fixed top-0 z-50 w-full bg-background/80 shadow-sm backdrop-blur-md">
+        <div className="mx-auto flex h-16 w-full max-w-[1100px] items-center justify-between px-5 md:px-16">
+          <Link
+            to="/home"
+            aria-label="Menu"
+            className="text-primary transition-opacity hover:opacity-80"
+          >
+            <Icon name="menu" />
           </Link>
+
+          <h1 className="font-serif text-2xl tracking-tight text-primary">
+            {title ?? "Faith Companion"}
+          </h1>
+
           <div className="flex items-center gap-2">
             <Link
               to="/search"
               aria-label="Search"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-container text-primary transition-colors hover:bg-primary hover:text-on-primary"
+              className="hidden h-9 w-9 items-center justify-center rounded-full text-on-surface-variant transition-colors hover:text-primary sm:flex"
             >
               <Icon name="search" />
             </Link>
             <Link
               to="/profile"
-              aria-label="Your progress"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-container text-on-primary-container transition-colors hover:bg-primary hover:text-on-primary"
+              aria-label="Profile"
+              className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-outline-variant bg-surface-container-highest text-primary"
             >
-              <Icon name="workspace_premium" />
+              <Icon name="person" filled />
             </Link>
           </div>
         </div>
@@ -78,7 +85,7 @@ export function AppShell({
       <main
         id="main-content"
         className={cn(
-          "mx-auto w-full px-margin-mobile pb-28 pt-24",
+          "relative z-10 mx-auto w-full px-5 pb-32 pt-20 md:px-16",
           maxWidth,
           contentClassName,
         )}
@@ -94,7 +101,7 @@ export function AppShell({
 function BottomNav() {
   const { pathname } = useLocation();
   return (
-    <nav className="fixed bottom-0 left-0 z-50 flex h-16 w-full items-center justify-around border-t border-divider-soft bg-scripture-cream px-4">
+    <nav className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-around rounded-t-xl border-t border-outline-variant bg-surface-container px-4 py-3 shadow-lg">
       {NAV.map((item) => {
         const active =
           pathname === item.to || pathname.startsWith(`${item.to}/`);
@@ -103,14 +110,17 @@ function BottomNav() {
             key={item.to}
             to={item.to}
             className={cn(
-              "flex flex-col items-center justify-center rounded-full px-4 py-1 transition-all",
+              "flex flex-col items-center justify-center rounded-full px-4 py-1 transition-all active:scale-90",
               active
-                ? "bg-secondary-container text-on-secondary-container"
+                ? "bg-primary-container text-on-primary-container"
                 : "text-on-surface-variant hover:text-primary",
             )}
           >
             <Icon name={item.icon} filled={active} />
-            <span className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide">
+            <span
+              className="mt-0.5 font-semibold uppercase"
+              style={{ fontSize: 10, letterSpacing: "0.15em" }}
+            >
               {item.label}
             </span>
           </Link>
@@ -130,7 +140,7 @@ export function SectionHeading({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <h3 className="font-serif text-2xl text-primary">{children}</h3>
+      <h3 className="font-serif text-2xl text-on-surface">{children}</h3>
       {trailing}
     </div>
   );
