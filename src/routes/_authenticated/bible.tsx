@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import { Button, Sheet } from "@/components/app/ui";
+import { VerseImageSheet } from "@/components/app/verse-image";
 
 export const Route = createFileRoute("/_authenticated/bible")({
   head: () => ({ meta: [{ title: "Bible · Discipleship Companion" }] }),
@@ -23,6 +25,7 @@ function Bible() {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [highlights, setHighlights] = useState<Set<number>>(new Set());
   const [selected, setSelected] = useState<Verse | null>(null);
+  const [imageVerse, setImageVerse] = useState<Verse | null>(null);
   const [books, setBooks] = useState<string[]>([]);
   const [bookChapters, setBookChapters] = useState<Record<string, number>>({});
 
@@ -96,6 +99,24 @@ function Bible() {
     setBook(b);
     setChapter(1);
   }
+  async function saveBookmark(v: Verse) {
+    const { error } = await (supabase as any)
+      .from("bookmarks")
+      .insert({ user_id: user.id, verse_id: v.id });
+    setSelected(null);
+    toast(error ? "Already saved" : "Saved to your collection");
+  }
+
+  async function memorize(v: Verse) {
+    const { error } = await (supabase as any).from("memory_verses").insert({
+      user_id: user.id,
+      verse_ref: `${v.book} ${v.chapter}:${v.verse}`,
+      verse_text: v.text,
+    });
+    setSelected(null);
+    toast(error ? "Already memorizing this" : "Added to memorization");
+  }
+
   function prevChapter() {
     if (chapter > 1) setChapter(chapter - 1);
   }
@@ -237,6 +258,33 @@ function Bible() {
               <Button
                 size="sm"
                 variant="secondary"
+                leftIcon="bookmark_add"
+                onClick={() => saveBookmark(selected)}
+              >
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                leftIcon="neurology"
+                onClick={() => memorize(selected)}
+              >
+                Memorize
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                leftIcon="ios_share"
+                onClick={() => {
+                  setImageVerse(selected);
+                  setSelected(null);
+                }}
+              >
+                Share image
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
                 leftIcon="content_copy"
                 onClick={() => {
                   void navigator.clipboard?.writeText(
@@ -257,6 +305,15 @@ function Bible() {
             </div>
           </div>
         </Sheet>
+      )}
+
+      {imageVerse && (
+        <VerseImageSheet
+          open
+          onClose={() => setImageVerse(null)}
+          reference={`${imageVerse.book} ${imageVerse.chapter}:${imageVerse.verse}`}
+          text={imageVerse.text}
+        />
       )}
     </AppShell>
   );

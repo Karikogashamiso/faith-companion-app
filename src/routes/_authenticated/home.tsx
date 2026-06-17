@@ -374,6 +374,28 @@ function Home() {
           </Card>
         </Link>
 
+        {/* Quick links to the engagement tools */}
+        <section className="grid grid-cols-3 gap-gutter">
+          {[
+            { to: "/prayers" as const, icon: "front_hand", label: "My Prayers" },
+            { to: "/memorize" as const, icon: "neurology", label: "Memorize" },
+            { to: "/saved" as const, icon: "bookmark", label: "Saved" },
+          ].map((l) => (
+            <Link key={l.to} to={l.to} className="block">
+              <Card
+                interactive
+                padding="sm"
+                className="flex flex-col items-center gap-2 text-center"
+              >
+                <IconBadge name={l.icon} tone="info" />
+                <span className="text-sm font-semibold text-primary">
+                  {l.label}
+                </span>
+              </Card>
+            </Link>
+          ))}
+        </section>
+
         {/* Today's journey (reading plan) */}
         <section className="space-y-stack-md">
           <SectionHeader

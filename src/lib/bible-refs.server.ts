@@ -101,15 +101,38 @@ export type FoundRef = { raw: string; refs: VerseRef[]; start: number; end: numb
 export function extractRefs(text: string): FoundRef[] {
   const out: FoundRef[] = [];
   for (const m of text.matchAll(REF_RE)) {
-    const book = canonicalizeBook(m[1].trim());
+    // The book group can greedily absorb a preceding non-book word
+    // (e.g. "As John" or "see Romans"). Find the shortest trailing suffix of
+    // the captured words that is a real book, so "As John 3:16" yields "John".
+    const full = m[1];
+    const parts = full.trim().split(/\s+/);
+    let book: string | null = null;
+    let bookStr = "";
+    for (let i = 0; i < parts.length; i++) {
+      const candidate = parts.slice(i).join(" ");
+      const canon = canonicalizeBook(candidate);
+      if (canon) {
+        book = canon;
+        bookStr = candidate;
+        break;
+      }
+    }
     if (!book) continue;
+
     const ch = parseInt(m[2], 10);
     const v1 = parseInt(m[3], 10);
     const v2 = m[4] ? parseInt(m[4], 10) : v1;
     if (v2 < v1 || v2 - v1 > 50) continue;
+
     const refs: VerseRef[] = [];
     for (let v = v1; v <= v2; v++) refs.push({ book, chapter: ch, verse: v });
-    out.push({ raw: m[0], refs, start: m.index!, end: m.index! + m[0].length });
+
+    // Recompute the raw span so it starts at the real book name, not the
+    // absorbed leading word — keeps stripping precise.
+    const tail = m[0].slice(full.length); // the " 4:6-7" part
+    const raw = bookStr + tail;
+    const start = m.index! + (m[0].length - raw.length);
+    out.push({ raw, refs, start, end: start + raw.length });
   }
   return out;
 }
