@@ -6,7 +6,17 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { stripUnsanctionedRefs, type VerseRef } from "./bible-refs.server";
 
-const CHAT_MODEL = "google/gemini-3-flash-preview";
+const DEFAULT_CHAT_MODEL = "google/gemini-3-flash-preview";
+
+const PROVIDER_MODELS: Record<string, string> = {
+  openai: "openai/gpt-4o-mini",
+  anthropic: "anthropic/claude-3-haiku",
+  api_bible: "google/gemini-3-flash-preview",
+};
+
+function modelForProvider(provider: string | null | undefined): string {
+  return PROVIDER_MODELS[provider ?? ""] ?? DEFAULT_CHAT_MODEL;
+}
 
 const Input = z.object({
   version_id: z.string(),
@@ -27,10 +37,12 @@ export const explainChapter = createServerFn({ method: "POST" })
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("ai_enabled")
+      .select("ai_enabled, ai_provider")
       .eq("id", userId)
       .maybeSingle();
     if (profile && !profile.ai_enabled) return { disabled: true as const };
+
+    const chapterModel = modelForProvider((profile as any)?.ai_provider);
 
     // Cache hit?
     const { data: cached } = await (supabase as any)
@@ -72,7 +84,7 @@ ${block}`;
     let raw = "";
     try {
       const r = await generateText({
-        model: gatewayModel(apiKey),
+        model: gatewayModel(apiKey, chapterModel),
         system,
         prompt: `Summarize ${data.book} ${data.chapter}.`,
       });
@@ -101,6 +113,6 @@ ${block}`;
     return { disabled: false as const, summary: clean };
   });
 
-function gatewayModel(apiKey: string) {
-  return createLovableAiGatewayProvider(apiKey)(CHAT_MODEL);
+function gatewayModel(apiKey: string, model: string) {
+  return createLovableAiGatewayProvider(apiKey)(model);
 }
