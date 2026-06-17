@@ -27,12 +27,12 @@ function Profile() {
     queryKey: ["profile-progress", user.id],
     queryFn: async () => {
       const [stats, catalog, earned, activity] = await Promise.all([
-        supabase.from("user_stats").select("xp").eq("user_id", user.id).maybeSingle(),
+        supabase.from("user_stats" as any).select("xp").eq("user_id", user.id).maybeSingle(),
         supabase
-          .from("achievements")
+          .from("achievements" as any)
           .select("code, title, description, icon, xp, sort")
           .order("sort"),
-        supabase.from("user_achievements").select("code").eq("user_id", user.id),
+        supabase.from("user_achievements" as any).select("code").eq("user_id", user.id),
         supabase
           .from("daily_activity")
           .select("activity_date")
@@ -42,8 +42,8 @@ function Profile() {
       ]);
       return {
         xp: (stats.data?.xp as number | undefined) ?? 0,
-        catalog: (catalog.data ?? []) as Achievement[],
-        earned: new Set((earned.data ?? []).map((e: any) => e.code as string)),
+        catalog: ((catalog.data ?? []) as unknown) as Achievement[],
+        earned: new Set(((earned.data ?? []) as any[]).map((e: any) => e.code as string)),
         dates: (activity.data ?? []).map((a: any) => a.activity_date as string),
       };
     },

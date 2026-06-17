@@ -47,13 +47,13 @@ function Listen() {
     queryKey: ["audio-tracks"],
     queryFn: async (): Promise<Track[]> => {
       const { data, error } = await supabase
-        .from("audio_tracks")
+        .from("audio_tracks" as any)
         .select(
           "id, title, subtitle, category, narrator, duration_seconds, audio_url, is_premium",
         )
         .order("sort");
       if (error) throw error;
-      return (data ?? []) as Track[];
+      return ((data ?? []) as unknown) as Track[];
     },
   });
 
@@ -188,14 +188,14 @@ function Player({
     let cancelled = false;
     void (async () => {
       const { data } = await supabase
-        .from("audio_progress")
+        .from("audio_progress" as any)
         .select("position_seconds")
         .eq("user_id", userId)
         .eq("track_id", track.id)
         .maybeSingle();
-      if (!cancelled && audioRef.current && data?.position_seconds) {
-        audioRef.current.currentTime = data.position_seconds as number;
-        setPos(data.position_seconds as number);
+      if (!cancelled && audioRef.current && (data as any)?.position_seconds) {
+        audioRef.current.currentTime = (data as any).position_seconds as number;
+        setPos((data as any).position_seconds as number);
       }
     })();
     return () => {
@@ -204,7 +204,7 @@ function Player({
   }, [track.id, userId]);
 
   async function saveProgress(completed = false) {
-    await supabase.from("audio_progress").upsert(
+    await supabase.from("audio_progress" as any).upsert(
       {
         user_id: userId,
         track_id: track.id,
