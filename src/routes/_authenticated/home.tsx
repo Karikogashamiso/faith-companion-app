@@ -430,6 +430,40 @@ function Home() {
         {/* Gilded Divider */}
         <div className="gold-rule w-full" />
 
+        {/* Explore every feature — full app surface */}
+        <section className="space-y-stack-md">
+          <SectionHeader>Explore Every Feature</SectionHeader>
+          <div className="grid grid-cols-2 gap-stack-sm sm:grid-cols-3">
+            {[
+              { to: "/bible" as const, icon: "menu_book", label: "Bible" },
+              { to: "/study" as const, icon: "auto_awesome", label: "AI Study" },
+              { to: "/companion" as const, icon: "favorite", label: "Companion" },
+              { to: "/plans" as const, icon: "calendar_month", label: "Plans" },
+              { to: "/memorize" as const, icon: "neurology", label: "Memorize" },
+              { to: "/listen" as const, icon: "headphones", label: "Listen" },
+              { to: "/prayers" as const, icon: "front_hand", label: "Prayers" },
+              { to: "/wall" as const, icon: "public", label: "Prayer Wall" },
+              { to: "/groups" as const, icon: "groups", label: "Groups" },
+              { to: "/saved" as const, icon: "bookmark", label: "Journal" },
+              { to: "/search" as const, icon: "search", label: "Search" },
+              { to: "/reminders" as const, icon: "alarm", label: "Reminders" },
+              { to: "/profile" as const, icon: "person", label: "Profile" },
+              { to: "/settings" as const, icon: "settings", label: "Settings" },
+            ].map((f) => (
+              <Link key={f.to} to={f.to} className="group block">
+                <div className="h-full bg-surface-container-low hover:bg-surface-container transition-all rounded-xl p-4 border border-outline-variant flex flex-col items-center justify-center gap-2 text-center cursor-pointer">
+                  <div className="w-11 h-11 rounded-lg bg-crisis-blue flex items-center justify-center">
+                    <Icon name={f.icon} className="text-primary text-xl" />
+                  </div>
+                  <span className="font-serif text-sm text-on-surface group-hover:text-primary transition-colors">
+                    {f.label}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* Gilded Divider */}
         <div className="gold-rule w-full" />
 
