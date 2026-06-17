@@ -120,6 +120,7 @@ function StudyPage() {
             text: result.answer,
             candidates: result.candidates ?? [],
             crisis: result.crisis,
+            tradition: result.tradition,
             stripped: result.stripped,
           },
         ]);
