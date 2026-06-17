@@ -16,6 +16,7 @@ type Message =
       text: string;
       candidates: Candidate[];
       crisis?: string;
+      tradition?: string;
       stripped?: string[];
     };
 
