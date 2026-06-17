@@ -863,3 +863,21 @@ REVOKE EXECUTE ON FUNCTION public.versions_with_content() FROM public;
 GRANT EXECUTE ON FUNCTION public.versions_with_content() TO anon, authenticated, service_role;
 
 
+
+
+-- ===== 20260617030000_popular_translations.sql =====
+-- Expand the catalog with the 8 most popular Bible translations (flagship: WEB).
+-- Public-domain rows ship now; licensed rows require a publisher agreement and
+-- stay hidden in pickers until verses exist. Idempotent.
+INSERT INTO public.bible_versions (name, abbreviation, language, license_notes, is_public_domain)
+VALUES
+  ('World English Bible, British & Catholic Edition', 'WEBBE', 'en',
+     'Public domain (includes Deuterocanon)', true),
+  ('Darby Translation',          'DBY', 'en', 'Public domain (1890)', true),
+  ('New International Version',   'NIV',  'en', 'Licensed — Biblica / Zondervan',        false),
+  ('English Standard Version',    'ESV',  'en', 'Licensed — Crossway',                   false),
+  ('New Living Translation',      'NLT',  'en', 'Licensed — Tyndale House',              false),
+  ('New King James Version',      'NKJV', 'en', 'Licensed — Thomas Nelson (HarperCollins)', false),
+  ('New American Standard Bible', 'NASB', 'en', 'Licensed — The Lockman Foundation',     false),
+  ('Christian Standard Bible',    'CSB',  'en', 'Licensed — Holman / Lifeway',           false)
+ON CONFLICT (abbreviation) DO NOTHING;

@@ -42,17 +42,19 @@ must be configured.
 
 ## Bible translations (the common options)
 
-The catalog migration seeds the **public-domain** translations across
-traditions — these you can ship freely:
+The catalog seeds the **public-domain** translations across traditions —
+these you can ship freely (load text with the ingest script below):
 
 | Abbr | Translation | Tradition | Status |
 |------|-------------|-----------|--------|
-| WEB  | World English Bible | General (modern) | Public domain — ship now |
-| KJV  | King James Version | Protestant (classic) | Public domain |
-| ASV  | American Standard Version | Protestant | Public domain |
-| YLT  | Young's Literal Translation | Study/literal | Public domain |
-| BBE  | Bible in Basic English | Simple English/ESL | Public domain |
-| DRA  | Douay-Rheims | **Catholic** canon | Public domain |
+| WEB   | World English Bible | General (modern) | Public domain — ship now |
+| WEBBE | World English Bible, British & Catholic Ed. | Incl. Deuterocanon | Public domain |
+| KJV   | King James Version | Protestant (classic) | Public domain |
+| ASV   | American Standard Version | Protestant | Public domain |
+| YLT   | Young's Literal Translation | Study/literal | Public domain |
+| DBY   | Darby Translation | Study/literal | Public domain |
+| BBE   | Bible in Basic English | Simple English/ESL | Public domain |
+| DRA   | Douay-Rheims | **Catholic** canon | Public domain |
 
 Seeded rows are hidden in the reader until they have verse text. Ingest each
 with the same script, overriding the version:
@@ -65,19 +67,23 @@ SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… WEB_BIBLE_JSON=./kjv.json \
 
 ### Licensed translations (require a publisher agreement)
 
-The most-requested modern versions are **copyrighted** — do **not** add their
-text without a signed license. Once licensed, add them exactly like above with
-`is_public_domain=false`:
+The most-requested modern versions are **copyrighted** — do **not** load their
+text without a signed license. The six most popular (NIV, ESV, NLT, NKJV, NASB,
+CSB) are already **catalogued** with `is_public_domain=false`, so they're ready
+to enable the moment you license them: just ingest the text exactly like the
+public-domain versions above. They stay hidden in the in-app picker until
+verses exist, so an un-licensed row never shows up empty.
 
-| Translation | Publisher to license from |
-|-------------|---------------------------|
-| NIV | Biblica / Zondervan |
-| ESV | Crossway |
-| NLT | Tyndale House |
-| NKJV | Thomas Nelson (HarperCollins) |
-| NASB / AMP | The Lockman Foundation |
-| CSB | Holman / Lifeway |
-| NABRE, NRSV-CE | (Catholic) USCCB / NCC |
+| Translation | Catalog row | Publisher to license from |
+|-------------|-------------|---------------------------|
+| NIV | seeded (NIV) | Biblica / Zondervan |
+| ESV | seeded (ESV) | Crossway |
+| NLT | seeded (NLT) | Tyndale House |
+| NKJV | seeded (NKJV) | Thomas Nelson (HarperCollins) |
+| NASB | seeded (NASB) | The Lockman Foundation |
+| CSB | seeded (CSB) | Holman / Lifeway |
+| AMP | add as above | The Lockman Foundation |
+| NABRE, NRSV-CE | add as above | (Catholic) USCCB / NCC |
 
 Many publishers also offer the **API.Bible** (American Bible Society) gateway,
 which can simplify licensing several at once.
