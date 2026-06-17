@@ -573,7 +573,7 @@ function AhaScreen({
       primary={{ label: "Continue", onClick: onContinue }}
     >
       <div className="space-y-4">
-        <div className="rounded-xl border border-divider-soft bg-white p-4">
+        <div className="rounded-xl border border-divider-soft bg-card p-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-wood-warm">
             Sample question
           </p>
@@ -581,7 +581,7 @@ function AhaScreen({
         </div>
 
         {!aiEnabled ? (
-          <div className="rounded-xl border border-divider-soft bg-white p-4 text-sm">
+          <div className="rounded-xl border border-divider-soft bg-card p-4 text-sm">
             <p className="font-semibold text-primary">AI is off — that's fine.</p>
             <p className="mt-1 text-on-surface-variant">
               We'll guide you with a curated devotional path instead. Scripture,
@@ -597,7 +597,7 @@ function AhaScreen({
             {loading ? "Searching Scripture…" : "Show me the answer"}
           </button>
         ) : (
-          <div className="space-y-3 rounded-xl border border-divider-soft bg-white p-4">
+          <div className="space-y-3 rounded-xl border border-divider-soft bg-card p-4">
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-on-surface">
               {result.answer}
             </p>
@@ -730,7 +730,7 @@ function PaywallScreen({
       </div>
 
       <div className="space-y-3">
-        <div className="rounded-xl border-2 border-primary bg-white p-5">
+        <div className="rounded-xl border-2 border-primary bg-card p-5">
           <div className="flex items-baseline justify-between">
             <p className="font-semibold text-primary">Annual · recommended</p>
             <span className="rounded-lg bg-crisis-blue px-2 py-0.5 text-xs font-bold text-primary">
@@ -742,7 +742,7 @@ function PaywallScreen({
             ≈ $3.33 / month · best value
           </p>
         </div>
-        <div className="rounded-xl border border-divider-soft bg-white p-5">
+        <div className="rounded-xl border border-divider-soft bg-card p-5">
           <p className="font-semibold text-primary">Monthly</p>
           <p className="mt-1 font-serif text-3xl text-primary">$4.99 / month</p>
         </div>
@@ -820,7 +820,7 @@ function Card({
   return (
     <button
       onClick={onClick}
-      className={`w-full rounded-xl border bg-white p-4 text-left transition-all ${
+      className={`w-full rounded-xl border bg-card p-4 text-left transition-all ${
         selected
           ? "border-2 border-primary shadow-sm"
           : "border border-divider-soft hover:border-wood-warm"
@@ -833,7 +833,7 @@ function Card({
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-divider-soft bg-white p-4 text-sm">
+    <div className="flex items-center justify-between rounded-xl border border-divider-soft bg-card p-4 text-sm">
       <span className="text-on-surface-variant">{label}</span>
       <span className="font-semibold text-primary">{value}</span>
     </div>
@@ -842,7 +842,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 function Quote({ text, author }: { text: string; author: string }) {
   return (
-    <figure className="rounded-xl border border-divider-soft bg-white p-4">
+    <figure className="rounded-xl border border-divider-soft bg-card p-4">
       <blockquote className="font-serif italic text-on-surface">
         &ldquo;{text}&rdquo;
       </blockquote>

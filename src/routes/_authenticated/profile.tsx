@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { AppShell, SectionHeading } from "@/components/app/app-shell";
+import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import { Card, IconBadge, SectionHeader, Skeleton } from "@/components/app/ui";
 import { levelFromXp } from "@/lib/gamification";
 import { addDays, computeStreak, todayLocalISO } from "@/lib/streak";
 
@@ -68,7 +69,7 @@ function Profile() {
         <h1 className="font-serif text-3xl text-primary">Your journey</h1>
 
         {/* Level + XP */}
-        <section className="rounded-xl bg-primary p-6 text-scripture-cream">
+        <Card tone="ink" padding="lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-on-primary-container">
@@ -76,9 +77,9 @@ function Profile() {
               </p>
               <p className="font-serif text-3xl">{lvl.rank}</p>
             </div>
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-scripture-cream/15">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-scripture-cream/15">
               <Icon name="workspace_premium" filled className="text-3xl" />
-            </div>
+            </span>
           </div>
           <div className="mt-4">
             <div className="h-2 w-full overflow-hidden rounded-full bg-scripture-cream/20">
@@ -92,7 +93,7 @@ function Profile() {
               {xp} total
             </p>
           </div>
-        </section>
+        </Card>
 
         {/* Stat tiles */}
         <section className="grid grid-cols-3 gap-gutter">
@@ -103,54 +104,48 @@ function Profile() {
 
         {/* Activity heatmap */}
         <section className="space-y-stack-sm">
-          <SectionHeading>Last 5 weeks</SectionHeading>
-          <div className="grid grid-cols-7 gap-1.5 rounded-xl border border-divider-soft bg-white p-4">
-            {heatmap.map((d) => (
-              <div
-                key={d.date}
-                title={d.date}
-                className={`aspect-square rounded-md ${
-                  d.active ? "bg-wood-warm" : "bg-surface-container"
-                }`}
-              />
-            ))}
-          </div>
+          <SectionHeader>Last 5 weeks</SectionHeader>
+          <Card padding="sm">
+            <div className="grid grid-cols-7 gap-1.5">
+              {heatmap.map((d) => (
+                <div
+                  key={d.date}
+                  title={d.date}
+                  className={`aspect-square rounded-md ${
+                    d.active ? "bg-wood-warm" : "bg-surface-container"
+                  }`}
+                />
+              ))}
+            </div>
+          </Card>
         </section>
 
         {/* Achievements */}
         <section className="space-y-stack-sm">
-          <SectionHeading>Achievements</SectionHeading>
+          <SectionHeader>Achievements</SectionHeader>
           {q.isLoading ? (
             <div className="grid grid-cols-2 gap-gutter">
               {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-28 animate-pulse rounded-xl border border-divider-soft bg-surface-container-low"
-                />
+                <Skeleton key={i} className="h-28" />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-gutter">
               {(q.data?.catalog ?? []).map((a) => {
-                const got = q.data?.earned.has(a.code);
+                const got = q.data?.earned.has(a.code) ?? false;
                 return (
-                  <div
+                  <Card
                     key={a.code}
-                    className={`rounded-xl border p-4 ${
-                      got
-                        ? "border-wood-warm/50 bg-secondary-container/30"
-                        : "border-divider-soft bg-white opacity-70"
-                    }`}
+                    tone={got ? "accent" : "base"}
+                    padding="sm"
+                    className={got ? "" : "opacity-70"}
                   >
-                    <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                        got
-                          ? "bg-wood-warm text-white"
-                          : "bg-surface-container text-outline"
-                      }`}
-                    >
-                      <Icon name={got ? a.icon : "lock"} filled={got} />
-                    </div>
+                    <IconBadge
+                      name={got ? a.icon : "lock"}
+                      filled={got}
+                      tone={got ? "wood" : "neutral"}
+                      size="sm"
+                    />
                     <p className="mt-2 font-semibold text-primary">{a.title}</p>
                     <p className="text-xs text-on-surface-variant">
                       {a.description}
@@ -158,7 +153,7 @@ function Profile() {
                     <p className="mt-1 text-xs font-semibold text-wood-warm">
                       +{a.xp} XP
                     </p>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
@@ -179,10 +174,10 @@ function StatTile({
   label: string;
 }) {
   return (
-    <div className="rounded-xl border border-divider-soft bg-white p-4 text-center">
+    <Card padding="sm" className="text-center">
       <Icon name={icon} filled className="text-2xl text-wood-warm" />
       <p className="mt-1 font-serif text-2xl text-primary">{value}</p>
-      <p className="text-[11px] leading-tight text-on-surface-variant">{label}</p>
-    </div>
+      <p className="text-xs leading-tight text-on-surface-variant">{label}</p>
+    </Card>
   );
 }

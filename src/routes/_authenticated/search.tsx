@@ -63,7 +63,7 @@ function SearchPage() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="anxiety, love, beginning…"
-              className="h-12 w-full rounded-lg border border-divider-soft bg-white pl-10 pr-3 text-sm focus:border-primary focus:outline-none"
+              className="h-12 w-full rounded-lg border border-divider-soft bg-card pl-10 pr-3 text-sm focus:border-primary focus:outline-none"
             />
           </div>
           <button
@@ -84,7 +84,7 @@ function SearchPage() {
             ))}
           </div>
         ) : query.isError ? (
-          <p className="rounded-xl border border-divider-soft bg-white p-6 text-center text-sm text-destructive">
+          <p className="rounded-xl border border-divider-soft bg-card p-6 text-center text-sm text-destructive">
             Search failed — please try again.
           </p>
         ) : (
@@ -92,7 +92,7 @@ function SearchPage() {
             {hits.map((h) => (
               <li
                 key={h.id}
-                className="rounded-xl border border-divider-soft bg-white p-4"
+                className="rounded-xl border border-divider-soft bg-card p-4"
               >
                 <span className="inline-flex items-center gap-1 rounded-lg bg-crisis-blue px-2 py-0.5 text-xs font-bold text-primary">
                   {h.book} {h.chapter}:{h.verse}
@@ -103,7 +103,7 @@ function SearchPage() {
               </li>
             ))}
             {submitted && hits.length === 0 && (
-              <li className="rounded-xl border border-divider-soft bg-white p-6 text-center text-sm text-on-surface-variant">
+              <li className="rounded-xl border border-divider-soft bg-card p-6 text-center text-sm text-on-surface-variant">
                 No matches.
               </li>
             )}

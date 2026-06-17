@@ -71,7 +71,7 @@ function CompanionPaywall() {
             </div>
           </section>
         ) : (
-          <section className="space-y-1 rounded-xl border border-divider-soft bg-white p-5">
+          <section className="space-y-1 rounded-xl border border-divider-soft bg-card p-5">
             <p className="text-sm text-on-surface">
               You've used <strong className="text-primary">{aiUsedToday}</strong>{" "}
               of <strong className="text-primary">{aiDailyLimit}</strong> free AI
@@ -83,7 +83,7 @@ function CompanionPaywall() {
           </section>
         )}
 
-        <section className="grid gap-3 rounded-xl border border-divider-soft bg-white p-6">
+        <section className="grid gap-3 rounded-xl border border-divider-soft bg-card p-6">
           <h2 className="font-serif text-xl text-primary">What's always free</h2>
           <FeatureList
             accent="wood-warm"
@@ -98,7 +98,7 @@ function CompanionPaywall() {
           />
         </section>
 
-        <section className="grid gap-3 rounded-xl border-2 border-primary bg-white p-6">
+        <section className="grid gap-3 rounded-xl border-2 border-primary bg-card p-6">
           <h2 className="font-serif text-xl text-primary">What Companion adds</h2>
           <FeatureList
             accent="primary"
@@ -214,7 +214,7 @@ function PlanCard({
             "Download the Discipleship Companion from the App Store or Google Play to subscribe.",
         );
       }}
-      className={`flex flex-col items-start gap-1 rounded-xl border bg-white p-5 text-left transition-all hover:border-wood-warm ${
+      className={`flex flex-col items-start gap-1 rounded-xl border bg-card p-5 text-left transition-all hover:border-wood-warm ${
         highlight ? "border-2 border-primary" : "border border-divider-soft"
       }`}
     >

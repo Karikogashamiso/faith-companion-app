@@ -98,7 +98,7 @@ function Wall() {
         </header>
 
         {/* Composer */}
-        <div className="space-y-2 rounded-xl border border-divider-soft bg-white p-4">
+        <div className="space-y-2 rounded-xl border border-divider-soft bg-card p-4">
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
@@ -147,7 +147,7 @@ function Wall() {
               return (
                 <li
                   key={p.id}
-                  className="rounded-xl border border-divider-soft bg-white p-5"
+                  className="rounded-xl border border-divider-soft bg-card p-5"
                 >
                   <div className="flex items-center gap-2 text-xs text-on-surface-variant">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary-container text-xs font-bold text-on-secondary-container">
@@ -178,7 +178,7 @@ function Wall() {
             })}
           </ul>
         ) : (
-          <p className="rounded-xl border border-divider-soft bg-white p-6 text-center text-sm text-on-surface-variant">
+          <p className="rounded-xl border border-divider-soft bg-card p-6 text-center text-sm text-on-surface-variant">
             No prayers yet — be the first to share.
           </p>
         )}

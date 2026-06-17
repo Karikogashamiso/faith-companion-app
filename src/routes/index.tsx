@@ -267,7 +267,7 @@ function LiveDemo() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-divider-soft bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-divider-soft bg-card p-5 shadow-sm">
           <label htmlFor="demo-q" className="sr-only">
             Your question
           </label>
@@ -397,7 +397,7 @@ function Differentiator() {
           {cards.map((c) => (
             <article
               key={c.title}
-              className="rounded-xl border border-divider-soft bg-white p-6"
+              className="rounded-xl border border-divider-soft bg-card p-6"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-crisis-blue text-primary">
                 <Icon name={c.icon} />
@@ -442,7 +442,7 @@ function HowItWorks() {
         {steps.map((s) => (
           <li
             key={s.n}
-            className="rounded-xl border border-divider-soft bg-white p-6"
+            className="rounded-xl border border-divider-soft bg-card p-6"
           >
             <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-primary font-serif text-sm font-semibold text-on-primary">
               {s.n}
@@ -476,7 +476,7 @@ function Pricing() {
           </p>
         </div>
         <div className="grid gap-gutter md:grid-cols-2">
-          <article className="rounded-xl border border-divider-soft bg-white p-6">
+          <article className="rounded-xl border border-divider-soft bg-card p-6">
             <h3 className="font-serif text-2xl text-primary">Free</h3>
             <p className="text-sm text-on-surface-variant">Forever, no card.</p>
             <ul className="mt-4 space-y-2 text-sm">
@@ -498,7 +498,7 @@ function Pricing() {
               ))}
             </ul>
           </article>
-          <article className="rounded-xl border-2 border-primary bg-white p-6">
+          <article className="rounded-xl border-2 border-primary bg-card p-6">
             <h3 className="font-serif text-2xl text-primary">Companion</h3>
             <p className="text-sm text-on-surface-variant">
               $4.99/mo or $39.99/yr · 14-day free trial · no weekly tier
@@ -565,7 +565,7 @@ function FAQ() {
         {items.map((it) => (
           <details
             key={it.q}
-            className="group rounded-xl border border-divider-soft bg-white p-4 open:bg-surface-container-low"
+            className="group rounded-xl border border-divider-soft bg-card p-4 open:bg-surface-container-low"
           >
             <summary className="flex cursor-pointer list-none items-center justify-between gap-2 font-semibold text-primary">
               {it.q}

@@ -202,7 +202,7 @@ function GroupHome() {
           <h2 className="font-serif text-2xl text-primary">Prayer requests</h2>
           <form
             onSubmit={postRequest}
-            className="space-y-2 rounded-xl border border-divider-soft bg-white p-4"
+            className="space-y-2 rounded-xl border border-divider-soft bg-card p-4"
           >
             <textarea
               value={newRequest}
@@ -222,7 +222,7 @@ function GroupHome() {
           </form>
 
           {requests.length === 0 ? (
-            <p className="rounded-xl border border-divider-soft bg-white p-6 text-center text-sm text-on-surface-variant">
+            <p className="rounded-xl border border-divider-soft bg-card p-6 text-center text-sm text-on-surface-variant">
               No requests yet. Be the first to share.
             </p>
           ) : (
@@ -232,7 +232,7 @@ function GroupHome() {
                 return (
                   <li
                     key={r.id}
-                    className="rounded-xl border border-divider-soft bg-white p-5"
+                    className="rounded-xl border border-divider-soft bg-card p-5"
                   >
                     <div className="flex items-center justify-between text-xs text-on-surface-variant">
                       <span className="flex items-center gap-2">
@@ -287,7 +287,7 @@ function GroupHome() {
 
         <section className="space-y-2">
           <h2 className="font-serif text-2xl text-primary">Members</h2>
-          <ul className="overflow-hidden rounded-xl border border-divider-soft bg-white text-sm">
+          <ul className="overflow-hidden rounded-xl border border-divider-soft bg-card text-sm">
             {members.map((m, i) => {
               const p = profiles[m.user_id];
               return (

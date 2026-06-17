@@ -140,7 +140,7 @@ function RequestDetail() {
           Back to group
         </Link>
 
-        <article className="space-y-3 rounded-xl border border-divider-soft bg-white p-5">
+        <article className="space-y-3 rounded-xl border border-divider-soft bg-card p-5">
           <div className="flex items-center gap-2 text-xs text-on-surface-variant">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary-container text-xs font-bold text-on-secondary-container">
               {(profiles[req.author_id] ?? "M").charAt(0).toUpperCase()}
@@ -163,7 +163,7 @@ function RequestDetail() {
         </article>
 
         {isAuthor && req.status === "open" && (
-          <section className="space-y-2 rounded-xl border border-divider-soft bg-white p-5">
+          <section className="space-y-2 rounded-xl border border-divider-soft bg-card p-5">
             <h2 className="font-serif text-xl text-primary">Mark as answered</h2>
             <p className="text-xs text-on-surface-variant">
               Share a short testimony — the group will see it.
@@ -198,7 +198,7 @@ function RequestDetail() {
               rows={2}
               maxLength={500}
               placeholder="A short note of encouragement (optional)"
-              className="w-full resize-none rounded-lg border border-divider-soft bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none"
+              className="w-full resize-none rounded-lg border border-divider-soft bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none"
             />
             <div className="flex gap-2">
               <button
@@ -212,7 +212,7 @@ function RequestDetail() {
                 <button
                   onClick={() => submitResponse(false)}
                   disabled={busy}
-                  className="h-10 rounded-lg border border-divider-soft bg-white px-4 text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
+                  className="h-10 rounded-lg border border-divider-soft bg-card px-4 text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
                 >
                   Send note only
                 </button>
@@ -230,7 +230,7 @@ function RequestDetail() {
             {responses.map((r) => (
               <li
                 key={r.id}
-                className="rounded-xl border border-divider-soft bg-white p-4 text-sm"
+                className="rounded-xl border border-divider-soft bg-card p-4 text-sm"
               >
                 <div className="flex items-center justify-between text-xs text-on-surface-variant">
                   <span className="font-medium text-on-surface">

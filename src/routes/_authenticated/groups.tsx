@@ -100,7 +100,7 @@ function GroupsPage() {
         <section className="space-y-3">
           <SectionHeading>Your groups</SectionHeading>
           {groups.length === 0 ? (
-            <div className="rounded-xl border border-divider-soft bg-white p-6 text-center">
+            <div className="rounded-xl border border-divider-soft bg-card p-6 text-center">
               <Icon
                 name="groups"
                 className="text-4xl text-on-surface-variant opacity-40"
@@ -116,7 +116,7 @@ function GroupsPage() {
                   <Link
                     to="/groups/$groupId"
                     params={{ groupId: g.id }}
-                    className="flex items-center justify-between rounded-xl border border-divider-soft bg-white p-4 transition-colors hover:border-wood-warm"
+                    className="flex items-center justify-between rounded-xl border border-divider-soft bg-card p-4 transition-colors hover:border-wood-warm"
                   >
                     <span className="flex items-center gap-3">
                       <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
@@ -139,7 +139,7 @@ function GroupsPage() {
         <section className="grid gap-gutter sm:grid-cols-2">
           <form
             onSubmit={joinGroup}
-            className="space-y-3 rounded-xl border border-divider-soft bg-white p-5"
+            className="space-y-3 rounded-xl border border-divider-soft bg-card p-5"
           >
             <h2 className="flex items-center gap-2 font-serif text-xl text-primary">
               <Icon name="login" className="text-base text-wood-warm" />
@@ -162,7 +162,7 @@ function GroupsPage() {
 
           <form
             onSubmit={createGroup}
-            className="space-y-3 rounded-xl border border-divider-soft bg-white p-5"
+            className="space-y-3 rounded-xl border border-divider-soft bg-card p-5"
           >
             <h2 className="flex items-center gap-2 font-serif text-xl text-primary">
               <Icon name="add_circle" className="text-base text-wood-warm" />
@@ -177,7 +177,7 @@ function GroupsPage() {
             />
             <button
               disabled={busy}
-              className="h-11 w-full rounded-lg border border-divider-soft bg-white px-4 text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
+              className="h-11 w-full rounded-lg border border-divider-soft bg-card px-4 text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
             >
               Create
             </button>
