@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { Icon } from "./icon";
+import { ReminderScheduler } from "./reminder-scheduler";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
@@ -35,6 +36,7 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-screen bg-scripture-cream text-on-surface">
+      <ReminderScheduler />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-on-primary"

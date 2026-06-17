@@ -375,11 +375,12 @@ function Home() {
         </Link>
 
         {/* Quick links to the engagement tools */}
-        <section className="grid grid-cols-3 gap-gutter">
+        <section className="grid grid-cols-2 gap-gutter">
           {[
             { to: "/prayers" as const, icon: "front_hand", label: "My Prayers" },
             { to: "/memorize" as const, icon: "neurology", label: "Memorize" },
             { to: "/saved" as const, icon: "bookmark", label: "Saved" },
+            { to: "/reminders" as const, icon: "alarm", label: "Reminders" },
           ].map((l) => (
             <Link key={l.to} to={l.to} className="block">
               <Card
