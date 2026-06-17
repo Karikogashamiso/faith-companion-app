@@ -61,7 +61,7 @@ export const Route = createFileRoute("/api/public/demo/ask")({
 
         // Durable, cross-process rate limit (atomic in Postgres). Fails open
         // for the marketing page if the limiter is briefly unavailable.
-        const { data: rlRows } = await supabase.rpc("demo_rate_check", {
+        const { data: rlRows } = await supabase.rpc("demo_rate_check" as any, {
           _ip: ip,
           _max: MAX_PER_WINDOW,
           _window_seconds: WINDOW_SECONDS,

@@ -45,10 +45,10 @@ function Bible() {
   useEffect(() => {
     if (!versionId) return;
     void (async () => {
-      const { data } = await supabase.rpc("bible_books", {
+      const { data } = await supabase.rpc("bible_books" as any, {
         p_version_id: versionId,
       });
-      const rows = (data ?? []) as { book: string; chapters: number }[];
+      const rows = ((data ?? []) as unknown) as { book: string; chapters: number }[];
       setBooks(rows.map((r) => r.book));
       setBookChapters(Object.fromEntries(rows.map((r) => [r.book, r.chapters])));
       if (rows.length && !rows.some((r) => r.book === book)) {

@@ -47,11 +47,11 @@ function Home() {
   }, [user.id]);
 
   async function load() {
-    const { data: prof } = await supabase
-      .from("profiles")
-      .select("default_version_id, active_plan_id")
-      .eq("id", user.id)
-      .maybeSingle();
+      const { data: prof } = await (supabase as any)
+        .from("profiles")
+        .select("default_version_id, active_plan_id")
+        .eq("id", user.id)
+        .maybeSingle();
 
     let versionId = prof?.default_version_id;
     if (!versionId) {
@@ -120,7 +120,7 @@ function Home() {
     setStreak(computeStreak(dates));
     setCompletedToday(dates.includes(todayLocalISO()));
 
-    const { data: stats } = await supabase
+    const { data: stats } = await (supabase as any)
       .from("user_stats")
       .select("xp")
       .eq("user_id", user.id)
@@ -161,10 +161,10 @@ function Home() {
       (act ?? []).map((a: any) => a.activity_date as string),
     ).current;
 
-    await supabase.rpc("add_xp", { _amount: xpGain });
+    await supabase.rpc("add_xp" as any, { _amount: xpGain });
     let unlocked = 0;
     for (const code of dailyAchievementCodes({ streak: newStreak, planJustFinished })) {
-      const { data: isNew } = await supabase.rpc("unlock_achievement", {
+      const { data: isNew } = await supabase.rpc("unlock_achievement" as any, {
         _code: code,
       });
       if (isNew) unlocked++;
