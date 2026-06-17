@@ -154,7 +154,7 @@
 
   /* Indigo night surfaces — page sits dark even in "light" mode */
   --background: #0d1226;           /* vesper indigo page */
-  --scripture-cream: #e8dfc9;      /* parchment text token */
+  --scripture-cream: #0d1226;      /* page-surface alias (matches background) */
   --card: #161c38;                 /* lifted card */
   --card-foreground: #e8dfc9;
   --popover: #1a2348;
