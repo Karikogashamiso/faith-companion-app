@@ -109,7 +109,7 @@ function Hero() {
             Historic Orthodoxy
           </span>
         </div>
-        <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-primary md:text-[40px]">
+        <h1 className="font-serif text-4xl font-bold leading-tight tracking-tight text-primary md:text-4xl">
           Understand the Bible.
           <br />
           Build the habit.
@@ -257,7 +257,7 @@ function LiveDemo() {
           </p>
           <h2
             id="demo-heading"
-            className="font-serif text-3xl text-primary md:text-[32px]"
+            className="font-serif text-3xl text-primary md:text-3xl"
           >
             Ask a real question. Get a real answer.
           </h2>
@@ -390,7 +390,7 @@ function Differentiator() {
   return (
     <section className="bg-surface-container-low px-margin-mobile py-16">
       <div className="mx-auto max-w-6xl">
-        <h2 className="mb-10 text-center font-serif text-3xl text-primary md:text-[32px]">
+        <h2 className="mb-10 text-center font-serif text-3xl text-primary md:text-3xl">
           Why this one is different
         </h2>
         <div className="grid gap-gutter md:grid-cols-3">
@@ -435,7 +435,7 @@ function HowItWorks() {
   ];
   return (
     <section id="how" className="mx-auto max-w-6xl px-margin-mobile py-16">
-      <h2 className="mb-10 text-center font-serif text-3xl text-primary md:text-[32px]">
+      <h2 className="mb-10 text-center font-serif text-3xl text-primary md:text-3xl">
         How it works
       </h2>
       <ol className="grid gap-gutter md:grid-cols-3">
@@ -467,7 +467,7 @@ function Pricing() {
     >
       <div className="mx-auto max-w-4xl space-y-stack-lg">
         <div className="text-center">
-          <h2 className="font-serif text-3xl text-primary md:text-[32px]">
+          <h2 className="font-serif text-3xl text-primary md:text-3xl">
             The Bible is free. Always.
           </h2>
           <p className="mt-2 text-on-surface-variant">
@@ -558,7 +558,7 @@ function FAQ() {
   ];
   return (
     <section className="mx-auto max-w-3xl px-margin-mobile py-16">
-      <h2 className="mb-8 text-center font-serif text-3xl text-primary md:text-[32px]">
+      <h2 className="mb-8 text-center font-serif text-3xl text-primary md:text-3xl">
         Honest answers to honest questions
       </h2>
       <dl className="space-y-3">
@@ -595,10 +595,10 @@ function FinalCta() {
             className="text-3xl text-on-surface-variant opacity-30"
           />
         </div>
-        <p className="mx-auto max-w-md font-serif text-[22px] italic leading-8 text-on-surface-variant">
+        <p className="mx-auto max-w-md font-serif text-xl italic leading-8 text-on-surface-variant">
           “Thy word is a lamp unto my feet, and a light unto my path.”
         </p>
-        <h2 className="font-serif text-3xl text-primary md:text-[32px]">
+        <h2 className="font-serif text-3xl text-primary md:text-3xl">
           Five minutes a day. A real difference.
         </h2>
         <p className="text-on-surface-variant">

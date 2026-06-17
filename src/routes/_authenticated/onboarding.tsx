@@ -723,7 +723,7 @@ function PaywallScreen({
         <p className="text-xs font-bold uppercase tracking-widest text-wood-warm">
           You're all set
         </p>
-        <h1 className="font-serif text-[28px] font-semibold leading-tight tracking-tight text-primary">
+        <h1 className="font-serif text-3xl font-semibold leading-tight tracking-tight text-primary">
           {headline}
         </h1>
         <p className="text-on-surface-variant">{subtitle}</p>
@@ -791,7 +791,7 @@ function Pane({
   return (
     <div className="flex flex-1 flex-col">
       <div className="space-y-2 pb-8 pt-2 text-center">
-        <h1 className="font-serif text-[28px] font-semibold leading-tight tracking-tight text-primary">
+        <h1 className="font-serif text-3xl font-semibold leading-tight tracking-tight text-primary">
           {title}
         </h1>
         <p className="text-on-surface-variant">{subtitle}</p>
