@@ -45,21 +45,9 @@ export type Database = {
         Relationships: []
       }
       global_prayer_prayed: {
-        Row: {
-          created_at: string
-          prayer_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          prayer_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          prayer_id?: string
-          user_id?: string
-        }
+        Row: { created_at: string; prayer_id: string; user_id: string }
+        Insert: { created_at?: string; prayer_id: string; user_id: string }
+        Update: { created_at?: string; prayer_id?: string; user_id?: string }
         Relationships: []
       }
       daily_devotionals: {
@@ -180,42 +168,15 @@ export type Database = {
         Relationships: []
       }
       user_stats: {
-        Row: {
-          streak_freezes: number
-          updated_at: string
-          user_id: string
-          xp: number
-        }
-        Insert: {
-          streak_freezes?: number
-          updated_at?: string
-          user_id: string
-          xp?: number
-        }
-        Update: {
-          streak_freezes?: number
-          updated_at?: string
-          user_id?: string
-          xp?: number
-        }
+        Row: { streak_freezes: number; updated_at: string; user_id: string; xp: number }
+        Insert: { streak_freezes?: number; updated_at?: string; user_id: string; xp?: number }
+        Update: { streak_freezes?: number; updated_at?: string; user_id?: string; xp?: number }
         Relationships: []
       }
       user_achievements: {
-        Row: {
-          code: string
-          earned_at: string
-          user_id: string
-        }
-        Insert: {
-          code: string
-          earned_at?: string
-          user_id: string
-        }
-        Update: {
-          code?: string
-          earned_at?: string
-          user_id?: string
-        }
+        Row: { code: string; earned_at: string; user_id: string }
+        Insert: { code: string; earned_at?: string; user_id: string }
+        Update: { code?: string; earned_at?: string; user_id?: string }
         Relationships: []
       }
       flagged_answers: {
@@ -923,14 +884,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      add_xp: {
-        Args: { _amount: number }
-        Returns: number
-      }
-      unlock_achievement: {
-        Args: { _code: string }
-        Returns: boolean
-      }
+      add_xp: { Args: { _amount: number }; Returns: number }
+      unlock_achievement: { Args: { _code: string }; Returns: boolean }
+      pray_for_global: { Args: { _prayer_id: string }; Returns: number }
       bible_books: {
         Args: { p_version_id: string }
         Returns: { book: string; chapters: number }[]
@@ -942,10 +898,6 @@ export type Database = {
       demo_rate_check: {
         Args: { _ip: string; _max?: number; _window_seconds?: number }
         Returns: { allowed: boolean; remaining: number }[]
-      }
-      pray_for_global: {
-        Args: { _prayer_id: string }
-        Returns: number
       }
       can_access_request: {
         Args: { _request_id: string; _user_id: string }

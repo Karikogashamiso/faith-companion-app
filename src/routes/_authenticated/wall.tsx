@@ -90,8 +90,8 @@ function Wall() {
   async function pray(id: string) {
     if (prayedLocal.has(id) || feed.data?.prayed.has(id)) return;
     setPrayedLocal(new Set([...prayedLocal, id]));
-    await supabase.rpc("pray_for_global" as any, { _prayer_id: id });
-    void supabase.rpc("unlock_achievement" as any, { _code: "intercessor" });
+    await supabase.rpc("pray_for_global" as any, { _prayer_id: id } as any);
+    void supabase.rpc("unlock_achievement" as any, { _code: "intercessor" } as any);
     await qc.invalidateQueries({ queryKey: ["global-wall", user.id] });
   }
 
