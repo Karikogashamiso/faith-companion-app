@@ -256,35 +256,96 @@ function Settings() {
           />
         </Field>
 
-        <Card padding="sm">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <Icon name="auto_awesome" className="mt-0.5 text-wood-warm" />
-              <div>
-                <div className="text-sm font-semibold text-primary">
-                  AI study helper
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-wood-warm">
+            AI Study Helper
+          </h2>
+          <Card padding="sm">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <Icon name="auto_awesome" className="mt-0.5 text-wood-warm" />
+                <div>
+                  <div className="text-sm font-semibold text-primary">
+                    Enable AI study
+                  </div>
+                  <p className="mt-1 text-xs text-on-surface-variant">
+                    Optional. Citation-locked — only quotes verses we&apos;ve retrieved.
+                  </p>
                 </div>
-                <p className="mt-1 text-xs text-on-surface-variant">
-                  Optional. Citation-locked — only quotes verses we've retrieved.
-                </p>
               </div>
-            </div>
-            <button
-              role="switch"
-              aria-checked={profile.ai_enabled}
-              onClick={() => update({ ai_enabled: !profile.ai_enabled })}
-              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-                profile.ai_enabled ? "bg-primary" : "bg-surface-container-high"
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-transform ${
-                  profile.ai_enabled ? "translate-x-5" : "translate-x-0.5"
+              <button
+                role="switch"
+                aria-checked={profile.ai_enabled}
+                onClick={() => update({ ai_enabled: !profile.ai_enabled })}
+                className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                  profile.ai_enabled ? "bg-primary" : "bg-surface-container-high"
                 }`}
-              />
-            </button>
-          </div>
-        </Card>
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-transform ${
+                    profile.ai_enabled ? "translate-x-5" : "translate-x-0.5"
+                  }`}
+                />
+              </button>
+            </div>
+          </Card>
+
+          {profile.ai_enabled && (
+            <div className="grid grid-cols-1 gap-2">
+              {([
+                {
+                  id: "openai",
+                  label: "OpenAI",
+                  subtitle: "The Brain",
+                  icon: "neurology",
+                },
+                {
+                  id: "api_bible",
+                  label: "API.Bible",
+                  subtitle: "Scripture Text Verification",
+                  icon: "verified",
+                },
+                {
+                  id: "anthropic",
+                  label: "Anthropic",
+                  subtitle: "Thoughtful & safe",
+                  icon: "psychology",
+                },
+              ] as const).map((p) => {
+                const active = profile.ai_provider === p.id;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => update({ ai_provider: p.id })}
+                    className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                      active
+                        ? "border-primary bg-primary/5"
+                        : "border-divider-soft bg-card hover:border-wood-warm/30"
+                    }`}
+                  >
+                    <Icon
+                      name={p.icon}
+                      className={`text-lg ${active ? "text-primary" : "text-on-surface-variant"}`}
+                    />
+                    <div className="flex-1">
+                      <div
+                        className={`text-sm font-semibold ${active ? "text-primary" : "text-on-surface"}`}
+                      >
+                        {p.label}
+                      </div>
+                      <div className="text-xs text-on-surface-variant">
+                        {p.subtitle}
+                      </div>
+                    </div>
+                    {active && (
+                      <Icon name="check_circle" className="text-primary" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         <Field label="Appearance">
           <AppearanceToggle />
