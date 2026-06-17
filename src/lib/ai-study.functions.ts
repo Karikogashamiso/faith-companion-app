@@ -12,8 +12,14 @@ import {
 } from "./crisis-detection.server";
 import { stripUnsanctionedRefs, type VerseRef } from "./bible-refs.server";
 
-const CHAT_MODEL = "google/gemini-3-flash-preview";
+const DEFAULT_CHAT_MODEL = "google/gemini-3-flash-preview";
 const EMBED_MODEL = "openai/text-embedding-3-small";
+
+const PROVIDER_MODELS: Record<string, string> = {
+  openai: "openai/gpt-4o-mini",
+  anthropic: "anthropic/claude-3-haiku",
+  api_bible: "google/gemini-3-flash-preview",
+};
 
 type RetrievedVerse = {
   id: number;
