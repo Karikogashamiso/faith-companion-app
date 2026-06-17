@@ -379,7 +379,7 @@ function Home() {
         <div className="gold-rule w-full" />
 
         {/* Today's AI reflection (grounded on the verse of the day) */}
-        {devoLoading ? (
+        {aiEnabled && (devoLoading ? (
           <Skeleton className="h-32" />
         ) : devo ? (
           <section>
@@ -401,7 +401,7 @@ function Home() {
               </div>
             </Link>
           </section>
-        ) : null}
+        ) : null)}
 
         {/* Quick links — Featured Reflections style */}
         <section>
