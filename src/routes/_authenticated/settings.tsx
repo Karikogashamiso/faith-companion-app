@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -130,6 +130,25 @@ function Settings() {
             </div>
             <div className="text-sm font-medium text-primary">{user.email}</div>
           </div>
+          <Link
+            to="/companion"
+            className="flex items-center justify-between rounded-xl border border-divider-soft bg-white p-4 transition-colors hover:border-wood-warm"
+          >
+            <span className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-on-primary">
+                <Icon name="diamond" filled />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-primary">
+                  Companion
+                </span>
+                <span className="block text-xs text-on-surface-variant">
+                  Unlimited study, plans & leader tools
+                </span>
+              </span>
+            </span>
+            <Icon name="arrow_forward" className="text-on-surface-variant" />
+          </Link>
         </section>
 
         <Field label="Display name">

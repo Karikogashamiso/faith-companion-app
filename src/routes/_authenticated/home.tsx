@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, SectionHeading } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import { computeStreak, todayLocalISO } from "@/lib/streak";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Today · Discipleship Companion" }] }),
@@ -17,42 +18,6 @@ type PlanDay = {
   reflection_md: string | null;
   prayer_md: string | null;
 };
-
-function todayLocalISO() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-function computeStreak(dates: string[]): { current: number; longest: number } {
-  if (!dates.length) return { current: 0, longest: 0 };
-  const set = new Set(dates);
-  let longest = 0;
-  for (const d of dates) {
-    let len = 1;
-    const dt = new Date(d);
-    while (true) {
-      dt.setDate(dt.getDate() + 1);
-      const k = dt.toISOString().slice(0, 10);
-      if (set.has(k)) len++;
-      else break;
-    }
-    if (len > longest) longest = len;
-  }
-  // current streak: count back from today (or yesterday — grace)
-  let cur = 0;
-  const cursor = new Date(todayLocalISO());
-  if (!set.has(cursor.toISOString().slice(0, 10))) {
-    cursor.setDate(cursor.getDate() - 1); // grace: yesterday counts as "still on streak"
-  }
-  while (set.has(cursor.toISOString().slice(0, 10))) {
-    cur++;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return { current: cur, longest };
-}
 
 function Home() {
   const { user } = Route.useRouteContext();
