@@ -5,6 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import {
+  Card,
+  IconBadge,
+  ScreenTitle,
+  Skeleton,
+} from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/listen")({
   head: () => ({ meta: [{ title: "Listen · Discipleship Companion" }] }),
@@ -68,21 +74,15 @@ function Listen() {
   return (
     <AppShell title="Listen">
       <div className="space-y-stack-lg pb-24">
-        <header className="space-y-2">
-          <h1 className="font-serif text-3xl text-primary">Listen</h1>
-          <p className="text-on-surface-variant">
-            Guided prayer, Scripture, and rest — for the moments you'd rather
-            close your eyes than read.
-          </p>
-        </header>
+        <ScreenTitle
+          title="Listen"
+          subtitle="Guided prayer, Scripture, and rest — for the moments you'd rather close your eyes than read."
+        />
 
         {tracksQuery.isLoading ? (
           <div className="space-y-2">
             {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-16 animate-pulse rounded-xl border border-divider-soft bg-surface-container-low"
-              />
+              <Skeleton key={i} className="h-16" />
             ))}
           </div>
         ) : (
@@ -111,9 +111,11 @@ function Listen() {
                             active ? "border-2 border-primary" : "border-divider-soft"
                           }`}
                         >
-                          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-crisis-blue text-primary">
-                            <Icon name={locked ? "lock" : "play_arrow"} filled />
-                          </span>
+                          <IconBadge
+                            name={locked ? "lock" : "play_arrow"}
+                            filled
+                            tone="info"
+                          />
                           <span className="min-w-0 flex-1">
                             <span className="flex items-center gap-2">
                               <span className="truncate font-semibold text-primary">
@@ -147,17 +149,22 @@ function Listen() {
         )}
 
         {!isCompanion && (
-          <Link
-            to="/companion"
-            className="flex items-center justify-between gap-4 rounded-xl bg-primary p-5 text-scripture-cream"
-          >
-            <div>
-              <p className="font-serif text-lg">Unlock the full library</p>
-              <p className="text-sm text-on-primary-container">
-                Hundreds of guided prayers, audio Scripture & sleep sessions
-              </p>
-            </div>
-            <Icon name="diamond" filled className="text-2xl" />
+          <Link to="/companion" className="block">
+            <Card
+              tone="ink"
+              interactive
+              className="flex items-center justify-between gap-4"
+            >
+              <div>
+                <p className="font-serif text-lg text-scripture-cream">
+                  Unlock the full library
+                </p>
+                <p className="text-sm text-on-primary-container">
+                  Hundreds of guided prayers, audio Scripture & sleep sessions
+                </p>
+              </div>
+              <Icon name="diamond" filled className="text-2xl text-scripture-cream" />
+            </Card>
           </Link>
         )}
       </div>
