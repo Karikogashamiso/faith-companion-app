@@ -35,6 +35,12 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-screen bg-scripture-cream text-on-surface">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-on-primary"
+      >
+        Skip to content
+      </a>
       <header className="fixed top-0 z-50 w-full border-b border-divider-soft bg-scripture-cream/90 backdrop-blur-md">
         <div
           className={cn(
@@ -52,14 +58,14 @@ export function AppShell({
             <Link
               to="/search"
               aria-label="Search"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-primary transition-colors hover:bg-primary hover:text-on-primary"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-container text-primary transition-colors hover:bg-primary hover:text-on-primary"
             >
               <Icon name="search" />
             </Link>
             <Link
               to="/profile"
               aria-label="Your progress"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-on-primary-container transition-colors hover:bg-primary hover:text-on-primary"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-container text-on-primary-container transition-colors hover:bg-primary hover:text-on-primary"
             >
               <Icon name="workspace_premium" />
             </Link>
@@ -68,6 +74,7 @@ export function AppShell({
       </header>
 
       <main
+        id="main-content"
         className={cn(
           "mx-auto w-full px-margin-mobile pb-28 pt-24",
           maxWidth,

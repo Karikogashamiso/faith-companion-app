@@ -160,7 +160,7 @@ function Bible() {
               onClick={prevChapter}
               disabled={chapter <= 1}
               aria-label="Previous chapter"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-card text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-divider-soft bg-card text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
             >
               <Icon name="arrow_back" className="text-base" />
             </button>
@@ -168,7 +168,7 @@ function Bible() {
               onClick={nextChapter}
               disabled={chapter >= maxChapter}
               aria-label="Next chapter"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-card text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-divider-soft bg-card text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
             >
               <Icon name="arrow_forward" className="text-base" />
             </button>

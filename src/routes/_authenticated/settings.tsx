@@ -7,8 +7,49 @@ import type { Database } from "@/integrations/supabase/types";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import { Button, Card, IconBadge } from "@/components/app/ui";
+import { getStoredTheme, setTheme, type Theme } from "@/lib/theme";
 
 type Tradition = Database["public"]["Enums"]["tradition"];
+
+const THEME_OPTIONS: { value: Theme; label: string; icon: string }[] = [
+  { value: "light", label: "Light", icon: "light_mode" },
+  { value: "dark", label: "Dark", icon: "dark_mode" },
+  { value: "system", label: "System", icon: "contrast" },
+];
+
+function AppearanceToggle() {
+  const [theme, setThemeState] = useState<Theme>(() => getStoredTheme());
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Appearance"
+      className="grid grid-cols-3 gap-1 rounded-lg border border-divider-soft bg-card p-1"
+    >
+      {THEME_OPTIONS.map((o) => {
+        const active = theme === o.value;
+        return (
+          <button
+            key={o.value}
+            role="radio"
+            aria-checked={active}
+            onClick={() => {
+              setTheme(o.value);
+              setThemeState(o.value);
+            }}
+            className={`flex h-10 items-center justify-center gap-1.5 rounded-md text-sm font-semibold transition-gentle ${
+              active
+                ? "bg-primary text-on-primary"
+                : "text-on-surface-variant hover:text-primary"
+            }`}
+          >
+            <Icon name={o.icon} filled={active} className="text-base" />
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 const TRADITION_LABELS: Record<Tradition, string> = {
   unspecified: "Prefer not to say",
@@ -240,6 +281,10 @@ function Settings() {
             </button>
           </div>
         </Card>
+
+        <Field label="Appearance">
+          <AppearanceToggle />
+        </Field>
 
         <section className="space-y-2 border-t border-divider-soft pt-6">
           <Button variant="secondary" block leftIcon="logout" onClick={signOut}>
