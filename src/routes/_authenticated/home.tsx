@@ -55,6 +55,7 @@ function Home() {
   const [xp, setXp] = useState(0);
   const season = currentSeason();
   const [resume, setResume] = useState<ReadingPosition | null>(null);
+  const [aiEnabled, setAiEnabled] = useState(true);
   useEffect(() => setResume(getReadingPosition()), []);
 
   const devotionalFn = useServerFn(dailyDevotional);
@@ -99,9 +100,11 @@ function Home() {
   async function load() {
       const { data: prof } = await (supabase as any)
         .from("profiles")
-        .select("default_version_id, active_plan_id")
+        .select("default_version_id, active_plan_id, ai_enabled")
         .eq("id", user.id)
         .maybeSingle();
+
+    setAiEnabled((prof?.ai_enabled as boolean | undefined) ?? true);
 
     let versionId = prof?.default_version_id;
     if (!versionId) {
@@ -238,7 +241,7 @@ function Home() {
     <AppShell>
       <div className="space-y-stack-lg">
         {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
-        {season && (
+        {aiEnabled && season && (
           <Link to="/companion" className="block">
             <Card tone="accent" interactive className="flex items-center gap-4">
               <IconBadge name="local_florist" filled tone="wood" />
@@ -376,7 +379,7 @@ function Home() {
         <div className="gold-rule w-full" />
 
         {/* Today's AI reflection (grounded on the verse of the day) */}
-        {devoLoading ? (
+        {aiEnabled && (devoLoading ? (
           <Skeleton className="h-32" />
         ) : devo ? (
           <section>
@@ -398,7 +401,7 @@ function Home() {
               </div>
             </Link>
           </section>
-        ) : null}
+        ) : null)}
 
         {/* Quick links — Featured Reflections style */}
         <section>
@@ -436,8 +439,8 @@ function Home() {
           <div className="grid grid-cols-2 gap-stack-sm sm:grid-cols-3">
             {[
               { to: "/bible" as const, icon: "menu_book", label: "Bible" },
-              { to: "/study" as const, icon: "auto_awesome", label: "AI Study" },
-              { to: "/companion" as const, icon: "favorite", label: "Companion" },
+              ...(aiEnabled ? [{ to: "/study" as const, icon: "auto_awesome", label: "AI Study" }] : []),
+              ...(aiEnabled ? [{ to: "/companion" as const, icon: "favorite", label: "Companion" }] : []),
               { to: "/plans" as const, icon: "calendar_month", label: "Plans" },
               { to: "/memorize" as const, icon: "neurology", label: "Memorize" },
               { to: "/listen" as const, icon: "headphones", label: "Listen" },
