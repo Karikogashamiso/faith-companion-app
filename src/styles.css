@@ -139,140 +139,144 @@
 }
 
 /* ============================================================================
- * MIDNIGHT VESPERS — deep indigo night, candle gold, parchment text.
- * Light mode = vesper twilight (lifted indigo). Dark mode = compline midnight.
- * Gold (#c9a84c) is the sacred accent; parchment (#e8dfc9) is the ink-on-night.
+ * SANCTUARY — warm midnight (deep ink-brown), candle gold, parchment text.
+ * Exact tokens from the Faith Companion design system.
  * ========================================================================== */
 :root {
-  /* Gold accent ramp — the single sacred highlight (candleflame) */
-  --primary: #c9a84c;
-  --primary-foreground: #0d1226;
-  --navy-deep: #0a0e1f;            /* deepest void / hover ink */
-  --primary-container: #1a2348;    /* lifted indigo surface */
-  --on-primary-container: #e8dfc9;
-  --on-primary: #0d1226;
+  /* Candle gold — the single sacred highlight */
+  --primary: #e6c364;
+  --primary-foreground: #3d2e00;
+  --navy-deep: #110e03;
+  --primary-container: #c9a84c;
+  --on-primary-container: #503d00;
+  --on-primary: #3d2e00;
 
-  /* Indigo night surfaces — page sits dark even in "light" mode */
-  --background: #0d1226;           /* vesper indigo page */
-  --scripture-cream: #0d1226;      /* page-surface alias (matches background) */
-  --card: #161c38;                 /* lifted card */
-  --card-foreground: #e8dfc9;
-  --popover: #1a2348;
-  --popover-foreground: #e8dfc9;
-  --surface-container-lowest: #0a0e1f;
-  --surface-container-low: #131934;
-  --surface-container: #1a2348;
-  --surface-container-high: #222c55;
-  --surface-container-highest: #2b3768;
+  /* Warm-ink night surfaces */
+  --background: #171307;
+  --scripture-cream: #171307;       /* page-surface alias */
+  --card: #231f12;
+  --card-foreground: #ebe2cc;
+  --popover: #2e2a1b;
+  --popover-foreground: #ebe2cc;
+  --surface-container-lowest: #110e03;
+  --surface-container-low: #1f1b0e;
+  --surface-container: #231f12;
+  --surface-container-high: #2e2a1b;
+  --surface-container-highest: #393525;
+  --surface-bright: #3e392a;
+  --surface-variant: #393525;
 
   /* Gold accent (streaks, sacred moments) */
-  --wood-warm: #c9a84c;
-  --secondary-container: #3a2f12;
-  --on-secondary-container: #f0d78c;
+  --wood-warm: #e6c364;
+  --secondary-container: #3c456c;   /* Vesper Indigo for AI/pastoral */
+  --on-secondary-container: #aab3e0;
 
-  /* Calm tints — moonlit blue for AI/pastoral; warm gold-ember alt */
-  --crisis-blue: #1f2a4a;
+  /* Calm tints — moonlit blue for AI/pastoral */
+  --crisis-blue: #3c456c;
   --accent-soft: #2a2412;
 
-  /* Parchment text on indigo */
-  --foreground: #e8dfc9;
-  --on-surface: #e8dfc9;
-  --on-surface-variant: #a8a08a;
-  --outline: #6b6a78;
-  --outline-variant: #2a325a;
-  --divider-soft: #1f2748;
+  /* Parchment text on warm ink */
+  --foreground: #ebe2cc;
+  --on-surface: #ebe2cc;
+  --on-surface-variant: #d0c5b2;
+  --outline: #99907e;
+  --outline-variant: #4d4637;
+  --divider-soft: #4d4637;
 
-  /* shadcn neutrals mapped onto the midnight system */
-  --secondary: #1a2348;
-  --secondary-foreground: #e8dfc9;
-  --muted: #131934;
-  --muted-foreground: #a8a08a;
-  --accent: #222c55;
-  --accent-foreground: #f0d78c;
-  --border: #1f2748;
-  --input: #2a325a;
-  --ring: #c9a84c;
+  /* shadcn neutrals mapped onto the warm-ink system */
+  --secondary: #bcc4f3;
+  --secondary-foreground: #252e54;
+  --muted: #1f1b0e;
+  --muted-foreground: #d0c5b2;
+  --accent: #2e2a1b;
+  --accent-foreground: #e6c364;
+  --border: #4d4637;
+  --input: #393525;
+  --ring: #e6c364;
 
-  --destructive: #d97757;
-  --destructive-foreground: #0d1226;
+  --destructive: #ffb4ab;
+  --destructive-foreground: #690005;
 
   --radius: 0.625rem;
 
-  --chart-1: #c9a84c;
-  --chart-2: #4a5fb8;
-  --chart-3: #e8dfc9;
-  --chart-4: #6b7fc2;
-  --chart-5: #f0d78c;
+  --chart-1: #e6c364;
+  --chart-2: #bcc4f3;
+  --chart-3: #ebe2cc;
+  --chart-4: #c9a84c;
+  --chart-5: #ffe08f;
 
-  --sidebar: #0a0e1f;
-  --sidebar-foreground: #e8dfc9;
-  --sidebar-primary: #c9a84c;
-  --sidebar-primary-foreground: #0d1226;
-  --sidebar-accent: #1a2348;
-  --sidebar-accent-foreground: #e8dfc9;
-  --sidebar-border: #1f2748;
-  --sidebar-ring: #c9a84c;
+  --sidebar: #110e03;
+  --sidebar-foreground: #ebe2cc;
+  --sidebar-primary: #e6c364;
+  --sidebar-primary-foreground: #3d2e00;
+  --sidebar-accent: #231f12;
+  --sidebar-accent-foreground: #ebe2cc;
+  --sidebar-border: #4d4637;
+  --sidebar-ring: #e6c364;
 }
 
 /* ============================================================================
- * DARK — compline / deepest midnight (even quieter, more candle)
+ * DARK — deepest compline (slightly quieter ink)
  * ========================================================================== */
 .dark {
-  --primary: #e0bf5e;
-  --primary-foreground: #060814;
-  --navy-deep: #03050e;
-  --primary-container: #0f1638;
-  --on-primary-container: #f0e6cf;
-  --on-primary: #060814;
+  --primary: #e6c364;
+  --primary-foreground: #3d2e00;
+  --navy-deep: #0a0700;
+  --primary-container: #c9a84c;
+  --on-primary-container: #503d00;
+  --on-primary: #3d2e00;
 
-  --background: #060814;
-  --scripture-cream: #060814;
-  --card: #0d1226;
-  --card-foreground: #f0e6cf;
-  --popover: #0f1638;
-  --popover-foreground: #f0e6cf;
-  --surface-container-lowest: #03050e;
-  --surface-container-low: #0a0e1f;
-  --surface-container: #0f1638;
-  --surface-container-high: #161c38;
-  --surface-container-highest: #1a2348;
+  --background: #110e03;
+  --scripture-cream: #110e03;
+  --card: #1f1b0e;
+  --card-foreground: #ebe2cc;
+  --popover: #2e2a1b;
+  --popover-foreground: #ebe2cc;
+  --surface-container-lowest: #0a0700;
+  --surface-container-low: #171307;
+  --surface-container: #1f1b0e;
+  --surface-container-high: #2e2a1b;
+  --surface-container-highest: #393525;
+  --surface-bright: #3e392a;
+  --surface-variant: #393525;
 
-  --wood-warm: #e0bf5e;
-  --secondary-container: #2e2510;
-  --on-secondary-container: #f0d78c;
+  --wood-warm: #e6c364;
+  --secondary-container: #3c456c;
+  --on-secondary-container: #aab3e0;
 
-  --crisis-blue: #131c38;
+  --crisis-blue: #3c456c;
   --accent-soft: #1c1808;
 
-  --foreground: #f0e6cf;
-  --on-surface: #f0e6cf;
-  --on-surface-variant: #968d75;
-  --outline: #4f4e5c;
-  --outline-variant: #1a2348;
-  --divider-soft: #131934;
+  --foreground: #ebe2cc;
+  --on-surface: #ebe2cc;
+  --on-surface-variant: #d0c5b2;
+  --outline: #99907e;
+  --outline-variant: #4d4637;
+  --divider-soft: #4d4637;
 
-  --secondary: #0f1638;
-  --secondary-foreground: #f0e6cf;
-  --muted: #0a0e1f;
-  --muted-foreground: #968d75;
-  --accent: #161c38;
-  --accent-foreground: #f0d78c;
-  --border: #131934;
-  --input: #1f2748;
-  --ring: #e0bf5e;
+  --secondary: #bcc4f3;
+  --secondary-foreground: #252e54;
+  --muted: #171307;
+  --muted-foreground: #d0c5b2;
+  --accent: #2e2a1b;
+  --accent-foreground: #e6c364;
+  --border: #4d4637;
+  --input: #393525;
+  --ring: #e6c364;
 
-  --destructive: #e08868;
-  --destructive-foreground: #060814;
+  --destructive: #ffb4ab;
+  --destructive-foreground: #690005;
 
-  --sidebar: #03050e;
-  --sidebar-foreground: #f0e6cf;
-  --sidebar-primary: #e0bf5e;
-  --sidebar-primary-foreground: #060814;
-  --sidebar-accent: #0f1638;
-  --sidebar-accent-foreground: #f0e6cf;
-  --sidebar-border: #131934;
-  --sidebar-ring: #e0bf5e;
+  --sidebar: #0a0700;
+  --sidebar-foreground: #ebe2cc;
+  --sidebar-primary: #e6c364;
+  --sidebar-primary-foreground: #3d2e00;
+  --sidebar-accent: #1f1b0e;
+  --sidebar-accent-foreground: #ebe2cc;
+  --sidebar-border: #4d4637;
+  --sidebar-ring: #e6c364;
 }
+
 
 @layer base {
   * {
