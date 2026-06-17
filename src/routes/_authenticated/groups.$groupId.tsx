@@ -129,7 +129,7 @@ function GroupHome() {
       .insert({ request_id: reqId, responder_id: me, prayed: true });
     if (!error) {
       setMyPrayed(new Set([...myPrayed, reqId]));
-      void supabase.rpc("unlock_achievement", { _code: "intercessor" });
+      void supabase.rpc("unlock_achievement" as any, { _code: "intercessor" });
     }
   }
 

@@ -41,7 +41,7 @@ function Plans() {
   const activeQuery = useQuery({
     queryKey: ["active-plan", user.id],
     queryFn: async (): Promise<string | null> => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("profiles")
         .select("active_plan_id")
         .eq("id", user.id)
@@ -53,12 +53,12 @@ function Plans() {
 
   const start = useMutation({
     mutationFn: async (planId: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("profiles")
         .update({ active_plan_id: planId })
         .eq("id", user.id);
       if (error) throw error;
-      await supabase.rpc("unlock_achievement", { _code: "plan_started" });
+      await supabase.rpc("unlock_achievement" as any, { _code: "plan_started" });
     },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["active-plan", user.id] });

@@ -122,7 +122,7 @@ function StudyPage() {
             stripped: result.stripped,
           },
         ]);
-        void supabase.rpc("unlock_achievement", { _code: "seeker" });
+        void supabase.rpc("unlock_achievement" as any, { _code: "seeker" });
       }
       void reload();
     } catch (err) {
