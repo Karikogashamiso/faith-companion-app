@@ -241,7 +241,7 @@ function Home() {
     <AppShell>
       <div className="space-y-stack-lg">
         {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
-        {season && (
+        {aiEnabled && season && (
           <Link to="/companion" className="block">
             <Card tone="accent" interactive className="flex items-center gap-4">
               <IconBadge name="local_florist" filled tone="wood" />
