@@ -462,23 +462,40 @@ function Home() {
         <section className="space-y-stack-md pb-4">
           <SectionHeading>Community Prayer</SectionHeading>
           <Link
-            to="/groups"
+            to="/wall"
             className="group block overflow-hidden rounded-xl border border-divider-soft bg-primary"
           >
             <div className="flex items-center justify-between gap-4 p-6 text-scripture-cream">
               <div>
                 <p className="mb-1 text-sm font-semibold opacity-80">
-                  Your circle is waiting
+                  You're never praying alone
                 </p>
                 <p className="font-serif text-lg">
-                  Join your group in intercession
+                  Pray with people around the world
                 </p>
               </div>
               <Icon
-                name="arrow_forward"
+                name="public"
                 className="text-2xl transition-transform group-hover:translate-x-1"
               />
             </div>
+          </Link>
+          <Link
+            to="/groups"
+            className="group flex items-center justify-between gap-4 rounded-xl border border-divider-soft bg-white p-5 transition-colors hover:border-wood-warm"
+          >
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
+                <Icon name="group" />
+              </span>
+              <p className="font-serif text-lg text-primary">
+                Your groups & circles
+              </p>
+            </div>
+            <Icon
+              name="arrow_forward"
+              className="text-outline transition-transform group-hover:translate-x-1 group-hover:text-wood-warm"
+            />
           </Link>
         </section>
       </div>

@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      global_prayers: {
+        Row: {
+          author_id: string
+          author_name: string
+          body: string
+          created_at: string
+          id: string
+          prayed_count: number
+          status: string
+        }
+        Insert: {
+          author_id: string
+          author_name?: string
+          body: string
+          created_at?: string
+          id?: string
+          prayed_count?: number
+          status?: string
+        }
+        Update: {
+          author_id?: string
+          author_name?: string
+          body?: string
+          created_at?: string
+          id?: string
+          prayed_count?: number
+          status?: string
+        }
+        Relationships: []
+      }
+      global_prayer_prayed: {
+        Row: {
+          created_at: string
+          prayer_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          prayer_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          prayer_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_devotionals: {
         Row: {
           created_at: string
@@ -894,6 +942,10 @@ export type Database = {
       demo_rate_check: {
         Args: { _ip: string; _max?: number; _window_seconds?: number }
         Returns: { allowed: boolean; remaining: number }[]
+      }
+      pray_for_global: {
+        Args: { _prayer_id: string }
+        Returns: number
       }
       can_access_request: {
         Args: { _request_id: string; _user_id: string }
