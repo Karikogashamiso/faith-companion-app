@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedWallRouteImport } from './routes/_authenticated/wall'
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
@@ -43,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedWallRoute = AuthenticatedWallRouteImport.update({
+  id: '/wall',
+  path: '/wall',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedStudyRoute = AuthenticatedStudyRouteImport.update({
   id: '/study',
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
+  '/wall': typeof AuthenticatedWallRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
   '/api/public/demo/ask': typeof ApiPublicDemoAskRoute
   '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
+  '/wall': typeof AuthenticatedWallRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
   '/api/public/demo/ask': typeof ApiPublicDemoAskRoute
   '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
+  '/_authenticated/wall': typeof AuthenticatedWallRoute
   '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
   '/api/public/demo/ask': typeof ApiPublicDemoAskRoute
   '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/study'
+    | '/wall'
     | '/groups/$groupId'
     | '/api/public/demo/ask'
     | '/api/public/hooks/revenuecat'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/settings'
     | '/study'
+    | '/wall'
     | '/groups/$groupId'
     | '/api/public/demo/ask'
     | '/api/public/hooks/revenuecat'
@@ -259,6 +270,7 @@ export interface FileRouteTypes {
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/study'
+    | '/_authenticated/wall'
     | '/_authenticated/groups/$groupId'
     | '/api/public/demo/ask'
     | '/api/public/hooks/revenuecat'
@@ -297,6 +309,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/wall': {
+      id: '/_authenticated/wall'
+      path: '/wall'
+      fullPath: '/wall'
+      preLoaderRoute: typeof AuthenticatedWallRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/study': {
       id: '/_authenticated/study'
@@ -459,6 +478,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
+  AuthenticatedWallRoute: typeof AuthenticatedWallRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -474,6 +494,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudyRoute: AuthenticatedStudyRoute,
+  AuthenticatedWallRoute: AuthenticatedWallRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
