@@ -59,7 +59,8 @@ function buildSystemPrompt(opts: {
 NON-NEGOTIABLE RULES:
 1. You may ONLY quote verse text that appears in the CANDIDATE VERSES block below. Quote it verbatim, with the reference exactly as written (e.g. "Philippians 4:6").
 2. You MUST NOT cite any verse reference that is not in the CANDIDATE VERSES block. Do not invent references. Do not quote verses from memory. If the candidate set is empty, say plainly that you could not find relevant verses in the user's Bible and suggest a search term — do not paste verses from your training data.
-3. Your own commentary, encouragement, and explanation is welcome and should be the bulk of the answer. Use Scripture sparingly — quote at most 3-4 verses.
+2b. Never paraphrase, summarize, or reconstruct the wording of any Bible verse that is not in the CANDIDATE VERSES block — not even loosely. If you want to refer to a passage you were not given, name it by reference only and tell the user to look it up; do not reproduce its words. Scripture wording in your answer must be either a verbatim quote from the block or absent.
+3. Your own commentary, encouragement, and explanation is welcome and should be the bulk of the answer — and it is clearly YOUR words, not Scripture. Use Scripture sparingly — quote at most 3-4 verses.
 4. On contested doctrines (e.g. faith vs works, baptism, predestination, sacraments, end times, women in ministry), state how the user's tradition has historically read the passage AND note in one sentence that other Christian traditions read it differently. Never present a contested view as the only Christian view.
 5. ${traditionLine}
 6. ${crisisLine}
@@ -98,36 +99,24 @@ export const askStudy = createServerFn({ method: "POST" })
     }
     const tradition = profile?.tradition ?? "unspecified";
 
-    // 1b) AI allowance for free tier (companion = unlimited).
+    // 1b) AI allowance for free tier (companion = unlimited). Enforced
+    //     server-side via an atomic, race-safe SECURITY DEFINER RPC so the
+    //     counter can never be tampered with from the client.
     const FREE_DAILY_LIMIT = 5;
-    const { data: companion } = await supabase.rpc("is_companion", {
-      _user_id: userId,
-    });
-    if (!companion) {
-      const today = new Date().toISOString().slice(0, 10);
-      const { data: usageRow } = await supabase
-        .from("ai_usage_daily")
-        .select("count")
-        .eq("user_id", userId)
-        .eq("usage_date", today)
-        .maybeSingle();
-      const used = (usageRow?.count as number | undefined) ?? 0;
-      if (used >= FREE_DAILY_LIMIT) {
-        return {
-          disabled: true as const,
-          message:
-            `You've used your ${FREE_DAILY_LIMIT} free AI study sessions for today. Tomorrow the count resets — or unlock unlimited with Companion. Scripture reading, search, and prayer are always free.`,
-          paywall: true as const,
-          used,
-          limit: FREE_DAILY_LIMIT,
-        };
-      }
-      await supabase
-        .from("ai_usage_daily")
-        .upsert(
-          { user_id: userId, usage_date: today, count: used + 1 },
-          { onConflict: "user_id,usage_date" },
-        );
+    const { data: gate, error: gateErr } = await supabase.rpc(
+      "consume_ai_session",
+      { _limit: FREE_DAILY_LIMIT },
+    );
+    if (gateErr) throw gateErr;
+    const allowance = Array.isArray(gate) ? gate[0] : gate;
+    if (allowance && !allowance.allowed) {
+      return {
+        disabled: true as const,
+        message: `You've used your ${allowance.day_limit} free AI study sessions for today. Tomorrow the count resets — or unlock unlimited with Companion. Scripture reading, search, and prayer are always free.`,
+        paywall: true as const,
+        used: allowance.used,
+        limit: allowance.day_limit,
+      };
     }
 
 
@@ -229,6 +218,40 @@ export const askStudy = createServerFn({ method: "POST" })
       stripped,
       model: CHAT_MODEL,
     };
+  });
+
+// ---------------------------------------------------------------------------
+// flagAnswer — user-reported bad/misleading AI answer → review queue.
+// ---------------------------------------------------------------------------
+const FlagInput = z.object({
+  question: z.string().min(1).max(500),
+  answer: z.string().min(1).max(8000),
+  reason: z.string().max(500).optional(),
+  refs: z
+    .array(
+      z.object({
+        book: z.string(),
+        chapter: z.number(),
+        verse: z.number(),
+      }),
+    )
+    .optional(),
+});
+
+export const flagAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => FlagInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase.from("flagged_answers").insert({
+      user_id: userId,
+      question: data.question,
+      answer: data.answer,
+      reason: data.reason ?? null,
+      refs: data.refs ?? [],
+    });
+    if (error) throw error;
+    return { ok: true as const };
   });
 
 // ---------------------------------------------------------------------------

@@ -1,17 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { askStudy } from "@/lib/ai-study.functions";
+import { askStudy, flagAnswer } from "@/lib/ai-study.functions";
 import { useEntitlement } from "@/hooks/use-entitlement";
-import { AppShell, SectionHeading } from "@/components/app/app-shell";
+import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 
+type Candidate = { book: string; chapter: number; verse: number; text: string };
 type Message =
   | { role: "user"; text: string }
   | {
       role: "assistant";
       text: string;
-      candidates: { book: string; chapter: number; verse: number; text: string }[];
+      candidates: Candidate[];
       crisis?: string;
       stripped?: string[];
     };
@@ -31,6 +32,7 @@ const SUGGESTIONS = [
 
 function StudyPage() {
   const askStudyFn = useServerFn(askStudy);
+  const flagFn = useServerFn(flagAnswer);
   const { entitlement, aiUsedToday, aiDailyLimit, reload } = useEntitlement();
   const isCompanion = entitlement?.isCompanion ?? false;
   const freeRemaining = Math.max(0, aiDailyLimit - aiUsedToday);
@@ -98,9 +100,7 @@ function StudyPage() {
           </div>
           {!isCompanion && (
             <div className="shrink-0 rounded-lg bg-crisis-blue px-3 py-1.5 text-center">
-              <p className="text-xs font-bold text-primary">
-                {freeRemaining} free
-              </p>
+              <p className="text-xs font-bold text-primary">{freeRemaining} free</p>
               <p className="text-[10px] text-on-surface-variant">left today</p>
             </div>
           )}
@@ -117,9 +117,7 @@ function StudyPage() {
                 {SUGGESTIONS.map((s) => (
                   <button
                     key={s}
-                    onClick={() => {
-                      setQuestion(s);
-                    }}
+                    onClick={() => setQuestion(s)}
                     className="rounded-lg border border-divider-soft bg-white px-3 py-2 text-sm text-on-surface-variant transition-colors hover:border-wood-warm hover:text-primary"
                   >
                     {s}
@@ -160,7 +158,7 @@ function StudyPage() {
                     <div className="whitespace-pre-wrap text-sm leading-relaxed text-on-surface">
                       {msg.text}
                     </div>
-                    {"candidates" in msg && msg.candidates.length > 0 && (
+                    {msg.candidates.length > 0 && (
                       <div className="flex flex-wrap gap-1.5">
                         {msg.candidates.map((c) => (
                           <span
@@ -173,11 +171,24 @@ function StudyPage() {
                         ))}
                       </div>
                     )}
-                    {"stripped" in msg && msg.stripped && msg.stripped.length > 0 && (
+                    {msg.stripped && msg.stripped.length > 0 && (
                       <p className="text-xs text-on-surface-variant">
                         Guardrail removed {msg.stripped.length} invented reference
                         {msg.stripped.length > 1 ? "s" : ""}.
                       </p>
+                    )}
+                    {/* Human-in-the-loop: let the reader flag a bad answer. */}
+                    {msg.candidates.length > 0 && (
+                      <FlagAnswer
+                        flagFn={flagFn}
+                        question={
+                          history[i - 1]?.role === "user"
+                            ? (history[i - 1] as { text: string }).text
+                            : ""
+                        }
+                        answer={msg.text}
+                        candidates={msg.candidates}
+                      />
                     )}
                   </div>
                 </div>
@@ -247,5 +258,91 @@ function StudyPage() {
         </form>
       </div>
     </AppShell>
+  );
+}
+
+function FlagAnswer({
+  flagFn,
+  question,
+  answer,
+  candidates,
+}: {
+  flagFn: ReturnType<typeof useServerFn<typeof flagAnswer>>;
+  question: string;
+  answer: string;
+  candidates: Candidate[];
+}) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState("");
+  const [done, setDone] = useState(false);
+
+  async function submit() {
+    try {
+      await flagFn({
+        data: {
+          question,
+          answer,
+          reason: reason.trim() || undefined,
+          refs: candidates.map((c) => ({
+            book: c.book,
+            chapter: c.chapter,
+            verse: c.verse,
+          })),
+        },
+      });
+    } catch {
+      /* flagging should never block the reader */
+    } finally {
+      setDone(true);
+      setOpen(false);
+    }
+  }
+
+  if (done) {
+    return (
+      <p className="flex items-center gap-1.5 text-xs text-on-surface-variant">
+        <Icon name="check" className="text-sm text-wood-warm" />
+        Thanks — we'll review this answer.
+      </p>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-1 text-xs text-on-surface-variant hover:text-primary"
+      >
+        <Icon name="flag" className="text-sm" />
+        Report this answer
+      </button>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <textarea
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        rows={2}
+        maxLength={500}
+        placeholder="What seems wrong or misleading? (optional)"
+        className="w-full resize-none rounded-lg border border-divider-soft bg-scripture-cream px-3 py-2 text-sm focus:border-primary focus:outline-none"
+      />
+      <div className="flex gap-2">
+        <button
+          onClick={submit}
+          className="h-8 rounded-lg bg-primary px-3 text-xs font-semibold text-on-primary hover:bg-navy-deep"
+        >
+          Submit report
+        </button>
+        <button
+          onClick={() => setOpen(false)}
+          className="h-8 rounded-lg px-3 text-xs text-on-surface-variant hover:text-primary"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }

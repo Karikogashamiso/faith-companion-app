@@ -1,8 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { askStudy } from "@/lib/ai-study.functions";
 import { track, assignVariant } from "@/lib/analytics";
 import type { Database } from "@/integrations/supabase/types";
 import { Icon } from "@/components/app/icon";
@@ -24,6 +22,8 @@ const GOALS = [
 const TRADITIONS: { value: Tradition; label: string }[] = [
   { value: "catholic", label: "Catholic" },
   { value: "orthodox", label: "Orthodox" },
+  { value: "anglican", label: "Anglican / Episcopal" },
+  { value: "lutheran", label: "Lutheran" },
   { value: "reformed", label: "Reformed" },
   { value: "baptist", label: "Baptist" },
   { value: "methodist", label: "Methodist" },
@@ -82,7 +82,6 @@ const TOTAL_STEPS = 10;
 function Onboarding() {
   const navigate = useNavigate();
   const { user } = Route.useRouteContext();
-  const askStudyFn = useServerFn(askStudy);
 
   const [step, setStep] = useState(1);
   const [name, setName] = useState<string>("");
@@ -415,10 +414,8 @@ function Onboarding() {
         {step === 7 && (
           <AhaScreen
             struggles={struggles}
-            tradition={tradition ?? "unspecified"}
             aiEnabled={aiEnabled}
             onDeclineAi={() => setAiEnabled(false)}
-            askStudyFn={askStudyFn}
             onContinue={next}
           />
         )}
@@ -526,46 +523,48 @@ function Onboarding() {
 // ---------------------------------------------------------------------------
 function AhaScreen({
   struggles,
-  tradition,
   aiEnabled,
   onDeclineAi,
-  askStudyFn,
   onContinue,
 }: {
   struggles: string[];
-  tradition: string;
   aiEnabled: boolean;
   onDeclineAi: () => void;
-  askStudyFn: ReturnType<typeof useServerFn<typeof askStudy>>;
   onContinue: () => void;
 }) {
-
-
   const demoQuestion = useMemo(() => {
     const key = struggles[0];
     return DEMO_QUESTIONS[key] ?? "What does the Bible say about hope?";
   }, [struggles]);
 
-  type Result = Awaited<ReturnType<typeof askStudy>>;
+  type Result = {
+    answer: string;
+    candidates: { book: string; chapter: number; verse: number }[];
+  };
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
+  // Uses the public, rate-limited demo endpoint so the preview never spends
+  // the user's metered daily AI allowance before they've even started.
   async function run() {
     setLoading(true);
     setErr(null);
     try {
-      const r = await askStudyFn({ data: { question: demoQuestion } });
-      setResult(r);
+      const res = await fetch("/api/public/demo/ask", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question: demoQuestion }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Something went wrong.");
+      setResult({ answer: data.answer, candidates: data.citations ?? [] });
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
   }
-
-  // Tradition is intentionally unused in this client preview — server reads it from the profile.
-  void tradition;
 
   return (
     <Pane
@@ -574,17 +573,17 @@ function AhaScreen({
       primary={{ label: "Continue", onClick: onContinue }}
     >
       <div className="space-y-4">
-        <div className="rounded-md border bg-muted/40 p-4">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+        <div className="rounded-xl border border-divider-soft bg-white p-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-wood-warm">
             Sample question
           </p>
-          <p className="mt-1 text-sm font-medium">{demoQuestion}</p>
+          <p className="mt-1 font-medium text-primary">{demoQuestion}</p>
         </div>
 
         {!aiEnabled ? (
-          <div className="rounded-md border p-4 text-sm">
-            <p className="font-medium">AI is off — that's fine.</p>
-            <p className="mt-1 text-muted-foreground">
+          <div className="rounded-xl border border-divider-soft bg-white p-4 text-sm">
+            <p className="font-semibold text-primary">AI is off — that's fine.</p>
+            <p className="mt-1 text-on-surface-variant">
               We'll guide you with a curated devotional path instead. Scripture,
               reading plans, search, and prayer all work without the AI.
             </p>
@@ -593,15 +592,13 @@ function AhaScreen({
           <button
             onClick={run}
             disabled={loading}
-            className="w-full rounded-md bg-primary py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
+            className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-40"
           >
             {loading ? "Searching Scripture…" : "Show me the answer"}
           </button>
-        ) : result.disabled ? (
-          <div className="rounded-md border p-4 text-sm">{result.message}</div>
         ) : (
-          <div className="space-y-3 rounded-md border p-4">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">
+          <div className="space-y-3 rounded-xl border border-divider-soft bg-white p-4">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-on-surface">
               {result.answer}
             </p>
             {result.candidates?.length > 0 && (
@@ -609,8 +606,9 @@ function AhaScreen({
                 {result.candidates.slice(0, 4).map((c) => (
                   <span
                     key={`${c.book}-${c.chapter}-${c.verse}`}
-                    className="rounded-full border bg-background px-2 py-0.5 text-xs"
+                    className="flex items-center gap-1 rounded-lg bg-crisis-blue px-2.5 py-1 text-xs font-bold text-primary"
                   >
+                    <Icon name="verified" filled className="text-sm" />
                     {c.book} {c.chapter}:{c.verse}
                   </span>
                 ))}
@@ -623,7 +621,7 @@ function AhaScreen({
 
         <button
           onClick={onDeclineAi}
-          className="block text-xs text-muted-foreground underline-offset-2 hover:underline"
+          className="block text-xs text-on-surface-variant underline-offset-2 hover:text-primary hover:underline"
         >
           I'd rather not use AI
         </button>
