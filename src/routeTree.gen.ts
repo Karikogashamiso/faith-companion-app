@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
+import { Route as AuthenticatedGitSyncRouteImport } from './routes/_authenticated/git-sync'
 import { Route as AuthenticatedCompanionRouteImport } from './routes/_authenticated/companion'
 import { Route as AuthenticatedBibleRouteImport } from './routes/_authenticated/bible'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
@@ -38,6 +40,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedStudyRoute = AuthenticatedStudyRouteImport.update({
+  id: '/study',
+  path: '/study',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
@@ -62,6 +69,11 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
   id: '/groups',
   path: '/groups',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGitSyncRoute = AuthenticatedGitSyncRouteImport.update({
+  id: '/git-sync',
+  path: '/git-sync',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedCompanionRoute = AuthenticatedCompanionRouteImport.update({
@@ -109,11 +121,13 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/bible': typeof AuthenticatedBibleRoute
   '/companion': typeof AuthenticatedCompanionRoute
+  '/git-sync': typeof AuthenticatedGitSyncRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/study': typeof AuthenticatedStudyRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
   '/api/public/demo/ask': typeof ApiPublicDemoAskRoute
   '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
@@ -125,11 +139,13 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/bible': typeof AuthenticatedBibleRoute
   '/companion': typeof AuthenticatedCompanionRoute
+  '/git-sync': typeof AuthenticatedGitSyncRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/study': typeof AuthenticatedStudyRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
   '/api/public/demo/ask': typeof ApiPublicDemoAskRoute
   '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
@@ -143,11 +159,13 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/bible': typeof AuthenticatedBibleRoute
   '/_authenticated/companion': typeof AuthenticatedCompanionRoute
+  '/_authenticated/git-sync': typeof AuthenticatedGitSyncRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/study': typeof AuthenticatedStudyRoute
   '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
   '/api/public/demo/ask': typeof ApiPublicDemoAskRoute
   '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
@@ -161,11 +179,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bible'
     | '/companion'
+    | '/git-sync'
     | '/groups'
     | '/home'
     | '/onboarding'
     | '/search'
     | '/settings'
+    | '/study'
     | '/groups/$groupId'
     | '/api/public/demo/ask'
     | '/api/public/hooks/revenuecat'
@@ -177,11 +197,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/bible'
     | '/companion'
+    | '/git-sync'
     | '/groups'
     | '/home'
     | '/onboarding'
     | '/search'
     | '/settings'
+    | '/study'
     | '/groups/$groupId'
     | '/api/public/demo/ask'
     | '/api/public/hooks/revenuecat'
@@ -194,11 +216,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/bible'
     | '/_authenticated/companion'
+    | '/_authenticated/git-sync'
     | '/_authenticated/groups'
     | '/_authenticated/home'
     | '/_authenticated/onboarding'
     | '/_authenticated/search'
     | '/_authenticated/settings'
+    | '/_authenticated/study'
     | '/_authenticated/groups/$groupId'
     | '/api/public/demo/ask'
     | '/api/public/hooks/revenuecat'
@@ -238,6 +262,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/study': {
+      id: '/_authenticated/study'
+      path: '/study'
+      fullPath: '/study'
+      preLoaderRoute: typeof AuthenticatedStudyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -271,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/groups'
       fullPath: '/groups'
       preLoaderRoute: typeof AuthenticatedGroupsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/git-sync': {
+      id: '/_authenticated/git-sync'
+      path: '/git-sync'
+      fullPath: '/git-sync'
+      preLoaderRoute: typeof AuthenticatedGitSyncRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/companion': {
@@ -354,21 +392,25 @@ const AuthenticatedGroupsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedBibleRoute: typeof AuthenticatedBibleRoute
   AuthenticatedCompanionRoute: typeof AuthenticatedCompanionRoute
+  AuthenticatedGitSyncRoute: typeof AuthenticatedGitSyncRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBibleRoute: AuthenticatedBibleRoute,
   AuthenticatedCompanionRoute: AuthenticatedCompanionRoute,
+  AuthenticatedGitSyncRoute: AuthenticatedGitSyncRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedStudyRoute: AuthenticatedStudyRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

@@ -21,6 +21,8 @@ function Bible() {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [highlights, setHighlights] = useState<Set<number>>(new Set());
   const [selected, setSelected] = useState<Verse | null>(null);
+  const [books, setBooks] = useState<string[]>([]);
+  const [bookChapters, setBookChapters] = useState<Record<string, number>>({});
 
   useEffect(() => {
     void (async () => {
@@ -39,9 +41,7 @@ function Bible() {
     })();
   }, [user.id]);
 
-  // Load books (+ chapter counts) for the selected version via a cheap aggregate RPC.
-  const [books, setBooks] = useState<string[]>([]);
-  const [bookChapters, setBookChapters] = useState<Record<string, number>>({});
+  // Books (+ chapter counts) for the selected version via a cheap aggregate RPC.
   useEffect(() => {
     if (!versionId) return;
     void (async () => {
@@ -59,7 +59,7 @@ function Bible() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [versionId]);
 
-  // Load chapter verses + this user's highlights for them.
+  // Chapter verses + this user's highlights for them.
   useEffect(() => {
     if (!versionId || !book) return;
     void (async () => {
@@ -84,14 +84,21 @@ function Bible() {
     })();
   }, [versionId, book, chapter, user.id]);
 
-  const chapters = useMemo(() => {
-    const n = bookChapters[book] ?? 1;
-    return Array.from({ length: n }, (_, i) => i + 1);
-  }, [book, bookChapters]);
+  const maxChapter = bookChapters[book] ?? 1;
+  const chapters = useMemo(
+    () => Array.from({ length: maxChapter }, (_, i) => i + 1),
+    [maxChapter],
+  );
 
   function selectBook(b: string) {
     setBook(b);
     setChapter(1);
+  }
+  function prevChapter() {
+    if (chapter > 1) setChapter(chapter - 1);
+  }
+  function nextChapter() {
+    if (chapter < maxChapter) setChapter(chapter + 1);
   }
 
   async function toggleHighlight(v: Verse) {
@@ -115,7 +122,7 @@ function Bible() {
   return (
     <AppShell title="Bible">
       <div className="space-y-stack-md">
-        {/* Reference & translation selectors, styled as soft chips */}
+        {/* Reference & translation selectors */}
         <div className="flex flex-wrap items-center gap-2">
           <SelectChip
             icon="bookmark"
@@ -142,13 +149,31 @@ function Bible() {
           />
         </div>
 
-        <header className="border-b border-divider-soft pb-stack-sm">
+        <header className="flex items-center justify-between border-b border-divider-soft pb-stack-sm">
           <h1 className="font-serif text-3xl text-primary">
             {book} {chapter}
           </h1>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={prevChapter}
+              disabled={chapter <= 1}
+              aria-label="Previous chapter"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-white text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
+            >
+              <Icon name="arrow_back" className="text-base" />
+            </button>
+            <button
+              onClick={nextChapter}
+              disabled={chapter >= maxChapter}
+              aria-label="Next chapter"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-white text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
+            >
+              <Icon name="arrow_forward" className="text-base" />
+            </button>
+          </div>
         </header>
 
-        {/* Scripture body — serif, generous line-height for meditative reading */}
+        {/* Scripture body */}
         <article className="space-y-1 font-serif text-[19px] leading-9 text-on-surface">
           {verses.length === 0 ? (
             <p className="font-sans text-on-surface-variant">
