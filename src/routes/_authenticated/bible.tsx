@@ -17,7 +17,7 @@ import {
 } from "@/lib/reader-prefs";
 
 export const Route = createFileRoute("/_authenticated/bible")({
-  head: () => ({ meta: [{ title: "Bible · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Bible · Faith Companion" }] }),
   component: Bible,
 });
 
@@ -234,11 +234,16 @@ function Bible() {
           />
         </div>
 
-        <header className="flex items-center justify-between border-b border-divider-soft pb-stack-sm">
-          <h1 className="font-serif text-3xl text-primary">
+        {/* Chapter header — label-caps subtitle + gilded divider + italic headline */}
+        <header className="text-center mb-stack-lg">
+          <span className="label-caps text-primary tracking-widest">
+            {bookCategory(book)}
+          </span>
+          <div className="gilded-divider my-4 mx-auto w-32" />
+          <h1 className="font-serif text-3xl md:text-4xl mt-2 italic text-primary">
             {book} {chapter}
           </h1>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-center gap-1 mt-4">
             <button
               onClick={() => setSettingsOpen(true)}
               aria-label="Reading settings"
@@ -299,18 +304,23 @@ function Bible() {
               No verses for this chapter in the current translation.
             </p>
           ) : (
-            verses.map((v) => (
+            verses.map((v, i) => (
               <p
                 key={v.id}
                 onClick={() => setSelected(v)}
                 className={`-mx-2 cursor-pointer rounded-lg px-2 py-1 font-serif leading-[1.8] transition-gentle hover:bg-surface-container ${
                   highlights.has(v.id) ? "bg-secondary-container/40" : ""
-                }`}
+                } ${i === 0 ? "drop-cap" : ""}`}
               >
-                <sup className="mr-1.5 align-super font-sans text-xs font-bold text-wood-warm">
+                <sup className="verse-number">
                   {v.verse}
                 </sup>
                 {v.text}
+                {i === Math.floor(verses.length / 2) && verses.length > 3 && (
+                  <span className="block mt-4">
+                    <span className="gilded-divider block w-full" />
+                  </span>
+                )}
               </p>
             ))
           )}
@@ -464,6 +474,18 @@ function Bible() {
       </Sheet>
     </AppShell>
   );
+}
+
+function bookCategory(book: string): string {
+  const ot = ["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi"];
+  const gospels = ["Matthew","Mark","Luke","John"];
+  const epistles = ["Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude"];
+  if (gospels.includes(book)) return `The Gospel According to ${book}`;
+  if (epistles.includes(book)) return `The Epistle of ${book}`;
+  if (ot.includes(book)) return book;
+  if (book === "Acts") return "The Acts of the Apostles";
+  if (book === "Revelation") return "The Revelation of Jesus Christ";
+  return book;
 }
 
 function SelectChip({

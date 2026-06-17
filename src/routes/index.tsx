@@ -5,13 +5,13 @@ import { Icon } from "@/components/app/icon";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Discipleship Companion — Bible, daily habit, real community" },
+      { title: "Faith Companion — Bible, daily habit, real community" },
       {
         name: "description",
         content:
           "Understand the Bible, build a daily habit, and never feel alone in it. Answers grounded in real Scripture — it never makes things up.",
       },
-      { property: "og:title", content: "Discipleship Companion" },
+      { property: "og:title", content: "Faith Companion" },
       {
         property: "og:description",
         content:
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "MobileApplication",
-          name: "Discipleship Companion",
+          name: "Faith Companion",
           applicationCategory: "LifestyleApplication",
           operatingSystem: "iOS, Android",
           description:
@@ -68,7 +68,7 @@ function SiteNav() {
         <Link to="/" className="flex items-center gap-2">
           <Icon name="menu_book" className="text-2xl text-primary" />
           <span className="font-serif text-lg font-bold tracking-tight text-primary">
-            Discipleship Companion
+            Faith Companion
           </span>
         </Link>
         <nav className="flex items-center gap-5 text-sm">
@@ -622,7 +622,7 @@ function FinalCta() {
 function SiteFooter() {
   return (
     <footer className="border-t border-divider-soft bg-scripture-cream px-margin-mobile py-8 text-center text-xs text-on-surface-variant">
-      <p>© {new Date().getFullYear()} Discipleship Companion. Built carefully.</p>
+      <p>© {new Date().getFullYear()} Faith Companion. Built carefully.</p>
     </footer>
   );
 }

@@ -59,7 +59,7 @@ export function AppShell({
             <Icon name="menu" />
           </Link>
 
-          <h1 className="font-serif text-2xl tracking-tight text-primary">
+          <h1 className="font-headline-md text-headline-md font-bold text-primary">
             {title ?? "Faith Companion"}
           </h1>
 
@@ -74,7 +74,7 @@ export function AppShell({
             <Link
               to="/profile"
               aria-label="Profile"
-              className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-outline-variant bg-surface-container-highest text-primary"
+              className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-primary-container text-on-primary-container"
             >
               <Icon name="person" filled />
             </Link>
@@ -117,10 +117,7 @@ function BottomNav() {
             )}
           >
             <Icon name={item.icon} filled={active} />
-            <span
-              className="mt-0.5 font-semibold uppercase"
-              style={{ fontSize: 10, letterSpacing: "0.15em" }}
-            >
+            <span className="font-label-caps text-label-caps mt-0.5 uppercase">
               {item.label}
             </span>
           </Link>

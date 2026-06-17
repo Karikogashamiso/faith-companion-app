@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Discipleship Companion" },
+      { title: "Faith Companion" },
       {
         name: "description",
         content:
           "Understand the Bible, build a daily habit, and never feel alone in it.",
       },
-      { property: "og:title", content: "Discipleship Companion" },
+      { property: "og:title", content: "Faith Companion" },
       {
         property: "og:description",
         content:

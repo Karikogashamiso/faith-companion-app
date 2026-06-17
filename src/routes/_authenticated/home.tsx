@@ -28,7 +28,7 @@ import {
 } from "@/lib/reading-position";
 
 export const Route = createFileRoute("/_authenticated/home")({
-  head: () => ({ meta: [{ title: "Today · Discipleship Companion" }] }),
+  head: () => ({ meta: [{ title: "Today · Faith Companion" }] }),
   component: Home,
 });
 
@@ -256,28 +256,17 @@ function Home() {
         )}
 
         {/* Welcome + progress */}
-        <section className="flex items-end justify-between gap-3">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold uppercase tracking-widest text-wood-warm">
-              {greeting}
-            </p>
-            <h1 className="font-serif text-3xl text-primary md:text-4xl">
-              Peace be with you.
-            </h1>
-          </div>
-          <Link to="/profile" className="flex shrink-0 flex-col items-end gap-1.5">
-            <Chip tone="ink" icon="workspace_premium" iconFilled className="rounded-full">
-              Lv {levelFromXp(xp).level} · {levelFromXp(xp).rank}
-            </Chip>
-            <Chip
-              tone="accent"
-              icon="local_fire_department"
-              iconFilled
-              className="rounded-full"
-            >
-              {streak.current} Day{streak.current === 1 ? "" : "s"}
-            </Chip>
-          </Link>
+        <section className="space-y-1">
+          <p className="label-caps text-primary">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            }).toUpperCase()}
+          </p>
+          <h2 className="font-serif text-2xl text-primary">
+            {greeting}, Believer
+          </h2>
         </section>
 
         {/* Continue reading */}
@@ -300,128 +289,149 @@ function Home() {
           </Link>
         )}
 
-        {/* Hero verse — the single focal point */}
-        <Card tone="ink" padding="lg" className="text-center md:p-12">
-          <div className="space-y-stack-md">
-            <Icon
-              name="format_quote"
-              className="text-4xl text-on-primary-container opacity-50"
-            />
+        {/* Hero verse — dramatic gradient overlay card matching reference */}
+        <section className="relative overflow-hidden rounded-xl aspect-[16/10] md:aspect-[21/9] shadow-2xl group border border-outline-variant">
+          <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high via-surface-container to-background" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+          <div className="relative h-full flex flex-col justify-end p-6 md:p-8 text-center md:text-left">
+            <span className="label-caps text-primary mb-2">VERSE OF THE DAY</span>
             {verse ? (
               <>
-                <blockquote className="mx-auto max-w-lg font-serif text-xl italic leading-relaxed text-primary-foreground">
+                <blockquote className="font-serif text-xl italic leading-relaxed text-on-surface mb-3">
                   &ldquo;{verse.text}&rdquo;
                 </blockquote>
-                <div className="flex flex-col items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="h-px w-8 bg-on-primary-container opacity-50" />
-                    <cite className="text-sm font-semibold uppercase not-italic tracking-widest text-on-primary-container">
-                      {verse.book} {verse.chapter}:{verse.verse}
-                    </cite>
-                    <span className="h-px w-8 bg-on-primary-container opacity-50" />
-                  </div>
-                  <Chip tone="info" icon="verified" iconFilled className="rounded-full">
-                    Verified text
-                  </Chip>
-                </div>
+                <cite className="label-caps text-on-surface-variant opacity-80 not-italic">
+                  — {verse.book} {verse.chapter}:{verse.verse}
+                </cite>
               </>
             ) : (
-              <p className="font-serif text-lg italic text-primary-foreground/70">
-                Loading today's verse…
+              <p className="font-serif text-lg italic text-on-surface-variant">
+                Loading today&apos;s verse…
               </p>
             )}
           </div>
-        </Card>
+        </section>
+
+        {/* Bento row: Daily Reading progress + Continue reading */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-stack-sm">
+          {/* Progress Tracker */}
+          <div className="bg-surface-container rounded-xl p-5 border border-outline-variant flex flex-col justify-between">
+            <div>
+              <h3 className="label-caps text-on-surface-variant mb-3">DAILY READING</h3>
+              <div className="flex items-end justify-between mb-2">
+                <span className="font-serif text-2xl text-primary">
+                  {completedToday ? "100%" : `${Math.min(100, Math.round((streak.current / 7) * 100))}%`}
+                </span>
+                <span className="text-sm text-on-surface-variant">
+                  {streak.current} day{streak.current === 1 ? "" : "s"} streak
+                </span>
+              </div>
+              <div className="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-primary h-full rounded-full shadow-[0_0_8px_rgba(230,195,100,0.5)]"
+                  style={{ width: `${completedToday ? 100 : Math.min(100, Math.round((streak.current / 7) * 100))}%` }}
+                />
+              </div>
+            </div>
+            <button
+              onClick={markToday}
+              disabled={completedToday}
+              className="mt-4 w-full py-2.5 bg-primary text-on-primary label-caps rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+            >
+              {completedToday ? "TODAY IS COMPLETE" : "BEGIN TODAY'S DEVOTION"}
+            </button>
+          </div>
+
+          {/* Continue reading / Quick action */}
+          {resume ? (
+            <Link to="/bible" className="block">
+              <div className="bg-surface-container rounded-xl p-5 border border-outline-variant h-full flex flex-col justify-between hover:bg-surface-container-high transition-colors">
+                <div>
+                  <h3 className="label-caps text-on-surface-variant mb-3">CONTINUE READING</h3>
+                  <p className="font-serif text-xl text-primary">{resume.book} {resume.chapter}</p>
+                  <p className="text-sm text-on-surface-variant mt-1">Pick up where you left off</p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-primary text-sm font-semibold">
+                  Resume <Icon name="arrow_forward" className="text-base" />
+                </div>
+              </div>
+            </Link>
+          ) : (
+            <Link to="/prayers" className="block">
+              <div className="bg-surface-container rounded-xl p-5 border border-outline-variant h-full flex flex-col justify-between hover:bg-surface-container-high transition-colors">
+                <div>
+                  <h3 className="label-caps text-on-surface-variant mb-3">MY PRAYERS</h3>
+                  <p className="font-serif text-xl text-primary">Prayer Requests</p>
+                  <p className="text-sm text-on-surface-variant mt-1">Keep track of what&apos;s on your heart</p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-primary text-sm font-semibold">
+                  Open <Icon name="arrow_forward" className="text-base" />
+                </div>
+              </div>
+            </Link>
+          )}
+        </div>
+
+        {/* Gilded Divider */}
+        <div className="gold-rule w-full" />
 
         {/* Today's AI reflection (grounded on the verse of the day) */}
         {devoLoading ? (
           <Skeleton className="h-32" />
         ) : devo ? (
-          <Card className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Icon name="auto_awesome" filled className="text-wood-warm" />
-              <p className="text-sm font-semibold uppercase tracking-widest text-wood-warm">
-                Today's Reflection
-              </p>
-            </div>
-            <p className="measure leading-relaxed text-on-surface">
-              {devo.reflection}
-            </p>
-            <Card tone="info" padding="sm">
-              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                A prayer
-              </p>
-              <p className="mt-1 font-serif italic text-on-surface">
-                {devo.prayer}
-              </p>
-            </Card>
-          </Card>
+          <section>
+            <h3 className="font-serif text-2xl text-primary mb-stack-sm">Featured Reflections</h3>
+            <Link to="/study" className="group block">
+              <div className="bg-surface-container-low hover:bg-surface-container transition-all duration-300 rounded-xl p-5 border border-outline-variant flex gap-5 cursor-pointer">
+                <div className="w-14 h-14 rounded-lg bg-crisis-blue flex items-center justify-center shrink-0">
+                  <Icon name="auto_awesome" className="text-primary text-2xl" />
+                </div>
+                <div className="flex flex-col justify-center">
+                  <span className="label-caps text-[10px] text-primary mb-1">AI PASTORAL GUIDANCE</span>
+                  <h4 className="font-serif text-lg text-on-surface group-hover:text-primary transition-colors">
+                    {devo.verse_ref}
+                  </h4>
+                  <p className="text-on-surface-variant text-sm line-clamp-2 mt-1">
+                    {devo.reflection}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          </section>
         ) : null}
 
-        {/* Primary action — the obvious focal CTA */}
-        <div>
-          <Button
-            size="lg"
-            block
-            onClick={markToday}
-            disabled={completedToday}
-            leftIcon={completedToday ? "task_alt" : "auto_stories"}
-            className="h-14 text-lg"
-          >
-            {completedToday ? "Today is complete" : "Begin Today's Devotion"}
-          </Button>
-          <p className="mt-2 text-center text-sm text-on-surface-variant">
-            {streak.current === 0
-              ? "Today is a good day to begin."
-              : completedToday
-                ? "You showed up today — well done."
-                : "Yesterday counted — sit with the verse a moment."}
-          </p>
-        </div>
-
-        {/* Ask the Companion */}
-        <Link to="/study" className="group block">
-          <Card interactive className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <IconBadge name="auto_awesome" filled tone="info" />
-              <div>
-                <p className="font-serif text-lg text-primary">
-                  Ask the Companion
-                </p>
-                <p className="text-sm text-on-surface-variant">
-                  Grounded answers, every verse linked
-                </p>
-              </div>
-            </div>
-            <Icon
-              name="arrow_forward"
-              className="text-outline transition-transform group-hover:translate-x-1 group-hover:text-wood-warm"
-            />
-          </Card>
-        </Link>
-
-        {/* Quick links to the engagement tools */}
-        <section className="grid grid-cols-2 gap-gutter">
-          {[
-            { to: "/prayers" as const, icon: "front_hand", label: "My Prayers" },
-            { to: "/memorize" as const, icon: "neurology", label: "Memorize" },
-            { to: "/saved" as const, icon: "bookmark", label: "Saved" },
-            { to: "/reminders" as const, icon: "alarm", label: "Reminders" },
-          ].map((l) => (
-            <Link key={l.to} to={l.to} className="block">
-              <Card
-                interactive
-                padding="sm"
-                className="flex flex-col items-center gap-2 text-center"
-              >
-                <IconBadge name={l.icon} tone="info" />
-                <span className="text-sm font-semibold text-primary">
-                  {l.label}
-                </span>
-              </Card>
-            </Link>
-          ))}
+        {/* Quick links — Featured Reflections style */}
+        <section>
+          <div className="space-y-3">
+            {[
+              { to: "/prayers" as const, icon: "front_hand", label: "My Prayers", desc: "Track what&apos;s on your heart" },
+              { to: "/memorize" as const, icon: "neurology", label: "Memorize", desc: "Hide God&apos;s word in your heart" },
+              { to: "/saved" as const, icon: "bookmark", label: "Saved", desc: "Verses you&apos;ve bookmarked" },
+              { to: "/reminders" as const, icon: "alarm", label: "Reminders", desc: "Daily nudges to show up" },
+            ].map((l) => (
+              <Link key={l.to} to={l.to} className="group block">
+                <div className="bg-surface-container-low hover:bg-surface-container transition-all duration-300 rounded-xl p-4 border border-outline-variant flex items-center gap-4 cursor-pointer">
+                  <div className="w-12 h-12 rounded-lg bg-crisis-blue flex items-center justify-center shrink-0">
+                    <Icon name={l.icon} className="text-primary text-xl" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-serif text-lg text-on-surface group-hover:text-primary transition-colors">
+                      {l.label}
+                    </h4>
+                    <p className="text-on-surface-variant text-sm">{l.desc}</p>
+                  </div>
+                  <Icon name="arrow_forward" className="text-outline" />
+                </div>
+              </Link>
+            ))}
+          </div>
         </section>
+
+        {/* Gilded Divider */}
+        <div className="gold-rule w-full" />
+
+        {/* Gilded Divider */}
+        <div className="gold-rule w-full" />
 
         {/* Today's journey (reading plan) */}
         <section className="space-y-stack-md">
@@ -511,6 +521,9 @@ function Home() {
             </Card>
           )}
         </section>
+
+        {/* Gilded Divider */}
+        <div className="gold-rule w-full" />
 
         {/* Community */}
         <section className="space-y-stack-md pb-4">
