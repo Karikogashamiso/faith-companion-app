@@ -1,11 +1,20 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
-import { Button, Sheet } from "@/components/app/ui";
+import { Button, Card, Sheet, Skeleton } from "@/components/app/ui";
 import { VerseImageSheet } from "@/components/app/verse-image";
+import { explainChapter } from "@/lib/bible.functions";
+import { getReadingPosition, setReadingPosition } from "@/lib/reading-position";
+import {
+  BASE_PX,
+  SCALES,
+  getReaderPrefs,
+  setReaderPrefs,
+} from "@/lib/reader-prefs";
 
 export const Route = createFileRoute("/_authenticated/bible")({
   head: () => ({ meta: [{ title: "Bible · Discipleship Companion" }] }),
@@ -28,6 +37,15 @@ function Bible() {
   const [imageVerse, setImageVerse] = useState<Verse | null>(null);
   const [books, setBooks] = useState<string[]>([]);
   const [bookChapters, setBookChapters] = useState<Record<string, number>>({});
+  const [scale, setScale] = useState(1);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const explainFn = useServerFn(explainChapter);
+  const [explainText, setExplainText] = useState<string | null>(null);
+  const [explainLoading, setExplainLoading] = useState(false);
+
+  useEffect(() => {
+    setScale(getReaderPrefs().scale);
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -35,6 +53,15 @@ function Bible() {
         .from("bible_versions")
         .select("id, name, abbreviation");
       setVersions((vs ?? []) as Version[]);
+
+      // Resume where the reader left off, if we have a saved position.
+      const saved = getReadingPosition();
+      if (saved && (vs ?? []).some((v: any) => v.id === saved.versionId)) {
+        setVersionId(saved.versionId);
+        setBook(saved.book);
+        setChapter(saved.chapter);
+        return;
+      }
       const { data: p } = await supabase
         .from("profiles")
         .select("default_version_id")
@@ -67,6 +94,8 @@ function Bible() {
   // Chapter verses + this user's highlights for them.
   useEffect(() => {
     if (!versionId || !book) return;
+    setExplainText(null);
+    setReadingPosition({ versionId, book, chapter });
     void (async () => {
       const { data } = await supabase
         .from("verses")
@@ -142,6 +171,30 @@ function Bible() {
     }
   }
 
+  function changeScale(s: number) {
+    setScale(s);
+    setReaderPrefs({ scale: s });
+  }
+
+  async function runExplain() {
+    if (!versionId || !book) return;
+    setExplainLoading(true);
+    try {
+      const r = await explainFn({
+        data: { version_id: versionId, book, chapter },
+      });
+      setExplainText(
+        r && !r.disabled
+          ? r.summary
+          : "AI explanations are off or unavailable for this chapter.",
+      );
+    } catch {
+      setExplainText("Couldn't generate an explanation right now.");
+    } finally {
+      setExplainLoading(false);
+    }
+  }
+
   return (
     <AppShell title="Bible">
       <div className="space-y-stack-md">
@@ -178,6 +231,13 @@ function Bible() {
           </h1>
           <div className="flex items-center gap-1">
             <button
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Reading settings"
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-divider-soft bg-card text-primary transition-colors hover:border-wood-warm"
+            >
+              <Icon name="text_fields" className="text-base" />
+            </button>
+            <button
               onClick={prevChapter}
               disabled={chapter <= 1}
               aria-label="Previous chapter"
@@ -196,10 +256,37 @@ function Bible() {
           </div>
         </header>
 
+        {/* AI chapter summary (citation-locked to this chapter) */}
+        {verses.length > 0 &&
+          (explainText ? (
+            <Card tone="info" className="space-y-2">
+              <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-wood-warm">
+                <Icon name="auto_awesome" filled className="text-base" />
+                Chapter summary
+              </p>
+              <p className="measure leading-relaxed text-on-surface">
+                {explainText}
+              </p>
+            </Card>
+          ) : explainLoading ? (
+            <Skeleton className="h-24" />
+          ) : (
+            <button
+              onClick={runExplain}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-card py-3 text-sm font-semibold text-primary transition-gentle hover:border-wood-warm"
+            >
+              <Icon name="auto_awesome" filled className="text-base text-wood-warm" />
+              Explain this chapter
+            </button>
+          ))}
+
         {/* Scripture body — calm, book-like reading at a ~66ch measure */}
-        <article className="measure mx-auto space-y-1 text-on-surface">
+        <article
+          className="measure mx-auto space-y-1 text-on-surface"
+          style={{ fontSize: `${Math.round(BASE_PX * scale)}px` }}
+        >
           {verses.length === 0 ? (
-            <p className="font-sans text-on-surface-variant">
+            <p className="font-sans text-base text-on-surface-variant">
               No verses for this chapter in the current translation.
             </p>
           ) : (
@@ -207,7 +294,7 @@ function Bible() {
               <p
                 key={v.id}
                 onClick={() => setSelected(v)}
-                className={`text-scripture -mx-2 cursor-pointer rounded-lg px-2 py-1 transition-gentle hover:bg-surface-container ${
+                className={`-mx-2 cursor-pointer rounded-lg px-2 py-1 font-serif leading-[1.8] transition-gentle hover:bg-surface-container ${
                   highlights.has(v.id) ? "bg-secondary-container/40" : ""
                 }`}
               >
@@ -315,6 +402,57 @@ function Bible() {
           text={imageVerse.text}
         />
       )}
+
+      <Sheet
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        title="Reading"
+      >
+        <div className="space-y-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-wood-warm">
+            Text size
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="font-serif text-sm text-on-surface-variant">A</span>
+            <div className="flex flex-1 gap-1">
+              {SCALES.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => changeScale(s)}
+                  aria-label={`Text size ${Math.round(s * 100)} percent`}
+                  aria-pressed={scale === s}
+                  className={`flex h-11 flex-1 items-center justify-center rounded-md border transition-gentle ${
+                    scale === s
+                      ? "border-primary bg-primary text-on-primary"
+                      : "border-divider-soft text-on-surface-variant hover:border-wood-warm"
+                  }`}
+                >
+                  <span className="font-serif" style={{ fontSize: `${Math.round(11 * s)}px` }}>
+                    A
+                  </span>
+                </button>
+              ))}
+            </div>
+            <span className="font-serif text-2xl text-on-surface-variant">A</span>
+          </div>
+          <Card tone="info" padding="sm">
+            <p
+              className="font-serif text-on-surface"
+              style={{ fontSize: `${Math.round(BASE_PX * scale)}px`, lineHeight: 1.8 }}
+            >
+              “For God so loved the world, that he gave his one and only Son…”
+            </p>
+          </Card>
+          <Link
+            to="/settings"
+            onClick={() => setSettingsOpen(false)}
+            className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-wood-warm"
+          >
+            <Icon name="dark_mode" className="text-base" />
+            Light / dark theme in Settings
+          </Link>
+        </div>
+      </Sheet>
     </AppShell>
   );
 }
