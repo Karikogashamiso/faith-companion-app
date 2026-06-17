@@ -4,8 +4,16 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { dailyDevotional } from "@/lib/ai-study.functions";
-import { AppShell, SectionHeading } from "@/components/app/app-shell";
+import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import {
+  Button,
+  Card,
+  Chip,
+  IconBadge,
+  SectionHeader,
+  Skeleton,
+} from "@/components/app/ui";
 import { computeStreak, todayLocalISO } from "@/lib/streak";
 import {
   DAILY_XP,
@@ -225,22 +233,19 @@ function Home() {
       <div className="space-y-stack-lg">
         {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
         {season && (
-          <Link
-            to="/companion"
-            className="group flex items-center gap-4 overflow-hidden rounded-xl border border-wood-warm/40 bg-secondary-container/40 p-4"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-wood-warm text-white">
-              <Icon name="local_florist" filled />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="font-serif text-lg text-primary">{season.title}</p>
-              <p className="truncate text-sm text-on-surface-variant">
-                {season.blurb}
-              </p>
-            </div>
-            <span className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-on-primary">
-              {season.cta}
-            </span>
+          <Link to="/companion" className="block">
+            <Card tone="accent" interactive className="flex items-center gap-4">
+              <IconBadge name="local_florist" filled tone="wood" />
+              <div className="min-w-0 flex-1">
+                <p className="font-serif text-lg text-primary">{season.title}</p>
+                <p className="truncate text-sm text-on-surface-variant">
+                  {season.blurb}
+                </p>
+              </div>
+              <Chip tone="ink" className="shrink-0">
+                {season.cta}
+              </Chip>
+            </Card>
           </Link>
         )}
 
@@ -250,38 +255,35 @@ function Home() {
             <p className="text-sm font-semibold uppercase tracking-widest text-wood-warm">
               {greeting}
             </p>
-            <h2 className="font-serif text-3xl text-primary md:text-4xl">
+            <h1 className="font-serif text-3xl text-primary md:text-4xl">
               Peace be with you.
-            </h2>
+            </h1>
           </div>
           <Link to="/profile" className="flex shrink-0 flex-col items-end gap-1.5">
-            <span className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-on-primary">
-              <Icon name="workspace_premium" filled className="text-base" />
-              <span className="text-xs font-semibold">
-                Lv {levelFromXp(xp).level} · {levelFromXp(xp).rank}
-              </span>
-            </span>
-            <span className="flex items-center gap-1.5 rounded-full bg-secondary-container px-3 py-1 text-on-secondary-container">
-              <Icon name="local_fire_department" filled className="text-base" />
-              <span className="text-xs font-semibold">
-                {streak.current} Day{streak.current === 1 ? "" : "s"}
-              </span>
-            </span>
+            <Chip tone="ink" icon="workspace_premium" iconFilled className="rounded-full">
+              Lv {levelFromXp(xp).level} · {levelFromXp(xp).rank}
+            </Chip>
+            <Chip
+              tone="accent"
+              icon="local_fire_department"
+              iconFilled
+              className="rounded-full"
+            >
+              {streak.current} Day{streak.current === 1 ? "" : "s"}
+            </Chip>
           </Link>
         </section>
 
-        {/* Hero verse */}
-        <section className="overflow-hidden rounded-xl bg-primary p-8 text-center shadow-sm md:p-12">
+        {/* Hero verse — the single focal point */}
+        <Card tone="ink" padding="lg" className="text-center md:p-12">
           <div className="space-y-stack-md">
-            <div className="flex justify-center">
-              <Icon
-                name="format_quote"
-                className="text-4xl text-on-primary-container opacity-50"
-              />
-            </div>
+            <Icon
+              name="format_quote"
+              className="text-4xl text-on-primary-container opacity-50"
+            />
             {verse ? (
               <>
-                <blockquote className="mx-auto max-w-lg font-serif text-[22px] italic leading-8 text-scripture-cream">
+                <blockquote className="mx-auto max-w-lg font-serif text-xl italic leading-relaxed text-scripture-cream">
                   &ldquo;{verse.text}&rdquo;
                 </blockquote>
                 <div className="flex flex-col items-center gap-3">
@@ -292,10 +294,9 @@ function Home() {
                     </cite>
                     <span className="h-px w-8 bg-on-primary-container opacity-50" />
                   </div>
-                  <span className="flex items-center gap-1 rounded-full bg-crisis-blue px-3 py-1 text-xs font-bold text-primary">
-                    <Icon name="verified" filled className="text-sm" />
+                  <Chip tone="info" icon="verified" iconFilled className="rounded-full">
                     Verified text
-                  </span>
+                  </Chip>
                 </div>
               </>
             ) : (
@@ -304,41 +305,45 @@ function Home() {
               </p>
             )}
           </div>
-        </section>
+        </Card>
 
         {/* Today's AI reflection (grounded on the verse of the day) */}
         {devoLoading ? (
-          <div className="h-32 animate-pulse rounded-xl border border-divider-soft bg-surface-container-low" />
+          <Skeleton className="h-32" />
         ) : devo ? (
-          <section className="space-y-3 rounded-xl border border-divider-soft bg-white p-6">
+          <Card className="space-y-3">
             <div className="flex items-center gap-2">
               <Icon name="auto_awesome" filled className="text-wood-warm" />
               <p className="text-sm font-semibold uppercase tracking-widest text-wood-warm">
                 Today's Reflection
               </p>
             </div>
-            <p className="leading-relaxed text-on-surface">{devo.reflection}</p>
-            <div className="rounded-lg bg-crisis-blue p-4">
+            <p className="measure leading-relaxed text-on-surface">
+              {devo.reflection}
+            </p>
+            <Card tone="info" padding="sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                 A prayer
               </p>
               <p className="mt-1 font-serif italic text-on-surface">
                 {devo.prayer}
               </p>
-            </div>
-          </section>
+            </Card>
+          </Card>
         ) : null}
 
-        {/* Primary CTA */}
-        <section>
-          <button
+        {/* Primary action — the obvious focal CTA */}
+        <div>
+          <Button
+            size="lg"
+            block
             onClick={markToday}
             disabled={completedToday}
-            className="flex w-full items-center justify-center gap-3 rounded-xl bg-primary py-5 text-lg font-semibold text-on-primary shadow-lg transition-all hover:bg-navy-deep active:scale-[0.98] disabled:opacity-60"
+            leftIcon={completedToday ? "task_alt" : "auto_stories"}
+            className="h-14 text-lg"
           >
-            <Icon name={completedToday ? "task_alt" : "auto_stories"} />
             {completedToday ? "Today is complete" : "Begin Today's Devotion"}
-          </button>
+          </Button>
           <p className="mt-2 text-center text-sm text-on-surface-variant">
             {streak.current === 0
               ? "Today is a good day to begin."
@@ -346,35 +351,32 @@ function Home() {
                 ? "You showed up today — well done."
                 : "Yesterday counted — sit with the verse a moment."}
           </p>
-        </section>
+        </div>
 
         {/* Ask the Companion */}
-        <Link
-          to="/study"
-          className="group flex items-center justify-between gap-4 rounded-xl border border-divider-soft bg-white p-5 transition-colors hover:border-wood-warm"
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-crisis-blue text-primary">
-              <Icon name="auto_awesome" filled />
+        <Link to="/study" className="group block">
+          <Card interactive className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <IconBadge name="auto_awesome" filled tone="info" />
+              <div>
+                <p className="font-serif text-lg text-primary">
+                  Ask the Companion
+                </p>
+                <p className="text-sm text-on-surface-variant">
+                  Grounded answers, every verse linked
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="font-serif text-lg text-primary">
-                Ask the Companion
-              </p>
-              <p className="text-sm text-on-surface-variant">
-                Grounded answers, every verse linked
-              </p>
-            </div>
-          </div>
-          <Icon
-            name="arrow_forward"
-            className="text-outline transition-transform group-hover:translate-x-1 group-hover:text-wood-warm"
-          />
+            <Icon
+              name="arrow_forward"
+              className="text-outline transition-transform group-hover:translate-x-1 group-hover:text-wood-warm"
+            />
+          </Card>
         </Link>
 
         {/* Today's journey (reading plan) */}
         <section className="space-y-stack-md">
-          <SectionHeading
+          <SectionHeader
             trailing={
               <Link
                 to="/plans"
@@ -385,7 +387,7 @@ function Home() {
             }
           >
             Today's Journey
-          </SectionHeading>
+          </SectionHeader>
 
           {planDay ? (
             <div className="grid grid-cols-1 gap-gutter md:grid-cols-2">
@@ -404,11 +406,12 @@ function Home() {
                 />
               )}
               {planDay.prayer_md && (
-                <div className="group flex cursor-default flex-col items-start gap-4 rounded-xl border border-divider-soft bg-crisis-blue p-6 transition-colors md:col-span-2">
+                <Card
+                  tone="info"
+                  className="flex flex-col items-start gap-4 md:col-span-2"
+                >
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-primary shadow-sm">
-                      <Icon name="front_hand" filled />
-                    </div>
+                    <IconBadge name="front_hand" filled tone="ink" shape="round" size="lg" />
                     <div>
                       <p className="text-sm font-semibold uppercase tracking-wide text-primary">
                         The Prayer
@@ -421,12 +424,14 @@ function Home() {
                   <p className="whitespace-pre-wrap font-serif italic leading-relaxed text-on-surface-variant">
                     {planDay.prayer_md}
                   </p>
-                </div>
+                </Card>
               )}
             </div>
           ) : planComplete ? (
-            <div className="rounded-xl border border-divider-soft bg-crisis-blue p-6 text-center">
-              <Icon name="celebration" filled className="text-3xl text-wood-warm" />
+            <Card className="text-center">
+              <div className="flex justify-center">
+                <IconBadge name="celebration" filled tone="accent" size="lg" shape="round" />
+              </div>
               <p className="mt-2 font-serif text-xl text-primary">
                 You finished {planTitle ?? "your plan"}.
               </p>
@@ -440,9 +445,9 @@ function Home() {
                 Browse reading plans
                 <Icon name="arrow_forward" className="text-base" />
               </Link>
-            </div>
+            </Card>
           ) : (
-            <div className="rounded-xl border border-divider-soft bg-white p-6">
+            <Card>
               <p className="text-on-surface-variant">
                 No active plan yet. A short daily reading is the easiest way to
                 build the habit — there's no rush.
@@ -454,48 +459,46 @@ function Home() {
                 Browse reading plans
                 <Icon name="arrow_forward" className="text-base" />
               </Link>
-            </div>
+            </Card>
           )}
         </section>
 
         {/* Community */}
         <section className="space-y-stack-md pb-4">
-          <SectionHeading>Community Prayer</SectionHeading>
-          <Link
-            to="/wall"
-            className="group block overflow-hidden rounded-xl border border-divider-soft bg-primary"
-          >
-            <div className="flex items-center justify-between gap-4 p-6 text-scripture-cream">
+          <SectionHeader>Community Prayer</SectionHeader>
+          <Link to="/wall" className="group block">
+            <Card
+              tone="ink"
+              interactive
+              className="flex items-center justify-between gap-4"
+            >
               <div>
-                <p className="mb-1 text-sm font-semibold opacity-80">
+                <p className="mb-1 text-sm font-semibold text-on-primary-container">
                   You're never praying alone
                 </p>
-                <p className="font-serif text-lg">
+                <p className="font-serif text-lg text-scripture-cream">
                   Pray with people around the world
                 </p>
               </div>
               <Icon
                 name="public"
-                className="text-2xl transition-transform group-hover:translate-x-1"
+                className="text-2xl text-scripture-cream transition-transform group-hover:translate-x-1"
               />
-            </div>
+            </Card>
           </Link>
-          <Link
-            to="/groups"
-            className="group flex items-center justify-between gap-4 rounded-xl border border-divider-soft bg-white p-5 transition-colors hover:border-wood-warm"
-          >
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
-                <Icon name="group" />
-              </span>
-              <p className="font-serif text-lg text-primary">
-                Your groups & circles
-              </p>
-            </div>
-            <Icon
-              name="arrow_forward"
-              className="text-outline transition-transform group-hover:translate-x-1 group-hover:text-wood-warm"
-            />
+          <Link to="/groups" className="group block">
+            <Card interactive className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <IconBadge name="group" tone="neutral" />
+                <p className="font-serif text-lg text-primary">
+                  Your groups & circles
+                </p>
+              </div>
+              <Icon
+                name="arrow_forward"
+                className="text-outline transition-transform group-hover:translate-x-1 group-hover:text-wood-warm"
+              />
+            </Card>
           </Link>
         </section>
       </div>
@@ -522,11 +525,9 @@ function JourneyCard({
   body: string;
 }) {
   return (
-    <div className="group cursor-default space-y-4 rounded-xl border border-divider-soft bg-white p-6 transition-colors hover:border-wood-warm">
+    <Card interactive className="group space-y-4">
       <div className="flex items-start justify-between">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container text-primary">
-          <Icon name={icon} />
-        </div>
+        <IconBadge name={icon} tone="neutral" />
         <Icon
           name="arrow_forward"
           className="text-outline transition-colors group-hover:text-wood-warm"
@@ -541,6 +542,6 @@ function JourneyCard({
           {body}
         </p>
       </div>
-    </div>
+    </Card>
   );
 }
