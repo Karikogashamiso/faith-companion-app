@@ -127,7 +127,10 @@ function GroupHome() {
     const { error } = await supabase
       .from("prayer_responses")
       .insert({ request_id: reqId, responder_id: me, prayed: true });
-    if (!error) setMyPrayed(new Set([...myPrayed, reqId]));
+    if (!error) {
+      setMyPrayed(new Set([...myPrayed, reqId]));
+      void supabase.rpc("unlock_achievement", { _code: "intercessor" });
+    }
   }
 
   if (error)

@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          code: string
+          description: string
+          icon: string
+          sort: number
+          title: string
+          xp: number
+        }
+        Insert: {
+          code: string
+          description: string
+          icon: string
+          sort?: number
+          title: string
+          xp?: number
+        }
+        Update: {
+          code?: string
+          description?: string
+          icon?: string
+          sort?: number
+          title?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          streak_freezes: number
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          streak_freezes?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          streak_freezes?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          code: string
+          earned_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          earned_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          earned_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_study_logs: {
         Row: {
           answer: string
@@ -719,6 +785,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_xp: {
+        Args: { _amount: number }
+        Returns: number
+      }
+      unlock_achievement: {
+        Args: { _code: string }
+        Returns: boolean
+      }
       bible_books: {
         Args: { p_version_id: string }
         Returns: { book: string; chapters: number }[]

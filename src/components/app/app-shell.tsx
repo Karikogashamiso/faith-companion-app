@@ -56,11 +56,11 @@ export function AppShell({
               <Icon name="search" />
             </Link>
             <Link
-              to="/settings"
-              aria-label="Settings"
+              to="/profile"
+              aria-label="Your progress"
               className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container text-on-primary-container transition-colors hover:bg-primary hover:text-on-primary"
             >
-              <Icon name="verified_user" />
+              <Icon name="workspace_premium" />
             </Link>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { askStudy, flagAnswer } from "@/lib/ai-study.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
@@ -78,6 +79,7 @@ function StudyPage() {
             stripped: result.stripped,
           },
         ]);
+        void supabase.rpc("unlock_achievement", { _code: "seeker" });
       }
       void reload();
     } catch (err) {

@@ -1,9 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, SectionHeading } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import { computeStreak, todayLocalISO } from "@/lib/streak";
+import {
+  DAILY_XP,
+  PLAN_DAY_XP,
+  dailyAchievementCodes,
+  levelFromXp,
+} from "@/lib/gamification";
+import { currentSeason } from "@/lib/seasons";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Today · Discipleship Companion" }] }),
@@ -29,6 +37,9 @@ function Home() {
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [planCurrentDay, setPlanCurrentDay] = useState<number | null>(null);
   const [planComplete, setPlanComplete] = useState(false);
+  const [planDayCount, setPlanDayCount] = useState(0);
+  const [xp, setXp] = useState(0);
+  const season = currentSeason();
 
   useEffect(() => {
     void load();
@@ -82,6 +93,7 @@ function Home() {
       ]);
       setPlanTitle((plan as { title: string } | null)?.title ?? null);
       const dayCount = (plan as { day_count: number } | null)?.day_count ?? 0;
+      setPlanDayCount(dayCount);
       const maxDone = prog && prog[0] ? (prog[0].day_completed as number) : 0;
       const nextDay = maxDone + 1;
       if (nextDay <= dayCount) {
@@ -107,13 +119,24 @@ function Home() {
     const dates = (act ?? []).map((a: any) => a.activity_date as string);
     setStreak(computeStreak(dates));
     setCompletedToday(dates.includes(todayLocalISO()));
+
+    const { data: stats } = await supabase
+      .from("user_stats")
+      .select("xp")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    setXp((stats?.xp as number | undefined) ?? 0);
   }
 
   async function markToday() {
+    if (completedToday) return;
     await supabase
       .from("daily_activity")
       .upsert({ user_id: user.id, activity_date: todayLocalISO(), source: "home" });
+
     // Advance the active plan by recording the day just completed.
+    let planJustFinished = false;
+    let xpGain = DAILY_XP;
     if (activePlanId && planCurrentDay) {
       await supabase.from("user_plan_progress").upsert(
         {
@@ -123,6 +146,38 @@ function Home() {
         },
         { onConflict: "user_id,plan_id,day_completed" },
       );
+      xpGain += PLAN_DAY_XP;
+      if (planDayCount && planCurrentDay >= planDayCount) planJustFinished = true;
+    }
+
+    // Recompute the streak including today, then grant rewards server-side.
+    const { data: act } = await supabase
+      .from("daily_activity")
+      .select("activity_date")
+      .eq("user_id", user.id)
+      .order("activity_date", { ascending: false })
+      .limit(120);
+    const newStreak = computeStreak(
+      (act ?? []).map((a: any) => a.activity_date as string),
+    ).current;
+
+    await supabase.rpc("add_xp", { _amount: xpGain });
+    let unlocked = 0;
+    for (const code of dailyAchievementCodes({ streak: newStreak, planJustFinished })) {
+      const { data: isNew } = await supabase.rpc("unlock_achievement", {
+        _code: code,
+      });
+      if (isNew) unlocked++;
+    }
+
+    toast.success(`+${xpGain} XP`, {
+      description:
+        newStreak > 1 ? `${newStreak}-day streak — keep it going` : "Day complete",
+    });
+    if (unlocked > 0) {
+      toast("🏅 Achievement unlocked!", {
+        description: "See it on your Progress page.",
+      });
     }
     void load();
   }
@@ -132,8 +187,29 @@ function Home() {
   return (
     <AppShell>
       <div className="space-y-stack-lg">
-        {/* Welcome & streak */}
-        <section className="flex items-end justify-between">
+        {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
+        {season && (
+          <Link
+            to="/companion"
+            className="group flex items-center gap-4 overflow-hidden rounded-xl border border-wood-warm/40 bg-secondary-container/40 p-4"
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-wood-warm text-white">
+              <Icon name="local_florist" filled />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-serif text-lg text-primary">{season.title}</p>
+              <p className="truncate text-sm text-on-surface-variant">
+                {season.blurb}
+              </p>
+            </div>
+            <span className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-on-primary">
+              {season.cta}
+            </span>
+          </Link>
+        )}
+
+        {/* Welcome + progress */}
+        <section className="flex items-end justify-between gap-3">
           <div className="space-y-1">
             <p className="text-sm font-semibold uppercase tracking-widest text-wood-warm">
               {greeting}
@@ -142,12 +218,20 @@ function Home() {
               Peace be with you.
             </h2>
           </div>
-          <div className="mb-1 flex shrink-0 items-center gap-2 rounded-full bg-secondary-container px-4 py-2 text-on-secondary-container">
-            <Icon name="local_fire_department" filled className="text-xl" />
-            <span className="text-sm font-semibold">
-              {streak.current} Day{streak.current === 1 ? "" : "s"}
+          <Link to="/profile" className="flex shrink-0 flex-col items-end gap-1.5">
+            <span className="flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-on-primary">
+              <Icon name="workspace_premium" filled className="text-base" />
+              <span className="text-xs font-semibold">
+                Lv {levelFromXp(xp).level} · {levelFromXp(xp).rank}
+              </span>
             </span>
-          </div>
+            <span className="flex items-center gap-1.5 rounded-full bg-secondary-container px-3 py-1 text-on-secondary-container">
+              <Icon name="local_fire_department" filled className="text-base" />
+              <span className="text-xs font-semibold">
+                {streak.current} Day{streak.current === 1 ? "" : "s"}
+              </span>
+            </span>
+          </Link>
         </section>
 
         {/* Hero verse */}
