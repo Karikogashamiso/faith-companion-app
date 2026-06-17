@@ -283,16 +283,38 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Subtle candle-vignette: warm gold breath at the top, deeper indigo
+       falling to the corners. Stays fixed so scroll feels reverent. */
+    background-image:
+      radial-gradient(
+        ellipse 80% 50% at 50% -10%,
+        color-mix(in oklab, var(--color-primary) 10%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 60% 40% at 50% 110%,
+        color-mix(in oklab, var(--color-primary-container) 40%, transparent),
+        transparent 70%
+      );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
 
-  /* Headings & Scripture default to the serif "voice of the church". */
+  /* Headings: Libre Baskerville, slightly tightened, parchment-warm */
   h1,
   h2,
   h3,
   h4 {
     font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    color: var(--color-foreground);
+  }
+  h1 {
+    letter-spacing: -0.018em;
   }
 }
 
@@ -302,11 +324,35 @@
   .text-scripture {
     font-family: var(--font-serif);
     font-size: 1.1875rem; /* 19 */
-    line-height: 1.85;
-    letter-spacing: 0.003em;
+    line-height: 1.95;
+    letter-spacing: 0.005em;
+    color: var(--color-foreground);
   }
   .measure {
     max-width: 38rem; /* ~66ch */
+  }
+
+  /* Gold hairline — a single sacred divider, like a candle's gilded edge. */
+  .gold-rule {
+    height: 1px;
+    width: 100%;
+    background-image: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in oklab, var(--color-primary) 70%, transparent) 50%,
+      transparent
+    );
+  }
+
+  /* Gold drop-cap for opening prose. */
+  .drop-cap::first-letter {
+    font-family: var(--font-serif);
+    float: left;
+    font-size: 3.4em;
+    line-height: 0.85;
+    padding: 0.1em 0.12em 0 0;
+    color: var(--color-primary);
+    font-weight: 700;
   }
 
   /* Gentle, reusable interaction transition. */
@@ -315,6 +361,14 @@
       transform, opacity;
     transition-timing-function: var(--ease-gentle);
     transition-duration: var(--duration-base);
+  }
+
+  /* Soft candle-glow used sparingly on focal CTAs / hero gold elements. */
+  .candle-glow {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-primary) 35%, transparent),
+      0 0 24px color-mix(in oklab, var(--color-primary) 22%, transparent),
+      0 8px 32px rgba(0, 2, 8, 0.55);
   }
 }
 
