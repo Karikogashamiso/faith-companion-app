@@ -4,6 +4,15 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import {
+  Avatar,
+  Button,
+  Card,
+  EmptyState,
+  ScreenTitle,
+  Skeleton,
+  Textarea,
+} from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/wall")({
   head: () => ({ meta: [{ title: "Prayer Wall · Discipleship Companion" }] }),
@@ -36,20 +45,20 @@ function Wall() {
   const feed = useQuery({
     queryKey: ["global-wall", user.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("global_prayers")
         .select("id, author_name, body, prayed_count, created_at")
         .eq("status", "open")
         .order("created_at", { ascending: false })
         .limit(60);
       if (error) throw error;
-      const { data: mine } = await supabase
+      const { data: mine } = await (supabase as any)
         .from("global_prayer_prayed")
         .select("prayer_id")
         .eq("user_id", user.id);
       return {
-        prayers: (data ?? []) as Prayer[],
-        prayed: new Set((mine ?? []).map((m) => m.prayer_id as string)),
+        prayers: ((data ?? []) as unknown) as Prayer[],
+        prayed: new Set(((mine ?? []) as any[]).map((m: any) => m.prayer_id as string)),
       };
     },
   });
@@ -67,7 +76,7 @@ function Wall() {
           .maybeSingle();
         name = (p?.display_name as string | null) || "Friend";
       }
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("global_prayers")
         .insert({ author_id: user.id, author_name: name, body: text });
       if (error) throw error;
@@ -81,31 +90,27 @@ function Wall() {
   async function pray(id: string) {
     if (prayedLocal.has(id) || feed.data?.prayed.has(id)) return;
     setPrayedLocal(new Set([...prayedLocal, id]));
-    await supabase.rpc("pray_for_global", { _prayer_id: id });
-    void supabase.rpc("unlock_achievement", { _code: "intercessor" });
+    await supabase.rpc("pray_for_global" as any, { _prayer_id: id });
+    void supabase.rpc("unlock_achievement" as any, { _code: "intercessor" });
     await qc.invalidateQueries({ queryKey: ["global-wall", user.id] });
   }
 
   return (
     <AppShell title="Prayer Wall">
       <div className="space-y-stack-md">
-        <header className="space-y-2">
-          <h1 className="font-serif text-3xl text-primary">Prayer Wall</h1>
-          <p className="text-on-surface-variant">
-            Share what's on your heart, and pray for others around the world.
-            You're never praying alone.
-          </p>
-        </header>
+        <ScreenTitle
+          title="Prayer Wall"
+          subtitle="Share what's on your heart, and pray for others around the world. You're never praying alone."
+        />
 
         {/* Composer */}
-        <div className="space-y-2 rounded-xl border border-divider-soft bg-card p-4">
-          <textarea
+        <Card className="space-y-3">
+          <Textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={3}
             maxLength={600}
             placeholder="Ask the community to pray with you…"
-            className="w-full resize-none rounded-lg border border-divider-soft bg-scripture-cream px-3 py-2 text-sm focus:border-primary focus:outline-none"
           />
           <div className="flex items-center justify-between">
             <label className="flex items-center gap-2 text-sm text-on-surface-variant">
@@ -117,25 +122,22 @@ function Wall() {
               />
               Post anonymously
             </label>
-            <button
+            <Button
+              leftIcon="send"
+              loading={post.isPending}
+              disabled={body.trim().length === 0}
               onClick={() => post.mutate()}
-              disabled={post.isPending || body.trim().length === 0}
-              className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-50"
             >
-              <Icon name="send" className="text-base" />
               Share
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
 
         {/* Feed */}
         {feed.isLoading ? (
           <div className="space-y-2">
             {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="h-24 animate-pulse rounded-xl border border-divider-soft bg-surface-container-low"
-              />
+              <Skeleton key={i} className="h-24" />
             ))}
           </div>
         ) : feed.data && feed.data.prayers.length > 0 ? (
@@ -143,44 +145,46 @@ function Wall() {
             {feed.data.prayers.map((p) => {
               const prayed = prayedLocal.has(p.id) || feed.data!.prayed.has(p.id);
               const count =
-                p.prayed_count + (prayedLocal.has(p.id) && !feed.data!.prayed.has(p.id) ? 1 : 0);
+                p.prayed_count +
+                (prayedLocal.has(p.id) && !feed.data!.prayed.has(p.id) ? 1 : 0);
               return (
-                <li
-                  key={p.id}
-                  className="rounded-xl border border-divider-soft bg-card p-5"
-                >
-                  <div className="flex items-center gap-2 text-xs text-on-surface-variant">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary-container text-xs font-bold text-on-secondary-container">
-                      {p.author_name.charAt(0).toUpperCase()}
-                    </span>
-                    {p.author_name} · {timeAgo(p.created_at)}
-                  </div>
-                  <p className="mt-3 whitespace-pre-wrap text-on-surface">{p.body}</p>
-                  <div className="mt-4 flex items-center justify-between border-t border-divider-soft pt-3">
-                    <button
-                      onClick={() => pray(p.id)}
-                      disabled={prayed}
-                      className={`flex items-center gap-1.5 text-sm font-semibold ${
-                        prayed
-                          ? "text-on-surface-variant"
-                          : "text-primary hover:text-wood-warm"
-                      }`}
-                    >
-                      <Icon name="front_hand" filled={prayed} className="text-base" />
-                      {prayed ? "You prayed" : "I'll pray"}
-                    </button>
-                    <span className="text-xs text-on-surface-variant">
-                      {count} {count === 1 ? "prayer" : "prayers"}
-                    </span>
-                  </div>
+                <li key={p.id}>
+                  <Card>
+                    <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+                      <Avatar name={p.author_name} className="h-7 w-7" />
+                      {p.author_name} · {timeAgo(p.created_at)}
+                    </div>
+                    <p className="mt-3 whitespace-pre-wrap text-on-surface">
+                      {p.body}
+                    </p>
+                    <div className="mt-4 flex items-center justify-between border-t border-divider-soft pt-3">
+                      <button
+                        onClick={() => pray(p.id)}
+                        disabled={prayed}
+                        className={`flex items-center gap-1.5 text-sm font-semibold transition-gentle ${
+                          prayed
+                            ? "text-on-surface-variant"
+                            : "text-primary hover:text-wood-warm"
+                        }`}
+                      >
+                        <Icon name="front_hand" filled={prayed} className="text-base" />
+                        {prayed ? "You prayed" : "I'll pray"}
+                      </button>
+                      <span className="text-xs text-on-surface-variant">
+                        {count} {count === 1 ? "prayer" : "prayers"}
+                      </span>
+                    </div>
+                  </Card>
                 </li>
               );
             })}
           </ul>
         ) : (
-          <p className="rounded-xl border border-divider-soft bg-card p-6 text-center text-sm text-on-surface-variant">
-            No prayers yet — be the first to share.
-          </p>
+          <EmptyState
+            icon="volunteer_activism"
+            title="No prayers yet"
+            description="Be the first to share what's on your heart."
+          />
         )}
       </div>
     </AppShell>
