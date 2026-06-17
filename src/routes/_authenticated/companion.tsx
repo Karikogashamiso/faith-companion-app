@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
@@ -154,7 +155,10 @@ function CompanionPaywall() {
           </p>
           <button
             onClick={() =>
-              alert("Restore handled by RevenueCat in the native app.")
+              toast("Restore purchases", {
+                description:
+                  "Open the Discipleship Companion mobile app to restore a previous purchase.",
+              })
             }
             className="font-semibold text-primary hover:underline"
           >
@@ -209,10 +213,10 @@ function PlanCard({
   return (
     <button
       onClick={() => {
-        alert(
-          "Subscriptions are handled in the native app via RevenueCat. " +
-            "Download the Discipleship Companion from the App Store or Google Play to subscribe.",
-        );
+        toast("Continue in the mobile app", {
+          description:
+            "Subscriptions are managed in the Discipleship Companion app — download it from the App Store or Google Play to start your plan.",
+        });
       }}
       className={`flex flex-col items-start gap-1 rounded-xl border bg-card p-5 text-left transition-all hover:border-wood-warm ${
         highlight ? "border-2 border-primary" : "border border-divider-soft"

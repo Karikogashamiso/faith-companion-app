@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { deleteMyAccount } from "@/lib/account.functions";
 import type { Database } from "@/integrations/supabase/types";
+import { toast } from "sonner";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import { Button, Card, IconBadge } from "@/components/app/ui";
@@ -138,7 +139,9 @@ function Settings() {
       await supabase.auth.signOut();
       navigate({ to: "/", replace: true });
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete account");
+      toast.error(
+        err instanceof Error ? err.message : "Failed to delete account",
+      );
     }
   }
 
