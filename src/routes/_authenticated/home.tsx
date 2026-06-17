@@ -407,9 +407,9 @@ function Home() {
         <section>
           <div className="space-y-3">
             {[
-              { to: "/prayers" as const, icon: "front_hand", label: "My Prayers", desc: "Track what&apos;s on your heart" },
-              { to: "/memorize" as const, icon: "neurology", label: "Memorize", desc: "Hide God&apos;s word in your heart" },
-              { to: "/saved" as const, icon: "bookmark", label: "Saved", desc: "Verses you&apos;ve bookmarked" },
+              { to: "/prayers" as const, icon: "front_hand", label: "My Prayers", desc: "Track what's on your heart" },
+              { to: "/memorize" as const, icon: "neurology", label: "Memorize", desc: "Hide God's word in your heart" },
+              { to: "/saved" as const, icon: "bookmark", label: "Saved", desc: "Verses you've bookmarked" },
               { to: "/reminders" as const, icon: "alarm", label: "Reminders", desc: "Daily nudges to show up" },
             ].map((l) => (
               <Link key={l.to} to={l.to} className="group block">
