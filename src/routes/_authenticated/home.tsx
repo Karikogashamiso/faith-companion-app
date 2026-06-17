@@ -100,9 +100,11 @@ function Home() {
   async function load() {
       const { data: prof } = await (supabase as any)
         .from("profiles")
-        .select("default_version_id, active_plan_id")
+        .select("default_version_id, active_plan_id, ai_enabled")
         .eq("id", user.id)
         .maybeSingle();
+
+    setAiEnabled((prof?.ai_enabled as boolean | undefined) ?? true);
 
     let versionId = prof?.default_version_id;
     if (!versionId) {
