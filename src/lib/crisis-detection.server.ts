@@ -32,7 +32,7 @@ const CRISIS_PATTERNS: RegExp[] = [
   /\bdon'?t\s+want\s+to\s+(live|be\s+(alive|here)|exist|wake up|go on)\b/i,
   /\b(want|wanting)\s+to\s+(disappear|not (exist|wake up|be here)|vanish)\b/i,
   /\b(can'?t|cannot)\s+(do this|take this|go on|keep going)\s*(any\s*more|anymore)?\b/i,
-  /\b(no (reason|point)\s+(to|in)\s+(living|going on|being here))\b/i,
+  /\bno (reason|point)\b.{0,20}\b(keep going|go on|going on|living|alive|be here|getting up|wake up)\b/i,
   /\b(tired of|done with)\s+(living|life|being alive)\b/i,
   /\b(nothing (left )?to live for|life isn'?t worth)/i,
   /\b(dead inside|numb to everything)\b/i,
