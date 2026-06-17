@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_devotionals: {
+        Row: {
+          created_at: string
+          devo_date: string
+          prayer: string
+          reflection: string
+          user_id: string
+          verse_ref: string
+        }
+        Insert: {
+          created_at?: string
+          devo_date: string
+          prayer: string
+          reflection: string
+          user_id: string
+          verse_ref: string
+        }
+        Update: {
+          created_at?: string
+          devo_date?: string
+          prayer?: string
+          reflection?: string
+          user_id?: string
+          verse_ref?: string
+        }
+        Relationships: []
+      }
       audio_tracks: {
         Row: {
           audio_url: string | null

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
@@ -14,6 +14,7 @@ type Verse = { id: number; book: string; chapter: number; verse: number; text: s
 
 function Bible() {
   const { user } = Route.useRouteContext();
+  const navigate = useNavigate();
   const [versions, setVersions] = useState<Version[]>([]);
   const [versionId, setVersionId] = useState<string | null>(null);
   const [book, setBook] = useState<string>("");
@@ -214,6 +215,20 @@ function Bible() {
               {selected.text}
             </p>
             <div className="flex flex-wrap items-center gap-2 pt-1">
+              <button
+                onClick={() =>
+                  navigate({
+                    to: "/study",
+                    search: {
+                      q: `What does ${selected.book} ${selected.chapter}:${selected.verse} mean?`,
+                    },
+                  })
+                }
+                className="flex h-10 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-semibold text-on-primary hover:bg-navy-deep"
+              >
+                <Icon name="auto_awesome" filled className="text-base" />
+                Ask
+              </button>
               <button
                 onClick={() => {
                   void toggleHighlight(selected);
