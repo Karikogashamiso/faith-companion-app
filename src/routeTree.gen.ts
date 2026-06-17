@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSearchRouteImport } from './routes/_authenticated/search'
+import { Route as AuthenticatedPlansRouteImport } from './routes/_authenticated/plans'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
@@ -54,6 +55,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedSearchRoute = AuthenticatedSearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlansRoute = AuthenticatedPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/plans': typeof AuthenticatedPlansRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/plans': typeof AuthenticatedPlansRoute
   '/search': typeof AuthenticatedSearchRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/plans': typeof AuthenticatedPlansRoute
   '/_authenticated/search': typeof AuthenticatedSearchRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
@@ -183,6 +192,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/home'
     | '/onboarding'
+    | '/plans'
     | '/search'
     | '/settings'
     | '/study'
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/groups'
     | '/home'
     | '/onboarding'
+    | '/plans'
     | '/search'
     | '/settings'
     | '/study'
@@ -220,6 +231,7 @@ export interface FileRouteTypes {
     | '/_authenticated/groups'
     | '/_authenticated/home'
     | '/_authenticated/onboarding'
+    | '/_authenticated/plans'
     | '/_authenticated/search'
     | '/_authenticated/settings'
     | '/_authenticated/study'
@@ -281,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof AuthenticatedSearchRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/plans': {
+      id: '/_authenticated/plans'
+      path: '/plans'
+      fullPath: '/plans'
+      preLoaderRoute: typeof AuthenticatedPlansRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -396,6 +415,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedPlansRoute: typeof AuthenticatedPlansRoute
   AuthenticatedSearchRoute: typeof AuthenticatedSearchRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
@@ -408,6 +428,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedPlansRoute: AuthenticatedPlansRoute,
   AuthenticatedSearchRoute: AuthenticatedSearchRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudyRoute: AuthenticatedStudyRoute,
