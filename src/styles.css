@@ -376,9 +376,71 @@
   }
 }
 
+  /* Soft candle-glow used sparingly on focal CTAs / hero gold elements. */
+  .candle-glow {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-primary) 35%, transparent),
+      0 0 24px color-mix(in oklab, var(--color-primary) 22%, transparent),
+      0 8px 32px rgba(0, 2, 8, 0.55);
+  }
+
+  /* Candle-vignette: warm golden breath at the top of the page. */
+  .candle-vignette {
+    background: radial-gradient(
+      circle at 50% -20%,
+      rgba(230, 195, 100, 0.15) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+
+  /* Glass card — translucent panel with backdrop blur, soft outline. */
+  .glass-card {
+    background: rgba(35, 31, 18, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(77, 70, 55, 0.4);
+  }
+
+  /* Gilded divider — same as gold-rule but at 30% opacity (subtler). */
+  .gilded-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #e6c364 50%, transparent 100%);
+    opacity: 0.3;
+  }
+
+  /* Verse number — small superscript marker before each verse. */
+  .verse-number {
+    font-size: 0.7em;
+    vertical-align: super;
+    margin-right: 4px;
+    color: var(--color-outline);
+    font-weight: 600;
+  }
+
+  /* Active/selected verse — highlighted with gold tint + left border. */
+  .active-verse {
+    background-color: rgba(230, 195, 100, 0.1);
+    border-left: 2px solid var(--color-primary);
+    padding-left: 8px;
+    margin-left: -10px;
+  }
+
+  /* Wide-tracking caps label — used everywhere for category metadata. */
+  .label-caps {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.15em;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+}
+
 /* Google Material Symbols (outlined) — iconography. */
 .material-symbols-outlined {
   font-family: "Material Symbols Outlined";
+
   font-weight: normal;
   font-style: normal;
   line-height: 1;
