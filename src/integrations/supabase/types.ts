@@ -176,6 +176,39 @@ export type Database = {
         }
         Relationships: []
       }
+      flagged_answers: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          question: string
+          reason: string | null
+          refs: Json
+          resolved: boolean
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          question: string
+          reason?: string | null
+          refs?: Json
+          resolved?: boolean
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          question?: string
+          reason?: string | null
+          refs?: Json
+          resolved?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       entitlements: {
         Row: {
           expires_at: string | null

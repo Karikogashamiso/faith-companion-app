@@ -205,6 +205,30 @@ function Home() {
           </p>
         </section>
 
+        {/* Ask the Companion */}
+        <Link
+          to="/study"
+          className="group flex items-center justify-between gap-4 rounded-xl border border-divider-soft bg-white p-5 transition-colors hover:border-wood-warm"
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-crisis-blue text-primary">
+              <Icon name="auto_awesome" filled />
+            </div>
+            <div>
+              <p className="font-serif text-lg text-primary">
+                Ask the Companion
+              </p>
+              <p className="text-sm text-on-surface-variant">
+                Grounded answers, every verse linked
+              </p>
+            </div>
+          </div>
+          <Icon
+            name="arrow_forward"
+            className="text-outline transition-transform group-hover:translate-x-1 group-hover:text-wood-warm"
+          />
+        </Link>
+
         {/* Today's journey (reading plan) */}
         <section className="space-y-stack-md">
           <SectionHeading

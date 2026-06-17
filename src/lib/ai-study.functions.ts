@@ -221,6 +221,40 @@ export const askStudy = createServerFn({ method: "POST" })
   });
 
 // ---------------------------------------------------------------------------
+// flagAnswer — user-reported bad/misleading AI answer → review queue.
+// ---------------------------------------------------------------------------
+const FlagInput = z.object({
+  question: z.string().min(1).max(500),
+  answer: z.string().min(1).max(8000),
+  reason: z.string().max(500).optional(),
+  refs: z
+    .array(
+      z.object({
+        book: z.string(),
+        chapter: z.number(),
+        verse: z.number(),
+      }),
+    )
+    .optional(),
+});
+
+export const flagAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => FlagInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase.from("flagged_answers").insert({
+      user_id: userId,
+      question: data.question,
+      answer: data.answer,
+      reason: data.reason ?? null,
+      refs: data.refs ?? [],
+    });
+    if (error) throw error;
+    return { ok: true as const };
+  });
+
+// ---------------------------------------------------------------------------
 // embedVerses — admin job. Embeds any verses that don't have embeddings yet.
 // Call in batches; rate-limit-friendly.
 // ---------------------------------------------------------------------------
