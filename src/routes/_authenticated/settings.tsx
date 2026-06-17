@@ -76,6 +76,7 @@ type Profile = {
   display_name: string | null;
   tradition: Tradition | null;
   ai_enabled: boolean;
+  ai_provider: string | null;
   default_version_id: string | null;
   notification_time: string | null;
 };
