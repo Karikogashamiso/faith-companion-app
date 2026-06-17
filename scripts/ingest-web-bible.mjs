@@ -97,25 +97,31 @@ async function loadSource() {
   return res.json();
 }
 
+// Which translation to load — defaults to WEB; override for KJV/ASV/DRA/etc.
+const ABBR = process.env.VERSION_ABBR || "WEB";
+const VNAME = process.env.VERSION_NAME || "World English Bible";
+const VLICENSE = process.env.VERSION_LICENSE || "Public domain";
+
 async function main() {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
   });
+  console.log(`Ingesting translation: ${ABBR} (${VNAME})`);
 
-  // Ensure the WEB version row exists.
+  // Ensure the target version row exists.
   let { data: version } = await supabase
     .from("bible_versions")
     .select("id")
-    .eq("abbreviation", "WEB")
+    .eq("abbreviation", ABBR)
     .maybeSingle();
   if (!version) {
     const { data, error } = await supabase
       .from("bible_versions")
       .insert({
-        name: "World English Bible",
-        abbreviation: "WEB",
+        name: VNAME,
+        abbreviation: ABBR,
         language: "en",
-        license_notes: "Public domain",
+        license_notes: VLICENSE,
         is_public_domain: true,
       })
       .select("id")

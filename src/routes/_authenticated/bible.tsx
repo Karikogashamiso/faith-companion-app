@@ -49,10 +49,19 @@ function Bible() {
 
   useEffect(() => {
     void (async () => {
-      const { data: vs } = await supabase
-        .from("bible_versions")
-        .select("id, name, abbreviation");
-      setVersions((vs ?? []) as Version[]);
+      // Only show translations that actually have verse text (hides
+      // seeded-but-not-yet-ingested versions). Falls back to the full list.
+      let vs: Version[] = [];
+      const { data: wc } = await (supabase as any).rpc("versions_with_content");
+      if (wc && (wc as any[]).length) {
+        vs = wc as Version[];
+      } else {
+        const { data } = await supabase
+          .from("bible_versions")
+          .select("id, name, abbreviation");
+        vs = (data ?? []) as Version[];
+      }
+      setVersions(vs);
 
       // Resume where the reader left off, if we have a saved position.
       const saved = getReadingPosition();
