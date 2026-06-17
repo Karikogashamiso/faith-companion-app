@@ -176,6 +176,24 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_rate_limits: {
+        Row: {
+          count: number
+          ip: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          ip: string
+          window_start: string
+        }
+        Update: {
+          count?: number
+          ip?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       entitlements: {
         Row: {
           expires_at: string | null
@@ -683,9 +701,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bible_books: {
+        Args: { p_version_id: string }
+        Returns: {
+          book: string
+          chapters: number
+        }[]
+      }
       can_access_request: {
         Args: { _request_id: string; _user_id: string }
         Returns: boolean
+      }
+      consume_ai_session: {
+        Args: { _limit?: number }
+        Returns: {
+          allowed: boolean
+          day_limit: number
+          used: number
+        }[]
+      }
+      demo_rate_check: {
+        Args: { _ip: string; _max?: number; _window_seconds?: number }
+        Returns: {
+          allowed: boolean
+          remaining: number
+        }[]
       }
       has_role: {
         Args: {
