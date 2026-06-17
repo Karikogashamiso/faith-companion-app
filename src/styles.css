@@ -374,15 +374,8 @@
       0 0 24px color-mix(in oklab, var(--color-primary) 22%, transparent),
       0 8px 32px rgba(0, 2, 8, 0.55);
   }
-}
 
-  /* Soft candle-glow used sparingly on focal CTAs / hero gold elements. */
-  .candle-glow {
-    box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--color-primary) 35%, transparent),
-      0 0 24px color-mix(in oklab, var(--color-primary) 22%, transparent),
-      0 8px 32px rgba(0, 2, 8, 0.55);
-  }
+
 
   /* Candle-vignette: warm golden breath at the top of the page. */
   .candle-vignette {
