@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import { Avatar, Button, Card, Chip, Textarea } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/groups/$groupId")({
   head: () => ({ meta: [{ title: "Group · Discipleship Companion" }] }),
@@ -180,7 +181,7 @@ function GroupHome() {
         </header>
 
         {followups.length > 0 && (
-          <section className="space-y-2 rounded-xl border border-divider-soft bg-crisis-blue p-5">
+          <Card tone="info" className="space-y-2">
             <h2 className="flex items-center gap-2 font-serif text-lg text-primary">
               <Icon name="favorite" filled className="text-base text-wood-warm" />
               Want to check in?
@@ -195,57 +196,53 @@ function GroupHome() {
                 </li>
               ))}
             </ul>
-          </section>
+          </Card>
         )}
 
         <section className="space-y-3">
           <h2 className="font-serif text-2xl text-primary">Prayer requests</h2>
-          <form
-            onSubmit={postRequest}
-            className="space-y-2 rounded-xl border border-divider-soft bg-card p-4"
-          >
-            <textarea
-              value={newRequest}
-              onChange={(e) => setNewRequest(e.target.value)}
-              placeholder="Share what's on your heart…"
-              rows={3}
-              maxLength={1000}
-              className="w-full resize-none rounded-lg border border-divider-soft bg-scripture-cream px-3 py-2 text-sm focus:border-primary focus:outline-none"
-            />
-            <button
-              disabled={busy || !newRequest.trim()}
-              className="flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-on-primary transition-colors hover:bg-navy-deep disabled:opacity-50"
-            >
-              <Icon name="send" className="text-base" />
-              Post request
-            </button>
+          <form onSubmit={postRequest}>
+            <Card className="space-y-2">
+              <Textarea
+                value={newRequest}
+                onChange={(e) => setNewRequest(e.target.value)}
+                placeholder="Share what's on your heart…"
+                rows={3}
+                maxLength={1000}
+              />
+              <Button
+                type="submit"
+                leftIcon="send"
+                disabled={busy || !newRequest.trim()}
+              >
+                Post request
+              </Button>
+            </Card>
           </form>
 
           {requests.length === 0 ? (
-            <p className="rounded-xl border border-divider-soft bg-card p-6 text-center text-sm text-on-surface-variant">
+            <Card className="text-center text-sm text-on-surface-variant">
               No requests yet. Be the first to share.
-            </p>
+            </Card>
           ) : (
             <ul className="space-y-3">
               {requests.map((r) => {
                 const author = profiles[r.author_id];
                 return (
-                  <li
-                    key={r.id}
-                    className="rounded-xl border border-divider-soft bg-card p-5"
-                  >
+                  <li key={r.id}>
+                    <Card>
                     <div className="flex items-center justify-between text-xs text-on-surface-variant">
                       <span className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary-container text-xs font-bold text-on-secondary-container">
-                          {(author?.display_name ?? "M").charAt(0).toUpperCase()}
-                        </span>
+                        <Avatar
+                          name={author?.display_name ?? "M"}
+                          className="h-7 w-7"
+                        />
                         {author?.display_name ?? "Member"} · {timeAgo(r.created_at)}
                       </span>
                       {r.status === "answered" && (
-                        <span className="flex items-center gap-1 rounded-full bg-secondary-container px-2 py-0.5 font-semibold text-on-secondary-container">
-                          <Icon name="check" className="text-sm" />
+                        <Chip tone="accent" icon="check">
                           Answered
-                        </span>
+                        </Chip>
                       )}
                     </div>
                     <p className="mt-3 whitespace-pre-wrap text-on-surface">
@@ -260,7 +257,7 @@ function GroupHome() {
                       <button
                         onClick={() => prayFor(r.id)}
                         disabled={myPrayed.has(r.id)}
-                        className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-wood-warm disabled:text-on-surface-variant"
+                        className="flex items-center gap-1.5 text-sm font-semibold text-primary transition-gentle hover:text-wood-warm disabled:text-on-surface-variant"
                       >
                         <Icon
                           name="front_hand"
@@ -278,6 +275,7 @@ function GroupHome() {
                         <Icon name="arrow_forward" className="text-base" />
                       </Link>
                     </div>
+                    </Card>
                   </li>
                 );
               })}
