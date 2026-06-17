@@ -439,8 +439,8 @@ function Home() {
           <div className="grid grid-cols-2 gap-stack-sm sm:grid-cols-3">
             {[
               { to: "/bible" as const, icon: "menu_book", label: "Bible" },
-              { to: "/study" as const, icon: "auto_awesome", label: "AI Study" },
-              { to: "/companion" as const, icon: "favorite", label: "Companion" },
+              ...(aiEnabled ? [{ to: "/study" as const, icon: "auto_awesome", label: "AI Study" }] : []),
+              ...(aiEnabled ? [{ to: "/companion" as const, icon: "favorite", label: "Companion" }] : []),
               { to: "/plans" as const, icon: "calendar_month", label: "Plans" },
               { to: "/memorize" as const, icon: "neurology", label: "Memorize" },
               { to: "/listen" as const, icon: "headphones", label: "Listen" },
