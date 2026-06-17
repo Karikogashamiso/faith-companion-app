@@ -191,10 +191,11 @@ export const askStudy = createServerFn({ method: "POST" })
       { role: "user" as const, content: data.question },
     ];
 
+    const chatModel = modelForProvider((profile as any)?.ai_provider);
     let raw = "";
     try {
       const result = await generateText({
-        model: gateway(CHAT_MODEL),
+        model: gateway(chatModel),
         system,
         messages,
       });
@@ -230,7 +231,7 @@ export const askStudy = createServerFn({ method: "POST" })
       retrieved_refs: allowed,
       stripped_refs: stripped,
       answer,
-      model: CHAT_MODEL,
+      model: chatModel,
     });
 
     return {
@@ -246,7 +247,7 @@ export const askStudy = createServerFn({ method: "POST" })
       tradition,
       crisis,
       stripped,
-      model: CHAT_MODEL,
+      model: chatModel,
     };
   });
 
@@ -295,7 +296,7 @@ export const dailyDevotional = createServerFn({ method: "POST" })
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("ai_enabled, tradition, default_version_id")
+      .select("ai_enabled, tradition, default_version_id, ai_provider")
       .eq("id", userId)
       .maybeSingle();
     if (profile && !profile.ai_enabled) return { disabled: true as const };
@@ -338,9 +339,10 @@ REFLECTION: <50-70 words, second person>
 PRAYER: <one or two sentences, first person>`;
     const prompt = `Verse (${ref}, for a ${tradition} reader): "${verse.text}"`;
 
+    const devoModel = modelForProvider((profile as any)?.ai_provider);
     let raw = "";
     try {
-      const r = await generateText({ model: gateway(CHAT_MODEL), system, prompt });
+      const r = await generateText({ model: gateway(devoModel), system, prompt });
       raw = r.text;
     } catch {
       return { disabled: true as const };
