@@ -22,6 +22,10 @@ import {
   levelFromXp,
 } from "@/lib/gamification";
 import { currentSeason } from "@/lib/seasons";
+import {
+  getReadingPosition,
+  type ReadingPosition,
+} from "@/lib/reading-position";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Today · Discipleship Companion" }] }),
@@ -50,6 +54,8 @@ function Home() {
   const [planDayCount, setPlanDayCount] = useState(0);
   const [xp, setXp] = useState(0);
   const season = currentSeason();
+  const [resume, setResume] = useState<ReadingPosition | null>(null);
+  useEffect(() => setResume(getReadingPosition()), []);
 
   const devotionalFn = useServerFn(dailyDevotional);
   const [devo, setDevo] = useState<{
@@ -273,6 +279,26 @@ function Home() {
             </Chip>
           </Link>
         </section>
+
+        {/* Continue reading */}
+        {resume && (
+          <Link to="/bible" className="block">
+            <Card interactive className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <IconBadge name="menu_book" tone="info" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-wood-warm">
+                    Continue reading
+                  </p>
+                  <p className="font-serif text-lg text-primary">
+                    {resume.book} {resume.chapter}
+                  </p>
+                </div>
+              </div>
+              <Icon name="arrow_forward" className="text-outline" />
+            </Card>
+          </Link>
+        )}
 
         {/* Hero verse — the single focal point */}
         <Card tone="ink" padding="lg" className="text-center md:p-12">
