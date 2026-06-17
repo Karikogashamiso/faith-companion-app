@@ -1,10 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import { getLocalizedPricing } from "@/lib/pricing";
 
 export const Route = createFileRoute("/_authenticated/companion")({
+  beforeLoad: async () => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return;
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("ai_enabled")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+    if (profile && profile.ai_enabled === false) {
+      throw redirect({ to: "/settings" });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Companion · Faith Companion" },
