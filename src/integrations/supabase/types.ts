@@ -14,6 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          code: string
+          description: string
+          icon: string
+          sort: number
+          title: string
+          xp: number
+        }
+        Insert: {
+          code: string
+          description: string
+          icon: string
+          sort?: number
+          title: string
+          xp?: number
+        }
+        Update: {
+          code?: string
+          description?: string
+          icon?: string
+          sort?: number
+          title?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      user_stats: {
+        Row: {
+          streak_freezes: number
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          streak_freezes?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          streak_freezes?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          code: string
+          earned_at: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          earned_at?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          earned_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      flagged_answers: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          question: string
+          reason: string | null
+          refs: Json
+          resolved: boolean
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          question: string
+          reason?: string | null
+          refs?: Json
+          resolved?: boolean
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          question?: string
+          reason?: string | null
+          refs?: Json
+          resolved?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_study_logs: {
         Row: {
           answer: string
@@ -471,6 +570,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active_plan_id: string | null
           ai_enabled: boolean
           created_at: string
           daily_minutes: number | null
@@ -484,6 +584,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          active_plan_id?: string | null
           ai_enabled?: boolean
           created_at?: string
           daily_minutes?: number | null
@@ -497,6 +598,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          active_plan_id?: string | null
           ai_enabled?: boolean
           created_at?: string
           daily_minutes?: number | null
@@ -683,6 +785,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_xp: {
+        Args: { _amount: number }
+        Returns: number
+      }
+      unlock_achievement: {
+        Args: { _code: string }
+        Returns: boolean
+      }
+      bible_books: {
+        Args: { p_version_id: string }
+        Returns: { book: string; chapters: number }[]
+      }
+      consume_ai_session: {
+        Args: { _limit?: number }
+        Returns: { allowed: boolean; used: number; day_limit: number }[]
+      }
+      demo_rate_check: {
+        Args: { _ip: string; _max?: number; _window_seconds?: number }
+        Returns: { allowed: boolean; remaining: number }[]
+      }
       can_access_request: {
         Args: { _request_id: string; _user_id: string }
         Returns: boolean

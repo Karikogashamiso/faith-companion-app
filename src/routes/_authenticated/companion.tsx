@@ -110,7 +110,14 @@ function CompanionPaywall() {
         </section>
 
         {!isCompanion && (
-          <section className="grid gap-3 sm:grid-cols-2">
+          <section className="grid gap-3 sm:grid-cols-3">
+            <PlanCard
+              id="companion_weekly"
+              label="Weekly"
+              price="$2.99"
+              cadence="per week"
+              note="Most flexible"
+            />
             <PlanCard
               id="companion_monthly"
               label="Monthly"
@@ -123,7 +130,7 @@ function CompanionPaywall() {
               label="Annual"
               price="$39.99"
               cadence="per year"
-              note="Save ~33% · 7-day free trial"
+              note="Best value · save ~33%"
               highlight
             />
           </section>

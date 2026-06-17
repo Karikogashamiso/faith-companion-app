@@ -58,6 +58,7 @@ function Plans() {
         .update({ active_plan_id: planId })
         .eq("id", user.id);
       if (error) throw error;
+      await supabase.rpc("unlock_achievement", { _code: "plan_started" });
     },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: ["active-plan", user.id] });
