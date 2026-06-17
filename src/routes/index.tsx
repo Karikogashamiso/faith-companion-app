@@ -145,7 +145,7 @@ function PhoneMockup() {
     >
       <div className="relative aspect-[9/19] rounded-[2.5rem] border-8 border-primary bg-scripture-cream shadow-2xl">
         <div className="absolute inset-x-12 top-2 h-4 rounded-b-xl bg-primary" />
-        <div className="absolute inset-3 flex flex-col gap-3 overflow-hidden rounded-[2rem] bg-primary p-5 text-scripture-cream">
+        <div className="absolute inset-3 flex flex-col gap-3 overflow-hidden rounded-[2rem] bg-primary p-5 text-primary-foreground">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-on-primary-container">
             Today · Day 3
           </p>
@@ -190,7 +190,7 @@ function StoreBadge({ store }: { store: "ios" | "android" }) {
     <a
       href={href}
       aria-label={label}
-      className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-scripture-cream transition-colors hover:bg-navy-deep"
+      className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-primary-foreground transition-colors hover:bg-navy-deep"
     >
       <Icon name={store === "ios" ? "smartphone" : "play_arrow"} filled />
       <span className="flex flex-col leading-tight">
