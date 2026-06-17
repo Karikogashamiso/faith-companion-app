@@ -27,12 +27,12 @@ function Profile() {
     queryKey: ["profile-progress", user.id],
     queryFn: async () => {
       const [stats, catalog, earned, activity] = await Promise.all([
-        supabase.from("user_stats" as any).select("xp").eq("user_id", user.id).maybeSingle(),
-        supabase
-          .from("achievements" as any)
+        (supabase as any).from("user_stats").select("xp").eq("user_id", user.id).maybeSingle(),
+        (supabase as any)
+          .from("achievements")
           .select("code, title, description, icon, xp, sort")
           .order("sort"),
-        supabase.from("user_achievements" as any).select("code").eq("user_id", user.id),
+        (supabase as any).from("user_achievements").select("code").eq("user_id", user.id),
         supabase
           .from("daily_activity")
           .select("activity_date")
