@@ -36,20 +36,20 @@ function Wall() {
   const feed = useQuery({
     queryKey: ["global-wall", user.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("global_prayers")
         .select("id, author_name, body, prayed_count, created_at")
         .eq("status", "open")
         .order("created_at", { ascending: false })
         .limit(60);
       if (error) throw error;
-      const { data: mine } = await supabase
+      const { data: mine } = await (supabase as any)
         .from("global_prayer_prayed")
         .select("prayer_id")
         .eq("user_id", user.id);
       return {
         prayers: (data ?? []) as Prayer[],
-        prayed: new Set((mine ?? []).map((m) => m.prayer_id as string)),
+        prayed: new Set(((mine ?? []) as Array<{ prayer_id: string }>).map((m) => m.prayer_id)),
       };
     },
   });
@@ -67,7 +67,7 @@ function Wall() {
           .maybeSingle();
         name = (p?.display_name as string | null) || "Friend";
       }
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("global_prayers")
         .insert({ author_id: user.id, author_name: name, body: text });
       if (error) throw error;
@@ -81,8 +81,8 @@ function Wall() {
   async function pray(id: string) {
     if (prayedLocal.has(id) || feed.data?.prayed.has(id)) return;
     setPrayedLocal(new Set([...prayedLocal, id]));
-    await supabase.rpc("pray_for_global", { _prayer_id: id });
-    void supabase.rpc("unlock_achievement", { _code: "intercessor" });
+    await supabase.rpc("pray_for_global" as any, { _prayer_id: id } as any);
+    void supabase.rpc("unlock_achievement" as any, { _code: "intercessor" } as any);
     await qc.invalidateQueries({ queryKey: ["global-wall", user.id] });
   }
 
