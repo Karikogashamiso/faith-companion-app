@@ -124,7 +124,7 @@ function Settings() {
           <h2 className="text-xs font-semibold uppercase tracking-widest text-wood-warm">
             Account
           </h2>
-          <div className="rounded-xl border border-divider-soft bg-white p-4">
+          <div className="rounded-xl border border-divider-soft bg-card p-4">
             <div className="text-xs uppercase tracking-wide text-on-surface-variant">
               Signed in as
             </div>
@@ -132,7 +132,7 @@ function Settings() {
           </div>
           <Link
             to="/companion"
-            className="flex items-center justify-between rounded-xl border border-divider-soft bg-white p-4 transition-colors hover:border-wood-warm"
+            className="flex items-center justify-between rounded-xl border border-divider-soft bg-card p-4 transition-colors hover:border-wood-warm"
           >
             <span className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-on-primary">
@@ -159,7 +159,7 @@ function Settings() {
               setProfile({ ...profile, display_name: e.target.value })
             }
             onBlur={(e) => update({ display_name: e.target.value })}
-            className="h-11 w-full rounded-lg border border-divider-soft bg-white px-3 text-sm focus:border-primary focus:outline-none"
+            className="h-11 w-full rounded-lg border border-divider-soft bg-card px-3 text-sm focus:border-primary focus:outline-none"
           />
         </Field>
 
@@ -167,7 +167,7 @@ function Settings() {
           <select
             value={profile.tradition ?? ""}
             onChange={(e) => update({ tradition: e.target.value as Tradition })}
-            className="h-11 w-full rounded-lg border border-divider-soft bg-white px-3 text-sm focus:border-primary focus:outline-none"
+            className="h-11 w-full rounded-lg border border-divider-soft bg-card px-3 text-sm focus:border-primary focus:outline-none"
           >
             <option value="" disabled>
               Choose…
@@ -184,7 +184,7 @@ function Settings() {
           <select
             value={profile.default_version_id ?? ""}
             onChange={(e) => update({ default_version_id: e.target.value })}
-            className="h-11 w-full rounded-lg border border-divider-soft bg-white px-3 text-sm focus:border-primary focus:outline-none"
+            className="h-11 w-full rounded-lg border border-divider-soft bg-card px-3 text-sm focus:border-primary focus:outline-none"
           >
             <option value="" disabled>
               Choose…
@@ -205,11 +205,11 @@ function Settings() {
               setProfile({ ...profile, notification_time: e.target.value })
             }
             onBlur={(e) => update({ notification_time: e.target.value || null })}
-            className="h-11 w-full rounded-lg border border-divider-soft bg-white px-3 text-sm focus:border-primary focus:outline-none"
+            className="h-11 w-full rounded-lg border border-divider-soft bg-card px-3 text-sm focus:border-primary focus:outline-none"
           />
         </Field>
 
-        <section className="rounded-xl border border-divider-soft bg-white p-4">
+        <section className="rounded-xl border border-divider-soft bg-card p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <Icon name="auto_awesome" className="mt-0.5 text-wood-warm" />
@@ -231,7 +231,7 @@ function Settings() {
               }`}
             >
               <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-transform ${
                   profile.ai_enabled ? "translate-x-5" : "translate-x-0.5"
                 }`}
               />
@@ -242,14 +242,14 @@ function Settings() {
         <section className="space-y-2 border-t border-divider-soft pt-6">
           <button
             onClick={signOut}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-white text-sm font-semibold text-primary transition-colors hover:border-wood-warm"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-card text-sm font-semibold text-primary transition-colors hover:border-wood-warm"
           >
             <Icon name="logout" className="text-base" />
             Sign out
           </button>
           <button
             onClick={handleDelete}
-            className="h-12 w-full rounded-lg border border-destructive/40 bg-white text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+            className="h-12 w-full rounded-lg border border-destructive/40 bg-card text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
           >
             Delete account
           </button>

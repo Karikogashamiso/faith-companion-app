@@ -107,7 +107,7 @@ function Listen() {
                       <li key={t.id}>
                         <button
                           onClick={() => onSelect(t)}
-                          className={`flex w-full items-center gap-3 rounded-xl border bg-white p-3 text-left transition-colors hover:border-wood-warm ${
+                          className={`flex w-full items-center gap-3 rounded-xl border bg-card p-3 text-left transition-colors hover:border-wood-warm ${
                             active ? "border-2 border-primary" : "border-divider-soft"
                           }`}
                         >

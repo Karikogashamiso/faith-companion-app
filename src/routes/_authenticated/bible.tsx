@@ -159,7 +159,7 @@ function Bible() {
               onClick={prevChapter}
               disabled={chapter <= 1}
               aria-label="Previous chapter"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-white text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-card text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
             >
               <Icon name="arrow_back" className="text-base" />
             </button>
@@ -167,7 +167,7 @@ function Bible() {
               onClick={nextChapter}
               disabled={chapter >= maxChapter}
               aria-label="Next chapter"
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-white text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-divider-soft bg-card text-primary transition-colors hover:border-wood-warm disabled:opacity-40"
             >
               <Icon name="arrow_forward" className="text-base" />
             </button>
@@ -234,7 +234,7 @@ function Bible() {
                   void toggleHighlight(selected);
                   setSelected(null);
                 }}
-                className="flex h-10 items-center gap-1.5 rounded-lg border border-divider-soft bg-white px-3 text-sm font-medium text-primary hover:border-wood-warm"
+                className="flex h-10 items-center gap-1.5 rounded-lg border border-divider-soft bg-card px-3 text-sm font-medium text-primary hover:border-wood-warm"
               >
                 <Icon name="ink_highlighter" className="text-base" />
                 {highlights.has(selected.id) ? "Remove highlight" : "Highlight"}
@@ -245,7 +245,7 @@ function Bible() {
                     `${selected.text} — ${selected.book} ${selected.chapter}:${selected.verse}`,
                   );
                 }}
-                className="flex h-10 items-center gap-1.5 rounded-lg border border-divider-soft bg-white px-3 text-sm font-medium text-primary hover:border-wood-warm"
+                className="flex h-10 items-center gap-1.5 rounded-lg border border-divider-soft bg-card px-3 text-sm font-medium text-primary hover:border-wood-warm"
               >
                 <Icon name="content_copy" className="text-base" />
                 Copy
@@ -276,7 +276,7 @@ function SelectChip({
   icon?: string;
 }) {
   return (
-    <div className="relative inline-flex items-center gap-1.5 rounded-lg border border-divider-soft bg-white px-3 py-2 text-sm font-semibold text-primary">
+    <div className="relative inline-flex items-center gap-1.5 rounded-lg border border-divider-soft bg-card px-3 py-2 text-sm font-semibold text-primary">
       {icon && <Icon name={icon} className="text-base text-wood-warm" />}
       <select
         value={value}

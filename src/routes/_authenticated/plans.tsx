@@ -89,7 +89,7 @@ function Plans() {
               return (
                 <li
                   key={p.id}
-                  className={`rounded-xl border bg-white p-5 ${
+                  className={`rounded-xl border bg-card p-5 ${
                     isActive ? "border-2 border-primary" : "border-divider-soft"
                   }`}
                 >
@@ -149,7 +149,7 @@ function Plans() {
             })}
           </ul>
         ) : (
-          <p className="rounded-xl border border-divider-soft bg-white p-6 text-center text-sm text-on-surface-variant">
+          <p className="rounded-xl border border-divider-soft bg-card p-6 text-center text-sm text-on-surface-variant">
             No plans available yet.
           </p>
         )}
@@ -173,7 +173,7 @@ function PlanSkeletons() {
 
 function ErrorCard({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="rounded-xl border border-divider-soft bg-white p-6 text-center">
+    <div className="rounded-xl border border-divider-soft bg-card p-6 text-center">
       <p className="text-sm text-on-surface-variant">
         We couldn't load plans just now.
       </p>

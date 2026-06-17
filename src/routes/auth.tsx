@@ -107,14 +107,14 @@ function AuthPage() {
           <button
             onClick={() => handleOAuth("google")}
             disabled={loading}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-white text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-card text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
           >
             Continue with Google
           </button>
           <button
             onClick={() => handleOAuth("apple")}
             disabled={loading}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-white text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-divider-soft bg-card text-sm font-semibold text-primary transition-colors hover:border-wood-warm disabled:opacity-50"
           >
             Continue with Apple
           </button>
@@ -135,7 +135,7 @@ function AuthPage() {
               placeholder="Display name (optional)"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="h-12 w-full rounded-lg border border-divider-soft bg-white px-4 text-sm focus:border-primary focus:outline-none"
+              className="h-12 w-full rounded-lg border border-divider-soft bg-card px-4 text-sm focus:border-primary focus:outline-none"
             />
           )}
           <input
@@ -144,7 +144,7 @@ function AuthPage() {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-12 w-full rounded-lg border border-divider-soft bg-white px-4 text-sm focus:border-primary focus:outline-none"
+            className="h-12 w-full rounded-lg border border-divider-soft bg-card px-4 text-sm focus:border-primary focus:outline-none"
           />
           <input
             type="password"
@@ -153,7 +153,7 @@ function AuthPage() {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-12 w-full rounded-lg border border-divider-soft bg-white px-4 text-sm focus:border-primary focus:outline-none"
+            className="h-12 w-full rounded-lg border border-divider-soft bg-card px-4 text-sm focus:border-primary focus:outline-none"
           />
           {error && (
             <p className="text-sm text-destructive" role="alert">

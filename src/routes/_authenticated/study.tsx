@@ -163,7 +163,7 @@ function StudyPage() {
                   <button
                     key={s}
                     onClick={() => setQuestion(s)}
-                    className="rounded-lg border border-divider-soft bg-white px-3 py-2 text-sm text-on-surface-variant transition-colors hover:border-wood-warm hover:text-primary"
+                    className="rounded-lg border border-divider-soft bg-card px-3 py-2 text-sm text-on-surface-variant transition-colors hover:border-wood-warm hover:text-primary"
                   >
                     {s}
                   </button>
@@ -283,7 +283,7 @@ function StudyPage() {
 
         {/* Input */}
         <form onSubmit={submit} className="shrink-0">
-          <div className="flex items-center gap-2 rounded-xl border border-divider-soft bg-white p-2 shadow-sm">
+          <div className="flex items-center gap-2 rounded-xl border border-divider-soft bg-card p-2 shadow-sm">
             <input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
