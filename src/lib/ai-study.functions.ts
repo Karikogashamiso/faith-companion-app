@@ -104,10 +104,10 @@ export const askStudy = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
 
-    // 1) Profile — gate on ai_enabled, read tradition.
+    // 1) Profile — gate on ai_enabled, read tradition and provider.
     const { data: profile, error: profErr } = await supabase
       .from("profiles")
-      .select("ai_enabled, tradition")
+      .select("ai_enabled, tradition, ai_provider")
       .eq("id", userId)
       .maybeSingle();
     if (profErr) throw profErr;
