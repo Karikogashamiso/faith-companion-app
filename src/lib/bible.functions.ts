@@ -84,7 +84,7 @@ ${block}`;
     let raw = "";
     try {
       const r = await generateText({
-        model: gatewayModel(apiKey),
+        model: gatewayModel(apiKey, chapterModel),
         system,
         prompt: `Summarize ${data.book} ${data.chapter}.`,
       });
@@ -113,6 +113,6 @@ ${block}`;
     return { disabled: false as const, summary: clean };
   });
 
-function gatewayModel(apiKey: string) {
-  return createLovableAiGatewayProvider(apiKey)(CHAT_MODEL);
+function gatewayModel(apiKey: string, model: string) {
+  return createLovableAiGatewayProvider(apiKey)(model);
 }
