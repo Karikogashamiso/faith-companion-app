@@ -100,7 +100,7 @@ function Settings() {
     const [{ data: prof }, { data: vers }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id,display_name,tradition,ai_enabled,default_version_id,notification_time")
+        .select("id,display_name,tradition,ai_enabled,ai_provider,default_version_id,notification_time")
         .eq("id", user.id)
         .maybeSingle(),
       supabase.from("bible_versions").select("id,name,abbreviation").order("abbreviation"),
