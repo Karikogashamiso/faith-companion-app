@@ -490,6 +490,7 @@ export type Database = {
       profiles: {
         Row: {
           ai_enabled: boolean
+          ai_provider: Database["public"]["Enums"]["ai_provider"] | null
           created_at: string
           daily_minutes: number | null
           default_version_id: string | null
@@ -503,6 +504,7 @@ export type Database = {
         }
         Insert: {
           ai_enabled?: boolean
+          ai_provider?: Database["public"]["Enums"]["ai_provider"] | null
           created_at?: string
           daily_minutes?: number | null
           default_version_id?: string | null
@@ -516,6 +518,7 @@ export type Database = {
         }
         Update: {
           ai_enabled?: boolean
+          ai_provider?: Database["public"]["Enums"]["ai_provider"] | null
           created_at?: string
           daily_minutes?: number | null
           default_version_id?: string | null
@@ -769,6 +772,7 @@ export type Database = {
       }
     }
     Enums: {
+      ai_provider: "openai" | "anthropic" | "api_bible"
       app_role: "admin" | "moderator" | "user"
       group_role: "owner" | "member"
       prayer_status: "open" | "answered" | "archived"
@@ -911,6 +915,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ai_provider: ["openai", "anthropic", "api_bible"],
       app_role: ["admin", "moderator", "user"],
       group_role: ["owner", "member"],
       prayer_status: ["open", "answered", "archived"],
