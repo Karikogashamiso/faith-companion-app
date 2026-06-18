@@ -969,3 +969,21 @@ END;
 $fn$;
 REVOKE EXECUTE ON FUNCTION public.consume_ai_generation(int) FROM public, anon;
 GRANT EXECUTE ON FUNCTION public.consume_ai_generation(int) TO authenticated, service_role;
+
+
+-- ===== 20260617070000_landing_analytics.sql =====
+-- Anonymous landing-page conversion analytics. Written only by /api/public/track
+-- (service role). Idempotent.
+CREATE TABLE IF NOT EXISTS public.landing_events (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  anon_id text NOT NULL,
+  event text NOT NULL,
+  path text,
+  referrer text,
+  props jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS landing_events_event_idx ON public.landing_events (event, created_at DESC);
+CREATE INDEX IF NOT EXISTS landing_events_anon_idx ON public.landing_events (anon_id, created_at DESC);
+GRANT ALL ON public.landing_events TO service_role;
+ALTER TABLE public.landing_events ENABLE ROW LEVEL SECURITY;

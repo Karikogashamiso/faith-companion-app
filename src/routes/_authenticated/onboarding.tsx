@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { track, assignVariant } from "@/lib/analytics";
+import { takeConversionAnonId } from "@/lib/landing-analytics";
 import type { Database } from "@/integrations/supabase/types";
 import { Icon } from "@/components/app/icon";
 
@@ -158,6 +159,9 @@ function Onboarding() {
     if (step === 1 && !screen1ViewedRef.current) {
       screen1ViewedRef.current = true;
       void track("screen1_viewed", { variant_screen1: variantScreen1 });
+      // Link the anonymous landing funnel to this new account (once).
+      const anonId = takeConversionAnonId();
+      if (anonId) void track("landing_conversion", {}, { anon_id: anonId });
     }
     if (step === 10 && !paywallViewedRef.current) {
       paywallViewedRef.current = true;

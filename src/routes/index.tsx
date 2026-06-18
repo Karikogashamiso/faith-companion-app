@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/app/icon";
+import { trackLanding } from "@/lib/landing-analytics";
 import sunsetUrl from "@/assets/sunset.jpg";
 
 export const Route = createFileRoute("/")({
@@ -43,6 +44,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  useEffect(() => {
+    trackLanding("landing_view");
+  }, []);
   return (
     <div className="min-h-screen bg-background text-on-surface">
       <SiteNav />
@@ -68,10 +72,19 @@ function Landing() {
 // ---------------------------------------------------------------------------
 // Shared
 // ---------------------------------------------------------------------------
-function PrimaryCta({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+function PrimaryCta({
+  children,
+  className = "",
+  location = "generic",
+}: {
+  children: React.ReactNode;
+  className?: string;
+  location?: string;
+}) {
   return (
     <Link
       to="/auth"
+      onClick={() => trackLanding("cta_click", { location })}
       className={`candle-glow inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 font-semibold text-on-primary transition-transform hover:scale-[1.02] ${className}`}
     >
       {children}
@@ -79,13 +92,14 @@ function PrimaryCta({ children, className = "" }: { children: React.ReactNode; c
   );
 }
 
-function StoreBadge({ store }: { store: "ios" | "android" }) {
+function StoreBadge({ store, location = "hero" }: { store: "ios" | "android"; location?: string }) {
   // Real badges link to the live store listings; until those exist we land users in the web app.
   const label = store === "ios" ? "Download on the App Store" : "Get it on Google Play";
   return (
     <a
       href="/auth"
       aria-label={label}
+      onClick={() => trackLanding("store_badge_click", { store, location })}
       className="inline-flex items-center gap-2 rounded-xl border border-divider-soft bg-card px-4 py-2.5 text-on-surface transition-colors hover:border-primary"
     >
       <Icon name={store === "ios" ? "smartphone" : "play_arrow"} filled className="text-2xl text-primary" />
@@ -175,13 +189,13 @@ function Hero() {
             Android. <span className="text-primary">Scripture is free, forever.</span>
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <PrimaryCta>
+            <PrimaryCta location="hero">
               Start free
               <Icon name="arrow_forward" className="text-lg" />
             </PrimaryCta>
             <div className="flex gap-2" aria-label="Install the app">
-              <StoreBadge store="ios" />
-              <StoreBadge store="android" />
+              <StoreBadge store="ios" location="hero" />
+              <StoreBadge store="android" location="hero" />
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-on-surface-variant">
@@ -299,6 +313,7 @@ function LiveDemo() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Something went wrong.");
+      trackLanding("demo_ask");
       setAnswer(data.answer);
       setCitations(data.citations ?? []);
     } catch (e) {
@@ -553,7 +568,7 @@ function HowItWorks() {
         ))}
       </ol>
       <div className="mt-10 text-center">
-        <PrimaryCta>
+        <PrimaryCta location="how">
           Begin your first day
           <Icon name="arrow_forward" className="text-lg" />
         </PrimaryCta>
@@ -634,7 +649,7 @@ function Pricing() {
                 </li>
               ))}
             </ul>
-            <PrimaryCta className="mt-6 w-full">Start free</PrimaryCta>
+            <PrimaryCta location="pricing_free" className="mt-6 w-full">Start free</PrimaryCta>
           </article>
           <article className="candle-glow relative rounded-2xl border-2 border-primary bg-card p-6">
             <span className="absolute -top-3 right-5 rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-on-primary">
@@ -659,7 +674,7 @@ function Pricing() {
                 </li>
               ))}
             </ul>
-            <PrimaryCta className="mt-6 w-full">Try Companion free</PrimaryCta>
+            <PrimaryCta location="pricing_companion" className="mt-6 w-full">Try Companion free</PrimaryCta>
           </article>
         </div>
         <p className="text-center text-xs text-on-surface-variant">
@@ -747,13 +762,13 @@ function FinalCta() {
         </h2>
         <p className="text-on-surface-variant">Your tradition, your pace, your people. Start today — free.</p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <PrimaryCta>
+          <PrimaryCta location="final">
             Start free
             <Icon name="arrow_forward" className="text-lg" />
           </PrimaryCta>
           <div className="flex gap-2">
-            <StoreBadge store="ios" />
-            <StoreBadge store="android" />
+            <StoreBadge store="ios" location="final" />
+            <StoreBadge store="android" location="final" />
           </div>
         </div>
       </div>
