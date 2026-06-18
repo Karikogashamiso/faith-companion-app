@@ -13,6 +13,8 @@ import {
   Skeleton,
 } from "@/components/app/ui";
 import { ALL_DAYS, DAY_LETTERS, describeDays, formatTime } from "@/lib/reminders";
+import { usePush } from "@/lib/use-push";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/reminders")({
   head: () => ({ meta: [{ title: "Reminders · Faith Companion" }] }),
@@ -40,6 +42,31 @@ function Reminders() {
   const [perm, setPerm] = useState<NotificationPermission | "unsupported">(
     typeof Notification === "undefined" ? "unsupported" : Notification.permission,
   );
+  const push = usePush();
+
+  async function toggleBackground() {
+    if (push.subscribed) {
+      await push.disable();
+      toast("Background delivery off", {
+        description: "Reminders will only notify while the app is open.",
+      });
+      return;
+    }
+    const res = await push.enable();
+    if (res.ok) {
+      toast.success("Background delivery on", {
+        description: "Reminders will reach you even when the app is closed.",
+      });
+    } else if (res.reason === "denied") {
+      toast.error("Notifications blocked", {
+        description: "Allow notifications in your browser settings to enable this.",
+      });
+    } else {
+      toast.error("Couldn't enable background delivery", {
+        description: "Your browser may not support push, or it isn't configured yet.",
+      });
+    }
+  }
 
   const q = useQuery({
     queryKey: key,
@@ -55,12 +82,17 @@ function Reminders() {
 
   const add = useMutation({
     mutationFn: async () => {
+      const tz =
+        (typeof Intl !== "undefined" &&
+          Intl.DateTimeFormat().resolvedOptions().timeZone) ||
+        "UTC";
       const { error } = await (supabase as any).from("reminders").insert({
         user_id: user.id,
         kind,
         label: label.trim(),
         at_time: time + ":00",
         days,
+        tz,
       });
       if (error) throw error;
     },
@@ -125,6 +157,30 @@ function Reminders() {
             </div>
             <Button size="sm" onClick={askPermission}>
               Enable
+            </Button>
+          </Card>
+        )}
+
+        {push.supported && (
+          <Card className="flex items-center gap-3">
+            <IconBadge name="notifications_active" tone={push.subscribed ? "info" : "neutral"} />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-primary">
+                Background delivery
+              </p>
+              <p className="text-xs text-on-surface-variant">
+                {push.subscribed
+                  ? "On — reminders reach you even when the app is closed."
+                  : "Get reminders even when Faith Companion is closed."}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant={push.subscribed ? "ghost" : "primary"}
+              loading={push.busy}
+              onClick={toggleBackground}
+            >
+              {push.subscribed ? "Turn off" : "Turn on"}
             </Button>
           </Card>
         )}
