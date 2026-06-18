@@ -1,10 +1,20 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import { getLocalizedPricing } from "@/lib/pricing";
+import { createCheckout, createBillingPortal } from "@/lib/billing.functions";
+
+type PlanId = "companion_weekly" | "companion_monthly" | "companion_annual";
+
+const MOBILE_FALLBACK = {
+  description:
+    "Subscriptions are managed in the Faith Companion app — download it from the App Store or Google Play to start your plan.",
+};
 
 export const Route = createFileRoute("/_authenticated/companion")({
   beforeLoad: async () => {
@@ -33,9 +43,74 @@ export const Route = createFileRoute("/_authenticated/companion")({
 });
 
 function CompanionPaywall() {
-  const { entitlement, aiUsedToday, aiDailyLimit } = useEntitlement();
+  const { entitlement, aiUsedToday, aiDailyLimit, reload } = useEntitlement();
   const pricing = getLocalizedPricing();
   const isCompanion = entitlement?.isCompanion ?? false;
+
+  const checkoutFn = useServerFn(createCheckout);
+  const portalFn = useServerFn(createBillingPortal);
+  const [busyPlan, setBusyPlan] = useState<PlanId | null>(null);
+  const [managing, setManaging] = useState(false);
+
+  // Handle the redirect back from Stripe Checkout.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const c = params.get("checkout");
+    if (c === "success") {
+      toast.success("Thank you for subscribing!", {
+        description: "Your Companion access is activating — it'll appear in a moment.",
+      });
+      void reload();
+      window.history.replaceState({}, "", "/companion");
+    } else if (c === "cancelled") {
+      toast("Checkout cancelled", {
+        description: "No charge was made. You can subscribe anytime.",
+      });
+      window.history.replaceState({}, "", "/companion");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleSubscribe(plan: PlanId) {
+    setBusyPlan(plan);
+    try {
+      const res = await checkoutFn({
+        data: { plan, origin: window.location.origin },
+      });
+      if (!res.configured || !res.url) {
+        toast("Continue in the mobile app", MOBILE_FALLBACK);
+        return;
+      }
+      window.location.href = res.url;
+    } catch (e) {
+      toast.error("Couldn't start checkout", {
+        description: e instanceof Error ? e.message : "Please try again.",
+      });
+    } finally {
+      setBusyPlan(null);
+    }
+  }
+
+  async function handleManage() {
+    setManaging(true);
+    try {
+      const res = await portalFn({ data: { origin: window.location.origin } });
+      if (res.configured && res.url) {
+        window.location.href = res.url;
+        return;
+      }
+      toast("Manage in your store account", {
+        description:
+          "This subscription is managed in the app store where you purchased it.",
+      });
+    } catch (e) {
+      toast.error("Couldn't open billing portal", {
+        description: e instanceof Error ? e.message : "Please try again.",
+      });
+    } finally {
+      setManaging(false);
+    }
+  }
 
   return (
     <AppShell title="Companion">
@@ -62,26 +137,16 @@ function CompanionPaywall() {
             <div>
               <p className="font-semibold">You're on Companion.</p>
               <p className="mt-1 text-sm text-on-surface-variant">
-                Thanks for supporting the work. Manage or cancel in your{" "}
-                <a
-                  href="https://apps.apple.com/account/subscriptions"
-                  className="font-medium text-primary underline"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  App Store
-                </a>{" "}
-                /{" "}
-                <a
-                  href="https://play.google.com/store/account/subscriptions"
-                  className="font-medium text-primary underline"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Play Store
-                </a>{" "}
-                account anytime.
+                Thanks for supporting the work. Manage or cancel anytime —
+                we'll open the right place for how you subscribed.
               </p>
+              <button
+                onClick={handleManage}
+                disabled={managing}
+                className="mt-2 font-semibold text-primary hover:underline disabled:opacity-50"
+              >
+                {managing ? "Opening…" : "Manage subscription"}
+              </button>
             </div>
           </section>
         ) : (
@@ -135,6 +200,9 @@ function CompanionPaywall() {
                 price={pricing.weekly}
                 cadence="per week"
                 note="Most flexible"
+                onSelect={handleSubscribe}
+                busy={busyPlan === "companion_weekly"}
+                disabled={busyPlan !== null}
               />
               <PlanCard
                 id="companion_monthly"
@@ -142,6 +210,9 @@ function CompanionPaywall() {
                 price={pricing.monthly}
                 cadence="per month"
                 note=""
+                onSelect={handleSubscribe}
+                busy={busyPlan === "companion_monthly"}
+                disabled={busyPlan !== null}
               />
               <PlanCard
                 id="companion_annual"
@@ -150,11 +221,13 @@ function CompanionPaywall() {
                 cadence="per year"
                 note={`${pricing.annualPerMonth}/mo · best value`}
                 highlight
+                onSelect={handleSubscribe}
+                busy={busyPlan === "companion_annual"}
+                disabled={busyPlan !== null}
               />
             </section>
             <p className="text-center text-xs text-on-surface-variant">
-              Shown in your local currency · billed securely through the App
-              Store / Google Play.
+              Shown in your local currency · billed securely. Cancel anytime.
             </p>
           </>
         )}
@@ -167,15 +240,11 @@ function CompanionPaywall() {
             reading, prayer, or AI history.
           </p>
           <button
-            onClick={() =>
-              toast("Restore purchases", {
-                description:
-                  "Open the Faith Companion mobile app to restore a previous purchase.",
-              })
-            }
-            className="font-semibold text-primary hover:underline"
+            onClick={handleManage}
+            disabled={managing}
+            className="font-semibold text-primary hover:underline disabled:opacity-50"
           >
-            Restore purchases
+            {managing ? "Opening…" : "Manage or restore subscription"}
           </button>
         </section>
       </div>
@@ -215,23 +284,26 @@ function PlanCard({
   cadence,
   note,
   highlight,
+  onSelect,
+  busy,
+  disabled,
 }: {
-  id: string;
+  id: PlanId;
   label: string;
   price: string;
   cadence: string;
   note: string;
   highlight?: boolean;
+  onSelect: (plan: PlanId) => void;
+  busy: boolean;
+  disabled: boolean;
 }) {
   return (
     <button
-      onClick={() => {
-        toast("Continue in the mobile app", {
-          description:
-            "Subscriptions are managed in the Faith Companion app — download it from the App Store or Google Play to start your plan.",
-        });
-      }}
-      className={`flex flex-col items-start gap-1 rounded-xl border bg-card p-5 text-left transition-all hover:border-wood-warm ${
+      onClick={() => onSelect(id)}
+      disabled={disabled}
+      aria-busy={busy}
+      className={`relative flex flex-col items-start gap-1 rounded-xl border bg-card p-5 text-left transition-all hover:border-wood-warm disabled:opacity-60 ${
         highlight ? "border-2 border-primary" : "border border-divider-soft"
       }`}
     >
@@ -242,6 +314,9 @@ function PlanCard({
       <span className="text-xs text-on-surface-variant">{cadence}</span>
       {note && (
         <span className="mt-1 text-xs font-semibold text-wood-warm">{note}</span>
+      )}
+      {busy && (
+        <span className="mt-1 text-xs font-semibold text-primary">Starting…</span>
       )}
     </button>
   );

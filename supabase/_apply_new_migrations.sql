@@ -881,3 +881,13 @@ VALUES
   ('New American Standard Bible', 'NASB', 'en', 'Licensed — The Lockman Foundation',     false),
   ('Christian Standard Bible',    'CSB',  'en', 'Licensed — Holman / Lifeway',           false)
 ON CONFLICT (abbreviation) DO NOTHING;
+
+
+-- ===== 20260617040000_stripe_billing.sql =====
+-- Stripe web billing: reconciliation column so the Stripe webhook can map
+-- subscription events back to a Supabase user. Idempotent.
+ALTER TABLE public.entitlements
+  ADD COLUMN IF NOT EXISTS stripe_customer_id text;
+CREATE UNIQUE INDEX IF NOT EXISTS entitlements_stripe_customer_uniq
+  ON public.entitlements (stripe_customer_id)
+  WHERE stripe_customer_id IS NOT NULL;
