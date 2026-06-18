@@ -64,56 +64,28 @@ export const Route = createFileRoute("/api/public/hooks/revenuecat")({
           return Response.json({ ignored: "unknown_user" });
         }
 
-        const productId: string | null = event.product_id ?? null;
-        const expiresMs: number | null = event.expiration_at_ms ?? null;
-        const trialEndsMs: number | null =
-          event.period_type === "TRIAL" ? expiresMs : null;
-        const store: string | null = event.store ?? null;
-
         const now = new Date();
-        let tier: "free" | "companion" | "companion_gift" = "free";
-        let expires_at: string | null = expiresMs ? new Date(expiresMs).toISOString() : null;
-
-        switch (event.type) {
-          case "INITIAL_PURCHASE":
-          case "RENEWAL":
-          case "PRODUCT_CHANGE":
-          case "UNCANCELLATION":
-          case "TRIAL_STARTED":
-          case "TRIAL_CONVERTED":
-            tier = "companion";
-            break;
-          case "CANCELLATION":
-            // Still entitled until expires_at; tier stays companion.
-            tier = "companion";
-            break;
-          case "EXPIRATION":
-          case "TRIAL_CANCELLED":
-            tier = "free";
-            expires_at = now.toISOString();
-            break;
-          case "BILLING_ISSUE":
-            // Short grace period; trust expires_at from event if present.
-            tier = "companion";
-            break;
-          case "SUBSCRIBER_ALIAS":
-          case "TRANSFER":
-          case "TEST":
-            return Response.json({ ok: true, noop: event.type });
-          default:
-            // Unknown type — log via response and don't fail RevenueCat retry queue.
-            return Response.json({ ok: true, ignored: event.type });
+        const { revenueCatEventToEntitlement } = await import(
+          "@/lib/revenuecat.server"
+        );
+        const decision = revenueCatEventToEntitlement(event, now.toISOString());
+        if (decision.kind === "noop") {
+          return Response.json({ ok: true, noop: decision.reason });
+        }
+        if (decision.kind === "ignore") {
+          // Unknown type — ack so RevenueCat's retry queue doesn't pile up.
+          return Response.json({ ok: true, ignored: decision.reason });
         }
 
         const { error } = await supabaseAdmin.from("entitlements").upsert(
           {
             user_id: userId,
-            tier,
+            tier: decision.tier,
             source: "revenuecat",
-            product_id: productId,
-            store,
-            trial_ends_at: trialEndsMs ? new Date(trialEndsMs).toISOString() : null,
-            expires_at,
+            product_id: decision.product_id,
+            store: decision.store,
+            trial_ends_at: decision.trial_ends_at,
+            expires_at: decision.expires_at,
             rc_app_user_id: appUserId,
             updated_at: now.toISOString(),
           },

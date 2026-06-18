@@ -165,6 +165,35 @@ export function subPeriodEndMs(sub: any): number | null {
   return null;
 }
 
+export type EntitlementFields = {
+  tier: "free" | "companion";
+  expires_at: string | null;
+  trial_ends_at: string | null;
+  product_id: string | null;
+};
+
+/**
+ * Pure mapping from a Stripe subscription object (+ whether the event was a
+ * deletion) to the entitlement row fields. Extracted so the webhook's decision
+ * logic is unit-testable without HTTP/DB. `free` tiers expire immediately;
+ * active/grace tiers carry the current period end.
+ */
+export function subscriptionToEntitlement(opts: {
+  sub: any;
+  deleted: boolean;
+  nowIso: string;
+}): EntitlementFields {
+  const tier: "free" | "companion" =
+    opts.deleted || subStatusToTier(opts.sub?.status ?? "") === "free" ? "free" : "companion";
+  const ms = subPeriodEndMs(opts.sub);
+  return {
+    tier,
+    expires_at: tier === "free" ? opts.nowIso : ms ? new Date(ms).toISOString() : null,
+    trial_ends_at: opts.sub?.trial_end ? new Date(opts.sub.trial_end * 1000).toISOString() : null,
+    product_id: opts.sub?.items?.data?.[0]?.price?.id ?? null,
+  };
+}
+
 /**
  * Verify a Stripe webhook signature (the scheme `stripe-signature: t=…,v1=…`).
  * HMAC-SHA256 over `${t}.${rawBody}`, constant-time compared, with a default

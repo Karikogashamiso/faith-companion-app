@@ -106,17 +106,14 @@ export const Route = createFileRoute("/api/public/hooks/stripe")({
             const userId = await userByCustomer(customerId);
             if (!userId) return Response.json({ ignored: "unknown_user" });
 
-            const deleted = type === "customer.subscription.deleted";
-            const mapped = deleted ? "free" : stripe.subStatusToTier(obj.status ?? "");
-            const tier: "free" | "companion" = mapped === "free" ? "free" : "companion";
-
-            const ms = stripe.subPeriodEndMs(obj);
+            const fields = stripe.subscriptionToEntitlement({
+              sub: obj,
+              deleted: type === "customer.subscription.deleted",
+              nowIso: now,
+            });
             await writeEntitlement({
               user_id: userId,
-              tier,
-              product_id: obj.items?.data?.[0]?.price?.id ?? null,
-              expires_at: tier === "free" ? now : ms ? new Date(ms).toISOString() : null,
-              trial_ends_at: obj.trial_end ? new Date(obj.trial_end * 1000).toISOString() : null,
+              ...fields,
               stripe_customer_id: customerId,
             });
             return Response.json({ ok: true });

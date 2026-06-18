@@ -314,6 +314,15 @@ export const dailyDevotional = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) return { disabled: true as const };
 
+    // Cache miss → about to generate. Meter against the auxiliary daily
+    // allowance (defense-in-depth; the per-day cache already bounds this to one
+    // generation per user per day, companions unlimited).
+    const { data: gate } = await supabase.rpc("consume_ai_generation" as any, {
+      _limit: 30,
+    });
+    const allowance = Array.isArray(gate) ? gate[0] : gate;
+    if (allowance && !(allowance as any).allowed) return { disabled: true as const };
+
     let versionId = profile?.default_version_id ?? null;
     if (!versionId) {
       const { data: v } = await supabase

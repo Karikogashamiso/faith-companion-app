@@ -20,6 +20,13 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Local env / secrets — never commit real secrets. The tracked .env holds only
+# PUBLIC Supabase values; put any secret overrides in .env.local (ignored).
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

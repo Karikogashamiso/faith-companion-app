@@ -58,6 +58,19 @@ export const explainChapter = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) return { disabled: true as const };
 
+    // Cache miss → we're about to call the AI gateway. Meter it against the
+    // generous auxiliary daily allowance (companions unlimited) so a user can't
+    // run up gateway cost by requesting many distinct uncached summaries.
+    const { data: gate, error: gateErr } = await supabase.rpc(
+      "consume_ai_generation" as any,
+      { _limit: 30 },
+    );
+    if (gateErr) throw gateErr;
+    const allowance = Array.isArray(gate) ? gate[0] : gate;
+    if (allowance && !(allowance as any).allowed) {
+      return { disabled: true as const, limited: true as const };
+    }
+
     const { data: verses } = await supabase
       .from("verses")
       .select("book, chapter, verse, text")
