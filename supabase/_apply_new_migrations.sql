@@ -1028,3 +1028,33 @@ END;
 $fn$;
 REVOKE EXECUTE ON FUNCTION public.admin_funnel_metrics(int) FROM public, anon;
 GRANT EXECUTE ON FUNCTION public.admin_funnel_metrics(int) TO authenticated, service_role;
+
+
+-- ===== 20260617090000_audio_admin.sql =====
+-- Audio library admin: admin-only catalog writes + a public 'audio' Storage
+-- bucket with admin-only uploads. Idempotent.
+GRANT INSERT, UPDATE, DELETE ON public.audio_tracks TO authenticated;
+DROP POLICY IF EXISTS "admins manage audio catalog" ON public.audio_tracks;
+CREATE POLICY "admins manage audio catalog" ON public.audio_tracks
+  FOR ALL TO authenticated
+  USING (public.has_role(auth.uid(), 'admin'))
+  WITH CHECK (public.has_role(auth.uid(), 'admin'));
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('audio', 'audio', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+DROP POLICY IF EXISTS "public reads audio bucket" ON storage.objects;
+CREATE POLICY "public reads audio bucket" ON storage.objects
+  FOR SELECT TO anon, authenticated USING (bucket_id = 'audio');
+DROP POLICY IF EXISTS "admins upload audio" ON storage.objects;
+CREATE POLICY "admins upload audio" ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'audio' AND public.has_role(auth.uid(), 'admin'));
+DROP POLICY IF EXISTS "admins update audio" ON storage.objects;
+CREATE POLICY "admins update audio" ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (bucket_id = 'audio' AND public.has_role(auth.uid(), 'admin'))
+  WITH CHECK (bucket_id = 'audio' AND public.has_role(auth.uid(), 'admin'));
+DROP POLICY IF EXISTS "admins delete audio" ON storage.objects;
+CREATE POLICY "admins delete audio" ON storage.objects
+  FOR DELETE TO authenticated
+  USING (bucket_id = 'audio' AND public.has_role(auth.uid(), 'admin'));

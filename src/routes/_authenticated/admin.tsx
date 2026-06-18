@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
+import { Icon } from "@/components/app/icon";
 import { Card, Chip, EmptyState, ScreenTitle, Skeleton } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -56,6 +57,14 @@ function Admin() {
           title="Conversion"
           subtitle="Anonymous landing funnel → signups."
         />
+
+        <Link
+          to="/admin/audio"
+          className="inline-flex items-center gap-2 rounded-lg border border-divider-soft bg-card px-4 py-2 text-sm font-semibold text-primary transition-colors hover:border-primary"
+        >
+          <Icon name="library_music" className="text-lg" />
+          Manage audio library
+        </Link>
 
         <div
           role="radiogroup"
