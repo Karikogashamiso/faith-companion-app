@@ -8,6 +8,8 @@ import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import { getLocalizedPricing } from "@/lib/pricing";
 import { createCheckout, createBillingPortal } from "@/lib/billing.functions";
+import { isNativePlatform } from "@/lib/native";
+import { configureIap, purchasePlan, restoreNative } from "@/lib/native-iap";
 
 type PlanId = "companion_weekly" | "companion_monthly" | "companion_annual";
 
@@ -71,9 +73,36 @@ function CompanionPaywall() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // In the native shell, initialize RevenueCat with the user's uid (so the
+  // RevenueCat webhook reconciles the purchase to this account).
+  useEffect(() => {
+    if (!isNativePlatform()) return;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (data.user) void configureIap(data.user.id);
+    });
+  }, []);
+
   async function handleSubscribe(plan: PlanId) {
     setBusyPlan(plan);
     try {
+      // Native (iOS/Android): purchase via RevenueCat IAP — required by the app
+      // stores. The existing RevenueCat webhook records the entitlement.
+      if (isNativePlatform()) {
+        const res = await purchasePlan(plan);
+        if (res.ok) {
+          toast.success("Thank you for subscribing!", {
+            description: "Your Companion access is activating.",
+          });
+          void reload();
+        } else if (res.reason !== "cancelled") {
+          toast.error("Purchase didn't complete", {
+            description: res.message ?? "Please try again.",
+          });
+        }
+        return;
+      }
+
+      // Web: Stripe Checkout.
       const res = await checkoutFn({
         data: { plan, origin: window.location.origin },
       });
@@ -94,6 +123,22 @@ function CompanionPaywall() {
   async function handleManage() {
     setManaging(true);
     try {
+      // Native: restore purchases through the store.
+      if (isNativePlatform()) {
+        const res = await restoreNative();
+        if (res.ok) {
+          void reload();
+          toast.success("Purchases restored");
+        } else {
+          toast("Manage in your store account", {
+            description:
+              "Open your App Store / Google Play subscriptions to manage this plan.",
+          });
+        }
+        return;
+      }
+
+      // Web: Stripe Billing Portal.
       const res = await portalFn({ data: { origin: window.location.origin } });
       if (res.configured && res.url) {
         window.location.href = res.url;

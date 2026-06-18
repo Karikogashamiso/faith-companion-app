@@ -1,0 +1,13 @@
+{
+  "appId": "app.faithcompanion",
+  "appName": "Faith Companion",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}
