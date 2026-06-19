@@ -245,6 +245,57 @@ function Player({
     }
   }
 
+  // Lock-screen / OS media controls (title, artwork, transport, scrubbing).
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+    const ms = navigator.mediaSession;
+    ms.metadata = new MediaMetadata({
+      title: track.title,
+      artist: track.narrator ?? "Faith Companion",
+      album: "Faith Companion",
+      artwork: [
+        { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+        { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      ],
+    });
+    const seek = (delta: number) => {
+      const el = audioRef.current;
+      if (!el) return;
+      const max = Number.isFinite(el.duration) ? el.duration : dur;
+      el.currentTime = Math.max(0, Math.min(max, el.currentTime + delta));
+      setPos(el.currentTime);
+    };
+    const set = (action: MediaSessionAction, handler: MediaSessionActionHandler | null) => {
+      try {
+        ms.setActionHandler(action, handler);
+      } catch {
+        /* action unsupported in this browser */
+      }
+    };
+    set("play", () => void audioRef.current?.play());
+    set("pause", () => audioRef.current?.pause());
+    set("seekbackward", () => seek(-15));
+    set("seekforward", () => seek(15));
+    set("seekto", (e) => {
+      if (audioRef.current && typeof e.seekTime === "number") {
+        audioRef.current.currentTime = e.seekTime;
+        setPos(e.seekTime);
+      }
+    });
+    return () => {
+      (["play", "pause", "seekbackward", "seekforward", "seekto"] as MediaSessionAction[]).forEach(
+        (a) => set(a, null),
+      );
+    };
+  }, [track.id, track.title, track.narrator, dur]);
+
+  // Reflect play/pause to the OS.
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && "mediaSession" in navigator) {
+      navigator.mediaSession.playbackState = playing ? "playing" : "paused";
+    }
+  }, [playing]);
+
   return (
     <div className="fixed inset-x-0 bottom-16 z-40 border-t border-divider-soft bg-scripture-cream/95 backdrop-blur-md">
       <div className="mx-auto w-full max-w-[720px] px-margin-mobile py-3">
@@ -256,7 +307,24 @@ function Player({
             setPlaying(false);
             void saveProgress();
           }}
-          onTimeUpdate={(e) => setPos(e.currentTarget.currentTime)}
+          onTimeUpdate={(e) => {
+            const t = e.currentTarget.currentTime;
+            setPos(t);
+            const d = e.currentTarget.duration;
+            if (
+              typeof navigator !== "undefined" &&
+              "mediaSession" in navigator &&
+              navigator.mediaSession.setPositionState &&
+              Number.isFinite(d) &&
+              d > 0
+            ) {
+              try {
+                navigator.mediaSession.setPositionState({ duration: d, position: Math.min(t, d) });
+              } catch {
+                /* ignore invalid state */
+              }
+            }
+          }}
           onLoadedMetadata={(e) => {
             if (Number.isFinite(e.currentTarget.duration))
               setDur(e.currentTarget.duration);
