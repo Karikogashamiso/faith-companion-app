@@ -1,0 +1,34 @@
+name: E2E smoke
+
+# Manual for now (workflow_dispatch). To run on every push, uncomment the
+# `push:` trigger AND add the Supabase repo secrets referenced below — without
+# them SSR can't render and the build step will fail.
+on:
+  workflow_dispatch: {}
+  # push:
+  #   branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      # Playwright is intentionally NOT a committed dependency (keeps the main
+      # build's install surface small); add it just for this job.
+      - run: bun add -D @playwright/test
+      - run: bunx playwright install --with-deps chromium
+      - run: bunx playwright test
+        env:
+          NODE_ENV: production
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
