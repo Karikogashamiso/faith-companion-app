@@ -42,6 +42,8 @@ function Bible() {
   const navigate = useNavigate();
   const [versions, setVersions] = useState<Version[]>([]);
   const [versionId, setVersionId] = useState<string | null>(null);
+  const [compareId, setCompareId] = useState<string | null>(null);
+  const [compareVerses, setCompareVerses] = useState<{ verse: number; text: string }[]>([]);
   const [book, setBook] = useState<string>("");
   const [chapter, setChapter] = useState<number>(1);
   const [verses, setVerses] = useState<Verse[]>([]);
@@ -165,6 +167,31 @@ function Bible() {
       }
     })();
   }, [versionId, book, chapter, user.id]);
+
+  // Parallel translation (compare) verses, keyed by verse number.
+  useEffect(() => {
+    if (!compareId || !book) {
+      setCompareVerses([]);
+      return;
+    }
+    void (async () => {
+      const { data } = await supabase
+        .from("verses")
+        .select("verse, text")
+        .eq("version_id", compareId)
+        .eq("book", book)
+        .eq("chapter", chapter)
+        .order("verse");
+      setCompareVerses((data ?? []) as { verse: number; text: string }[]);
+    })();
+  }, [compareId, book, chapter]);
+
+  const compareMap = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const v of compareVerses) m.set(v.verse, v.text);
+    return m;
+  }, [compareVerses]);
+  const compareAbbr = versions.find((v) => v.id === compareId)?.abbreviation ?? "";
 
   const maxChapter = bookChapters[book] ?? 1;
   const chapters = useMemo(
@@ -293,6 +320,33 @@ function Bible() {
               label: v.abbreviation,
             }))}
           />
+          {versions.length > 1 && (
+            <button
+              onClick={() => {
+                if (compareId) setCompareId(null);
+                else setCompareId(versions.find((v) => v.id !== versionId)?.id ?? null);
+              }}
+              aria-pressed={!!compareId}
+              className={`flex h-9 items-center gap-1.5 rounded-lg border px-3 text-sm font-semibold transition-colors ${
+                compareId
+                  ? "border-primary bg-secondary-container text-on-secondary-container"
+                  : "border-divider-soft bg-card text-on-surface-variant hover:border-wood-warm"
+              }`}
+            >
+              <Icon name="compare" className="text-base" />
+              Compare
+            </button>
+          )}
+          {compareId && (
+            <SelectChip
+              icon="translate"
+              value={compareId}
+              onChange={setCompareId}
+              options={versions
+                .filter((v) => v.id !== versionId)
+                .map((v) => ({ value: v.id, label: v.abbreviation }))}
+            />
+          )}
         </div>
 
         {/* Chapter header — label-caps subtitle + gilded divider + italic headline */}
@@ -377,6 +431,14 @@ function Bible() {
                   {v.verse}
                 </sup>
                 {v.text}
+                {compareId && (
+                  <span className="mt-1.5 block border-l-2 border-primary/30 pl-2.5 font-sans text-[0.86em] not-italic leading-relaxed text-on-surface-variant">
+                    <span className="mr-1 text-[0.7em] font-bold uppercase tracking-wide text-primary">
+                      {compareAbbr}
+                    </span>
+                    {compareMap.get(v.verse) ?? "—"}
+                  </span>
+                )}
                 {i === Math.floor(verses.length / 2) && verses.length > 3 && (
                   <span className="block mt-4">
                     <span className="gilded-divider block w-full" />
