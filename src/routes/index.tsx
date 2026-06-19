@@ -4,6 +4,18 @@ import { Icon } from "@/components/app/icon";
 import { trackLanding } from "@/lib/landing-analytics";
 import sunsetUrl from "@/assets/sunset.jpg";
 
+type Testimonial = { quote: string; name: string; role: string; rating?: number };
+
+/**
+ * Real, opt-in user testimonials. Empty by default — the testimonials section
+ * AND the review schema render only when this has entries, so nothing
+ * fabricated ever ships. Drop in real quotes as you collect them, e.g.:
+ *
+ *   { quote: "It finally made Scripture click for me.", name: "Maria R.",
+ *     role: "Small-group leader", rating: 5 },
+ */
+const TESTIMONIALS: Testimonial[] = [];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -38,6 +50,28 @@ export const Route = createFileRoute("/")({
           offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
           description:
             "A grounded Bible study companion with daily habit, guided audio, community, and citation-locked AI.",
+          // Review schema only appears once real testimonials are added below.
+          ...(TESTIMONIALS.length
+            ? {
+                aggregateRating: {
+                  "@type": "AggregateRating",
+                  ratingValue: (
+                    TESTIMONIALS.reduce((s, t) => s + (t.rating ?? 5), 0) /
+                    TESTIMONIALS.length
+                  ).toFixed(1),
+                  reviewCount: TESTIMONIALS.length,
+                },
+                review: TESTIMONIALS.map((t) => ({
+                  "@type": "Review",
+                  reviewRating: {
+                    "@type": "Rating",
+                    ratingValue: t.rating ?? 5,
+                  },
+                  author: { "@type": "Person", name: t.name },
+                  reviewBody: t.quote,
+                })),
+              }
+            : {}),
         }),
       },
     ],
@@ -63,6 +97,7 @@ function Landing() {
         <FeatureGrid />
         <HowItWorks />
         <LifeScenarios />
+        <Testimonials />
         <Pricing />
         <FAQ />
         <FinalCta />
@@ -744,6 +779,53 @@ function LifeScenarios() {
                 <h3 className="mt-3 font-serif text-xl text-on-surface">{c.when}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">{c.then}</p>
               </article>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// TESTIMONIALS (renders only when real quotes exist — see TESTIMONIALS above)
+// ---------------------------------------------------------------------------
+function Testimonials() {
+  if (TESTIMONIALS.length === 0) return null;
+  return (
+    <section className="px-margin-mobile py-20">
+      <div className="mx-auto max-w-6xl">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-primary">
+            In their words
+          </p>
+          <h2 className="mt-2 font-serif text-3xl text-primary md:text-4xl">
+            Loved by people building a daily habit
+          </h2>
+          <div className="gold-rule mx-auto mt-4 max-w-xs" />
+        </Reveal>
+        <div className="mt-12 grid gap-gutter md:grid-cols-3">
+          {TESTIMONIALS.map((t, i) => (
+            <Reveal key={`${t.name}-${i}`} delay={(i % 3) * 80}>
+              <figure className="glass-card lift-card flex h-full flex-col rounded-2xl p-6">
+                <div className="flex gap-0.5" aria-label={`${t.rating ?? 5} out of 5`}>
+                  {Array.from({ length: 5 }).map((_, s) => (
+                    <Icon
+                      key={s}
+                      name="star"
+                      filled
+                      className={`text-base ${s < (t.rating ?? 5) ? "text-primary" : "text-outline"}`}
+                    />
+                  ))}
+                </div>
+                <blockquote className="mt-3 flex-1 font-serif text-lg italic leading-relaxed text-on-surface">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+                <figcaption className="mt-4 text-sm">
+                  <span className="font-semibold text-primary">{t.name}</span>
+                  <span className="block text-on-surface-variant">{t.role}</span>
+                </figcaption>
+              </figure>
             </Reveal>
           ))}
         </div>
