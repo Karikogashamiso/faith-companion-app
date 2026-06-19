@@ -17,6 +17,18 @@ import {
   setReaderPrefs,
 } from "@/lib/reader-prefs";
 
+// Highlight palette — stored as the color name in user_highlights.color.
+const HIGHLIGHT_COLORS = [
+  { key: "yellow", swatch: "bg-[#e6c364]", row: "bg-[#e6c364]/20" },
+  { key: "green", swatch: "bg-[#7fae6e]", row: "bg-[#7fae6e]/20" },
+  { key: "blue", swatch: "bg-[#6e86c4]", row: "bg-[#6e86c4]/20" },
+  { key: "rose", swatch: "bg-[#c47e9e]", row: "bg-[#c47e9e]/20" },
+] as const;
+
+function highlightRowClass(color: string | undefined): string {
+  return HIGHLIGHT_COLORS.find((c) => c.key === color)?.row ?? "";
+}
+
 export const Route = createFileRoute("/_authenticated/bible")({
   head: () => ({ meta: [{ title: "Bible · Faith Companion" }] }),
   component: Bible,
@@ -33,7 +45,7 @@ function Bible() {
   const [book, setBook] = useState<string>("");
   const [chapter, setChapter] = useState<number>(1);
   const [verses, setVerses] = useState<Verse[]>([]);
-  const [highlights, setHighlights] = useState<Set<number>>(new Set());
+  const [highlights, setHighlights] = useState<Map<number, string>>(new Map());
   const [selected, setSelected] = useState<Verse | null>(null);
   const [imageVerse, setImageVerse] = useState<Verse | null>(null);
   const [books, setBooks] = useState<string[]>([]);
@@ -142,12 +154,14 @@ function Bible() {
       if (data?.length) {
         const { data: h } = await supabase
           .from("user_highlights")
-          .select("verse_id")
+          .select("verse_id, color")
           .eq("user_id", user.id)
           .in("verse_id", data.map((v: any) => v.id));
-        setHighlights(new Set((h ?? []).map((x: any) => x.verse_id)));
+        setHighlights(
+          new Map((h ?? []).map((x: any) => [x.verse_id, x.color || "yellow"])),
+        );
       } else {
-        setHighlights(new Set());
+        setHighlights(new Map());
       }
     })();
   }, [versionId, book, chapter, user.id]);
@@ -191,30 +205,40 @@ function Bible() {
     if (chapter < maxChapter) setChapter(chapter + 1);
   }
 
-  async function toggleHighlight(v: Verse) {
-    if (highlights.has(v.id)) {
-      const { error } = await supabase
-        .from("user_highlights")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("verse_id", v.id);
-      if (error) {
-        toast.error("Couldn't remove highlight", { description: error.message });
-        return;
-      }
-      const next = new Set(highlights);
-      next.delete(v.id);
-      setHighlights(next);
-    } else {
-      const { error } = await supabase
-        .from("user_highlights")
-        .insert({ user_id: user.id, verse_id: v.id });
-      if (error) {
-        toast.error("Couldn't highlight", { description: error.message });
-        return;
-      }
-      setHighlights(new Set([...highlights, v.id]));
+  async function removeHighlight(v: Verse) {
+    const { error } = await supabase
+      .from("user_highlights")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("verse_id", v.id);
+    if (error) {
+      toast.error("Couldn't remove highlight", { description: error.message });
+      return;
     }
+    const next = new Map(highlights);
+    next.delete(v.id);
+    setHighlights(next);
+  }
+
+  async function applyHighlight(v: Verse, color: string) {
+    const existing = highlights.get(v.id);
+    if (existing === color) return removeHighlight(v); // tap the same color to clear
+    const { error } = existing
+      ? await supabase
+          .from("user_highlights")
+          .update({ color })
+          .eq("user_id", user.id)
+          .eq("verse_id", v.id)
+      : await supabase
+          .from("user_highlights")
+          .insert({ user_id: user.id, verse_id: v.id, color });
+    if (error) {
+      toast.error("Couldn't highlight", { description: error.message });
+      return;
+    }
+    const next = new Map(highlights);
+    next.set(v.id, color);
+    setHighlights(next);
   }
 
   function changeScale(s: number) {
@@ -346,7 +370,7 @@ function Bible() {
                 key={v.id}
                 onClick={() => setSelected(v)}
                 className={`-mx-2 cursor-pointer rounded-lg px-2 py-1 font-serif leading-[1.8] transition-gentle hover:bg-surface-container ${
-                  highlights.has(v.id) ? "bg-secondary-container/40" : ""
+                  highlights.has(v.id) ? highlightRowClass(highlights.get(v.id)) : ""
                 } ${i === 0 ? "drop-cap" : ""}`}
               >
                 <sup className="verse-number">
@@ -390,17 +414,30 @@ function Bible() {
               >
                 Ask
               </Button>
-              <Button
-                size="sm"
-                variant="secondary"
-                leftIcon="ink_highlighter"
-                onClick={() => {
-                  void toggleHighlight(selected);
-                  setSelected(null);
-                }}
-              >
-                {highlights.has(selected.id) ? "Remove highlight" : "Highlight"}
-              </Button>
+              <div className="flex items-center gap-1.5" role="group" aria-label="Highlight color">
+                {HIGHLIGHT_COLORS.map((c) => (
+                  <button
+                    key={c.key}
+                    aria-label={`Highlight ${c.key}`}
+                    aria-pressed={highlights.get(selected.id) === c.key}
+                    onClick={() => void applyHighlight(selected, c.key)}
+                    className={`h-7 w-7 rounded-full ${c.swatch} transition-transform hover:scale-110 ${
+                      highlights.get(selected.id) === c.key
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-card"
+                        : ""
+                    }`}
+                  />
+                ))}
+                {highlights.has(selected.id) && (
+                  <button
+                    aria-label="Remove highlight"
+                    onClick={() => void removeHighlight(selected)}
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-divider-soft text-on-surface-variant transition-colors hover:text-destructive"
+                  >
+                    <Icon name="format_color_reset" className="text-base" />
+                  </button>
+                )}
+              </div>
               <Button
                 size="sm"
                 variant="secondary"
