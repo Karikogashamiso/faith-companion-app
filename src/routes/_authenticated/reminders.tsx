@@ -124,6 +124,25 @@ function Reminders() {
     onError: (e) => toast.error("Couldn't delete reminder", { description: (e as Error).message }),
   });
 
+  // Mark a reminder as already handled for today so it won't fire again.
+  const skipToday = useMutation({
+    mutationFn: async (id: string) => {
+      const tz =
+        (typeof Intl !== "undefined" && Intl.DateTimeFormat().resolvedOptions().timeZone) || "UTC";
+      const localDate = new Date().toLocaleDateString("en-CA", { timeZone: tz });
+      const { error } = await (supabase as any)
+        .from("reminders")
+        .update({ last_pushed_on: localDate })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast("Skipped for today");
+      qc.invalidateQueries({ queryKey: key });
+    },
+    onError: (e) => toast.error("Couldn't skip", { description: (e as Error).message }),
+  });
+
   async function askPermission() {
     if (typeof Notification === "undefined") return;
     try {
@@ -327,13 +346,23 @@ function Reminders() {
                         </span>
                       ))}
                     </div>
-                    <button
-                      onClick={() => remove.mutate(r.id)}
-                      aria-label="Delete reminder"
-                      className="text-on-surface-variant transition-gentle hover:text-destructive"
-                    >
-                      <Icon name="delete" className="text-lg" />
-                    </button>
+                    <div className="flex items-center gap-3">
+                      {r.enabled && (
+                        <button
+                          onClick={() => skipToday.mutate(r.id)}
+                          className="text-xs font-semibold text-on-surface-variant transition-gentle hover:text-primary"
+                        >
+                          Skip today
+                        </button>
+                      )}
+                      <button
+                        onClick={() => remove.mutate(r.id)}
+                        aria-label="Delete reminder"
+                        className="text-on-surface-variant transition-gentle hover:text-destructive"
+                      >
+                        <Icon name="delete" className="text-lg" />
+                      </button>
+                    </div>
                   </div>
                 </Card>
               </li>

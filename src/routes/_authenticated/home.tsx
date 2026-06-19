@@ -306,6 +306,25 @@ function Home() {
           </Link>
         )}
 
+        {/* Streak-at-risk nudge */}
+        {!completedToday && streak.current >= 2 && (
+          <button
+            onClick={markToday}
+            className="flex w-full items-center gap-3 rounded-xl border border-primary/40 bg-secondary-container/40 p-4 text-left transition-colors hover:border-primary"
+          >
+            <Icon name="local_fire_department" filled className="text-2xl text-primary" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-primary">
+                Keep your {streak.current}-day streak alive
+              </p>
+              <p className="text-xs text-on-surface-variant">
+                Take five minutes for today's reading before the day ends.
+              </p>
+            </div>
+            <Icon name="arrow_forward" className="text-primary" />
+          </button>
+        )}
+
         {/* Hero verse — dramatic gradient overlay card matching reference */}
         <section className="relative overflow-hidden rounded-xl aspect-[16/10] md:aspect-[21/9] shadow-2xl group border border-outline-variant">
           <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high via-surface-container to-background" />
