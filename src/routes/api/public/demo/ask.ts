@@ -112,7 +112,10 @@ export const Route = createFileRoute("/api/public/demo/ask")({
           embedding = null;
         }
 
-        const { data: candidates } = await supabase.rpc("match_verses", {
+        // match_verses execute is revoked from anon, so retrieval must run with
+        // the service role in this public endpoint (read-only; rate-limited above).
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: candidates } = await supabaseAdmin.rpc("match_verses", {
           query_embedding: embedding as unknown as string,
           query_text: question,
           p_version_id: version.id,

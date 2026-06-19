@@ -204,18 +204,23 @@ function Onboarding() {
   }
   async function finish(toCompanion: boolean) {
     setSaving(true);
-    await persist();
-    await supabase
-      .from("onboarding_answers")
-      .update({ completed_at: new Date().toISOString() })
-      .eq("user_id", user.id);
-    void track(
-      toCompanion ? "paywall_start_companion" : "paywall_continue_free",
-      { variant_screen1: variantScreen1, variant_screen10: variantScreen10 },
-      { goal, from_step: step },
-    );
-    setSaving(false);
-    navigate({ to: toCompanion ? "/companion" : "/home" });
+    try {
+      await persist();
+      await supabase
+        .from("onboarding_answers")
+        .update({ completed_at: new Date().toISOString() })
+        .eq("user_id", user.id);
+      void track(
+        toCompanion ? "paywall_start_companion" : "paywall_continue_free",
+        { variant_screen1: variantScreen1, variant_screen10: variantScreen10 },
+        { goal, from_step: step },
+      );
+    } catch {
+      // Best-effort: don't trap the user on the paywall if a write fails.
+    } finally {
+      setSaving(false);
+      navigate({ to: toCompanion ? "/companion" : "/home" });
+    }
   }
 
   return (

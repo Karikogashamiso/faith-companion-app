@@ -36,9 +36,20 @@ function pct(n: number, d: number): string {
 function Admin() {
   const [days, setDays] = useState(30);
 
+  const isAdmin = useQuery({
+    queryKey: ["is-admin"],
+    retry: false,
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("is_admin");
+      if (error) throw error;
+      return Boolean(data);
+    },
+  });
+
   const q = useQuery({
     queryKey: ["admin-funnel", days],
     retry: false,
+    enabled: isAdmin.data === true,
     queryFn: async (): Promise<Metrics> => {
       const { data, error } = await (supabase as any).rpc("admin_funnel_metrics", {
         _days: days,
@@ -49,6 +60,21 @@ function Admin() {
   });
 
   const m = q.data;
+
+  if (isAdmin.isLoading) {
+    return (
+      <AppShell title="Admin">
+        <Skeleton className="h-40" />
+      </AppShell>
+    );
+  }
+  if (!isAdmin.data) {
+    return (
+      <AppShell title="Admin">
+        <EmptyState icon="lock" title="Admins only" description="This dashboard requires the admin role." />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell title="Admin">

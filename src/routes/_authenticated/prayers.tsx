@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
@@ -60,6 +61,7 @@ function Prayers() {
       setBody("");
       await qc.invalidateQueries({ queryKey: key });
     },
+    onError: (e) => toast.error("Couldn't save prayer", { description: (e as Error).message }),
   });
 
   const answer = useMutation({
@@ -77,15 +79,19 @@ function Prayers() {
     onSuccess: () => {
       setAnsweringId(null);
       setAnswerNote("");
+      toast.success("Marked as answered 🙏");
       qc.invalidateQueries({ queryKey: key });
     },
+    onError: (e) => toast.error("Couldn't update", { description: (e as Error).message }),
   });
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      await (supabase as any).from("personal_prayers").delete().eq("id", id);
+      const { error } = await (supabase as any).from("personal_prayers").delete().eq("id", id);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onError: (e) => toast.error("Couldn't delete", { description: (e as Error).message }),
   });
 
   const open = (q.data ?? []).filter((p) => !p.answered);

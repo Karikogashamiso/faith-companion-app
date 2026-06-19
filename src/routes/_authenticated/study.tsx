@@ -140,7 +140,17 @@ function StudyPage() {
       }
       void reload();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setError(msg);
+      // Don't orphan the user's message — answer the bubble with an error reply.
+      setHistory((h) => [
+        ...h,
+        {
+          role: "assistant",
+          text: "Sorry — that didn't go through. Please try again.",
+          candidates: [],
+        },
+      ]);
     } finally {
       setBusy(false);
     }

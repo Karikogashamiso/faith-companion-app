@@ -58,7 +58,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -67,6 +67,12 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        // When email confirmation is required, no session is created and the
+        // SIGNED_IN listener never fires — tell the user to check their inbox.
+        if (!data.session) {
+          setNotice("Almost there — check your email to confirm your account, then sign in.");
+          setMode("signin");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,

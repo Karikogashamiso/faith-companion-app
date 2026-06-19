@@ -386,15 +386,13 @@ export const embedVerses = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => EmbedInput.parse(input ?? {}))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { supabase } = context;
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
 
-    // Admin gate
-    const { data: isAdmin } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "admin",
-    });
+    // Admin gate. has_role execute is revoked from authenticated, so use the
+    // self-scoped is_admin() (checks the caller via auth.uid()).
+    const { data: isAdmin } = await supabase.rpc("is_admin" as any);
     if (!isAdmin) throw new Error("Forbidden: admin role required");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

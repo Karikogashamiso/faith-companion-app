@@ -202,6 +202,7 @@ function StoreBadge({ store, location = "hero" }: { store: "ios" | "android"; lo
 // ---------------------------------------------------------------------------
 function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -241,8 +242,37 @@ function SiteNav() {
           >
             Open the app
           </Link>
+          <button
+            type="button"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            onClick={() => setMobileOpen((o) => !o)}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-primary hover:bg-surface-container sm:hidden"
+          >
+            <Icon name={mobileOpen ? "close" : "menu"} className="text-xl" />
+          </button>
         </nav>
       </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="border-t border-divider-soft bg-background/95 px-margin-mobile py-2 sm:hidden">
+          {[
+            { href: "#features", label: "Features" },
+            { href: "#how", label: "How it works" },
+            { href: "#pricing", label: "Pricing" },
+          ].map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              onClick={() => setMobileOpen(false)}
+              className="block py-2 text-on-surface-variant hover:text-primary"
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
+      )}
     </header>
   );
 }

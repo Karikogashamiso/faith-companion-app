@@ -142,7 +142,9 @@ function Bible() {
       .from("bookmarks")
       .insert({ user_id: user.id, verse_id: v.id });
     setSelected(null);
-    toast(error ? "Already saved" : "Saved to your collection");
+    if (!error) toast("Saved to your collection");
+    else if (error.code === "23505") toast("Already saved");
+    else toast.error("Couldn't save", { description: error.message });
   }
 
   async function memorize(v: Verse) {
@@ -152,7 +154,9 @@ function Bible() {
       verse_text: v.text,
     });
     setSelected(null);
-    toast(error ? "Already memorizing this" : "Added to memorization");
+    if (!error) toast("Added to memorization");
+    else if (error.code === "23505") toast("Already memorizing this");
+    else toast.error("Couldn't add", { description: error.message });
   }
 
   function prevChapter() {
@@ -164,18 +168,26 @@ function Bible() {
 
   async function toggleHighlight(v: Verse) {
     if (highlights.has(v.id)) {
-      await supabase
+      const { error } = await supabase
         .from("user_highlights")
         .delete()
         .eq("user_id", user.id)
         .eq("verse_id", v.id);
+      if (error) {
+        toast.error("Couldn't remove highlight", { description: error.message });
+        return;
+      }
       const next = new Set(highlights);
       next.delete(v.id);
       setHighlights(next);
     } else {
-      await supabase
+      const { error } = await supabase
         .from("user_highlights")
         .insert({ user_id: user.id, verse_id: v.id });
+      if (error) {
+        toast.error("Couldn't highlight", { description: error.message });
+        return;
+      }
       setHighlights(new Set([...highlights, v.id]));
     }
   }

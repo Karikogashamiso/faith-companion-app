@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { dailyDevotional } from "@/lib/ai-study.functions";
@@ -181,27 +181,36 @@ function Home() {
     setXp((stats?.xp as number | undefined) ?? 0);
   }
 
+  const markingRef = useRef(false);
   async function markToday() {
-    if (completedToday) return;
-    await supabase
-      .from("daily_activity")
-      .upsert({ user_id: user.id, activity_date: todayLocalISO(), source: "home" });
+    // Synchronous re-entrancy guard: completedToday only updates after the
+    // async load() below, so a fast double-click would otherwise grant XP twice.
+    if (completedToday || markingRef.current) return;
+    markingRef.current = true;
+    try {
+      const { error: actErr } = await supabase
+        .from("daily_activity")
+        .upsert({ user_id: user.id, activity_date: todayLocalISO(), source: "home" });
+      if (actErr) {
+        toast.error("Couldn't record today", { description: actErr.message });
+        return;
+      }
 
-    // Advance the active plan by recording the day just completed.
-    let planJustFinished = false;
-    let xpGain = DAILY_XP;
-    if (activePlanId && planCurrentDay) {
-      await supabase.from("user_plan_progress").upsert(
-        {
-          user_id: user.id,
-          plan_id: activePlanId,
-          day_completed: planCurrentDay,
-        },
-        { onConflict: "user_id,plan_id,day_completed" },
-      );
-      xpGain += PLAN_DAY_XP;
-      if (planDayCount && planCurrentDay >= planDayCount) planJustFinished = true;
-    }
+      // Advance the active plan by recording the day just completed.
+      let planJustFinished = false;
+      let xpGain = DAILY_XP;
+      if (activePlanId && planCurrentDay) {
+        await supabase.from("user_plan_progress").upsert(
+          {
+            user_id: user.id,
+            plan_id: activePlanId,
+            day_completed: planCurrentDay,
+          },
+          { onConflict: "user_id,plan_id,day_completed" },
+        );
+        xpGain += PLAN_DAY_XP;
+        if (planDayCount && planCurrentDay >= planDayCount) planJustFinished = true;
+      }
 
     // Recompute the streak including today, then grant rewards server-side.
     const { data: act } = await supabase
@@ -223,16 +232,19 @@ function Home() {
       if (isNew) unlocked++;
     }
 
-    toast.success(`+${xpGain} XP`, {
-      description:
-        newStreak > 1 ? `${newStreak}-day streak — keep it going` : "Day complete",
-    });
-    if (unlocked > 0) {
-      toast("🏅 Achievement unlocked!", {
-        description: "See it on your Progress page.",
+      toast.success(`+${xpGain} XP`, {
+        description:
+          newStreak > 1 ? `${newStreak}-day streak — keep it going` : "Day complete",
       });
+      if (unlocked > 0) {
+        toast("🏅 Achievement unlocked!", {
+          description: "See it on your Progress page.",
+        });
+      }
+      void load();
+    } finally {
+      markingRef.current = false;
     }
-    void load();
   }
 
   const greeting = greetingForNow();

@@ -40,10 +40,9 @@ function AudioAdmin() {
   const isAdmin = useQuery({
     queryKey: ["is-admin", user.id],
     queryFn: async () => {
-      const { data } = await supabase.rpc("has_role", {
-        _user_id: user.id,
-        _role: "admin",
-      });
+      // is_admin() is self-scoped and granted to authenticated (has_role is not).
+      const { data, error } = await (supabase as any).rpc("is_admin");
+      if (error) throw error;
       return Boolean(data);
     },
   });
@@ -111,6 +110,7 @@ function AudioAdmin() {
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onError: (e) => toast.error("Couldn't delete track", { description: String((e as Error).message) }),
   });
 
   if (isAdmin.isLoading) {

@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { AppShell } from "@/components/app/app-shell";
@@ -73,6 +74,7 @@ function Plans() {
       await qc.invalidateQueries({ queryKey: ["active-plan", user.id] });
       navigate({ to: "/home" });
     },
+    onError: (e) => toast.error("Couldn't start the plan", { description: (e as Error).message }),
   });
 
   return (

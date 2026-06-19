@@ -1058,3 +1058,15 @@ DROP POLICY IF EXISTS "admins delete audio" ON storage.objects;
 CREATE POLICY "admins delete audio" ON storage.objects
   FOR DELETE TO authenticated
   USING (bucket_id = 'audio' AND public.has_role(auth.uid(), 'admin'));
+
+
+-- ===== 20260617100000_is_admin.sql =====
+-- Self-scoped admin check callable by authenticated (has_role is not). Fixes
+-- admin gating for the audio admin page and the embedVerses job. Idempotent.
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $fn$
+  SELECT public.has_role(auth.uid(), 'admin');
+$fn$;
+REVOKE EXECUTE ON FUNCTION public.is_admin() FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated, service_role;

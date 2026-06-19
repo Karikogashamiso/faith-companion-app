@@ -7,6 +7,7 @@ import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import {
   Card,
+  EmptyState,
   IconBadge,
   ScreenTitle,
   Skeleton,
@@ -85,6 +86,18 @@ function Listen() {
               <Skeleton key={i} className="h-16" />
             ))}
           </div>
+        ) : tracksQuery.isError ? (
+          <EmptyState
+            icon="error"
+            title="Couldn't load the library"
+            description="Please check your connection and try again."
+          />
+        ) : (tracksQuery.data ?? []).length === 0 ? (
+          <EmptyState
+            icon="library_music"
+            title="Audio coming soon"
+            description="Guided prayer, Scripture & sleep sessions are on the way."
+          />
         ) : (
           CATEGORIES.map((cat) => {
             const items = (tracksQuery.data ?? []).filter(

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
@@ -49,9 +50,11 @@ function Saved() {
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      await (supabase as any).from("bookmarks").delete().eq("id", id);
+      const { error } = await (supabase as any).from("bookmarks").delete().eq("id", id);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onError: (e) => toast.error("Couldn't remove", { description: (e as Error).message }),
   });
 
   // Group by collection.
@@ -77,6 +80,12 @@ function Saved() {
             <Skeleton className="h-20" />
             <Skeleton className="h-20" />
           </div>
+        ) : q.isError ? (
+          <EmptyState
+            icon="error"
+            title="Couldn't load your journal"
+            description="Please check your connection and try again."
+          />
         ) : collections.length === 0 ? (
           <EmptyState
             icon="bookmark"

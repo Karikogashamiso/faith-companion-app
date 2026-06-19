@@ -100,23 +100,28 @@ function Reminders() {
       setLabel("");
       await qc.invalidateQueries({ queryKey: key });
     },
+    onError: (e) => toast.error("Couldn't add reminder", { description: (e as Error).message }),
   });
 
   const toggle = useMutation({
     mutationFn: async (r: Reminder) => {
-      await (supabase as any)
+      const { error } = await (supabase as any)
         .from("reminders")
         .update({ enabled: !r.enabled })
         .eq("id", r.id);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onError: (e) => toast.error("Couldn't update reminder", { description: (e as Error).message }),
   });
 
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      await (supabase as any).from("reminders").delete().eq("id", id);
+      const { error } = await (supabase as any).from("reminders").delete().eq("id", id);
+      if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: key }),
+    onError: (e) => toast.error("Couldn't delete reminder", { description: (e as Error).message }),
   });
 
   async function askPermission() {

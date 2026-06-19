@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
@@ -84,12 +85,23 @@ function Wall() {
       setBody("");
       await qc.invalidateQueries({ queryKey: ["global-wall", user.id] });
     },
+    onError: (e) => toast.error("Couldn't post your prayer", { description: (e as Error).message }),
   });
 
   async function pray(id: string) {
     if (prayedLocal.has(id) || feed.data?.prayed.has(id)) return;
     setPrayedLocal(new Set([...prayedLocal, id]));
-    await supabase.rpc("pray_for_global" as any, { _prayer_id: id } as any);
+    const { error } = await supabase.rpc("pray_for_global" as any, { _prayer_id: id } as any);
+    if (error) {
+      // Revert the optimistic state so the button doesn't stay stuck.
+      setPrayedLocal((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      toast.error("Couldn't record your prayer", { description: error.message });
+      return;
+    }
     void supabase.rpc("unlock_achievement" as any, { _code: "intercessor" } as any);
     await qc.invalidateQueries({ queryKey: ["global-wall", user.id] });
   }

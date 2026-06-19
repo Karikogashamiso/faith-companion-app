@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
@@ -63,7 +64,7 @@ function Memorize() {
 
   async function grade(v: MemVerse, remembered: boolean) {
     const { stage, dueInDays } = reviewMemory(v.stage, remembered);
-    await (supabase as any)
+    const { error } = await (supabase as any)
       .from("memory_verses")
       .update({
         stage,
@@ -71,6 +72,10 @@ function Memorize() {
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", v.id);
+    if (error) {
+      toast.error("Couldn't save your review", { description: error.message });
+      return; // keep the card so the review isn't silently lost
+    }
     setRevealed(false);
     if (queue && idx + 1 < queue.length) {
       setIdx(idx + 1);
