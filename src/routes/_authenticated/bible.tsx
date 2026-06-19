@@ -8,6 +8,7 @@ import { Icon } from "@/components/app/icon";
 import { Button, Card, Sheet, Skeleton } from "@/components/app/ui";
 import { VerseImageSheet } from "@/components/app/verse-image";
 import { explainChapter } from "@/lib/bible.functions";
+import { relatedVerses } from "@/lib/search.functions";
 import { getReadingPosition, setReadingPosition } from "@/lib/reading-position";
 import {
   BASE_PX,
@@ -39,7 +40,31 @@ function Bible() {
   const [bookChapters, setBookChapters] = useState<Record<string, number>>({});
   const [scale, setScale] = useState(1);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [related, setRelated] = useState<{
+    loading: boolean;
+    hits: { id: number; book: string; chapter: number; verse: number; text: string }[];
+  } | null>(null);
   const explainFn = useServerFn(explainChapter);
+  const relatedFn = useServerFn(relatedVerses);
+
+  async function loadRelated(v: Verse) {
+    if (!versionId) return;
+    setRelated({ loading: true, hits: [] });
+    try {
+      const r = await relatedFn({
+        data: {
+          text: v.text,
+          version_id: versionId,
+          book: v.book,
+          chapter: v.chapter,
+          verse: v.verse,
+        },
+      });
+      setRelated({ loading: false, hits: r.results ?? [] });
+    } catch {
+      setRelated({ loading: false, hits: [] });
+    }
+  }
   const [explainText, setExplainText] = useState<string | null>(null);
   const [explainLoading, setExplainLoading] = useState(false);
 
@@ -342,7 +367,10 @@ function Bible() {
       {selected && (
         <Sheet
           open
-          onClose={() => setSelected(null)}
+          onClose={() => {
+            setSelected(null);
+            setRelated(null);
+          }}
           title={`${selected.book} ${selected.chapter}:${selected.verse}`}
         >
           <div className="space-y-4">
@@ -392,6 +420,15 @@ function Bible() {
               <Button
                 size="sm"
                 variant="secondary"
+                leftIcon="hub"
+                loading={related?.loading}
+                onClick={() => loadRelated(selected)}
+              >
+                Related
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
                 leftIcon="ios_share"
                 onClick={() => {
                   setImageVerse(selected);
@@ -416,11 +453,52 @@ function Bible() {
                 size="sm"
                 variant="ghost"
                 className="ml-auto"
-                onClick={() => setSelected(null)}
+                onClick={() => {
+                  setSelected(null);
+                  setRelated(null);
+                }}
               >
                 Close
               </Button>
             </div>
+
+            {related && (
+              <div className="space-y-2 border-t border-divider-soft pt-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+                  Verses like this
+                </p>
+                {related.loading ? (
+                  <Skeleton className="h-16" />
+                ) : related.hits.length === 0 ? (
+                  <p className="text-sm text-on-surface-variant">
+                    No related verses found yet.
+                  </p>
+                ) : (
+                  <ul className="space-y-2">
+                    {related.hits.map((h) => (
+                      <li key={h.id}>
+                        <button
+                          onClick={() => {
+                            setBook(h.book);
+                            setChapter(h.chapter);
+                            setSelected(null);
+                            setRelated(null);
+                          }}
+                          className="w-full rounded-lg border border-divider-soft bg-card p-3 text-left transition-colors hover:border-primary"
+                        >
+                          <span className="text-xs font-semibold text-primary">
+                            {h.book} {h.chapter}:{h.verse}
+                          </span>
+                          <span className="mt-1 block text-sm text-on-surface-variant line-clamp-2">
+                            {h.text}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
         </Sheet>
       )}

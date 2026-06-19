@@ -55,3 +55,45 @@ export const semanticVerseSearch = createServerFn({ method: "POST" })
 
     return { results: (rows ?? []) as VerseHit[] };
   });
+
+const RelatedInput = z.object({
+  text: z.string().min(2).max(1000),
+  version_id: z.string(),
+  book: z.string(),
+  chapter: z.number().int(),
+  verse: z.number().int(),
+});
+
+/**
+ * "Verses like this": given a verse, find semantically related verses via the
+ * same hybrid retrieval, excluding the verse itself. Reuses the embedding +
+ * match_verses pipeline — no LLM call.
+ */
+export const relatedVerses = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => RelatedInput.parse(input))
+  .handler(async ({ data, context }): Promise<{ results: VerseHit[] }> => {
+    const { supabase } = context;
+
+    let embedding: number[] | null = null;
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (apiKey) {
+      try {
+        [embedding] = await embedTexts(apiKey, EMBED_MODEL, [data.text]);
+      } catch {
+        embedding = null;
+      }
+    }
+
+    const { data: rows } = await supabase.rpc("match_verses", {
+      query_embedding: embedding as unknown as string,
+      query_text: data.text,
+      p_version_id: data.version_id,
+      match_count: 8,
+    });
+
+    const results = ((rows ?? []) as VerseHit[]).filter(
+      (r) => !(r.book === data.book && r.chapter === data.chapter && r.verse === data.verse),
+    );
+    return { results: results.slice(0, 6) };
+  });
