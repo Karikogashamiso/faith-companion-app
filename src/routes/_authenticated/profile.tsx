@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
-import { Card, IconBadge, SectionHeader, Skeleton } from "@/components/app/ui";
+import { Card, EmptyState, IconBadge, SectionHeader, Skeleton } from "@/components/app/ui";
 import { levelFromXp } from "@/lib/gamification";
 import { addDays, computeStreak, todayLocalISO } from "@/lib/streak";
 
@@ -41,6 +41,10 @@ function Profile() {
           .order("activity_date", { ascending: false })
           .limit(400),
       ]);
+      // Surface real failures instead of rendering a misleading 0-XP page.
+      if (stats.error || catalog.error || activity.error) {
+        throw stats.error || catalog.error || activity.error;
+      }
       return {
         xp: (stats.data?.xp as number | undefined) ?? 0,
         catalog: ((catalog.data ?? []) as unknown) as Achievement[],
@@ -62,6 +66,28 @@ function Profile() {
     const d = addDays(today, -(34 - i));
     return { date: d, active: dateSet.has(d) };
   });
+
+  if (q.isLoading) {
+    return (
+      <AppShell title="Progress">
+        <div className="space-y-3">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-40" />
+        </div>
+      </AppShell>
+    );
+  }
+  if (q.isError) {
+    return (
+      <AppShell title="Progress">
+        <EmptyState
+          icon="error"
+          title="Couldn't load your progress"
+          description="Please check your connection and try again."
+        />
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell title="Progress">

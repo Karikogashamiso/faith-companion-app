@@ -91,26 +91,34 @@ function Settings() {
   const [versions, setVersions] = useState<Version[]>([]);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     void load();
   }, []);
 
   async function load() {
-    const [{ data: prof }, { data: vers }] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id,display_name,tradition,ai_enabled,ai_provider,default_version_id,notification_time")
-        .eq("id", user.id)
-        .maybeSingle(),
-      supabase.from("bible_versions").select("id,name,abbreviation").order("abbreviation"),
-    ]);
-    if (prof) setProfile(prof as unknown as Profile);
-    if (vers) setVersions(vers);
+    try {
+      const [{ data: prof, error: profErr }, { data: vers }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id,display_name,tradition,ai_enabled,ai_provider,default_version_id,notification_time")
+          .eq("id", user.id)
+          .maybeSingle(),
+        supabase.from("bible_versions").select("id,name,abbreviation").order("abbreviation"),
+      ]);
+      if (profErr) throw profErr;
+      if (prof) setProfile(prof as unknown as Profile);
+      if (vers) setVersions(vers);
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
+    }
   }
 
   async function update(patch: Partial<Profile>) {
     if (!profile) return;
+    const prev = profile;
     setSaving(true);
     setMsg(null);
     setProfile({ ...profile, ...patch });
@@ -119,7 +127,12 @@ function Settings() {
       .update(patch as never)
       .eq("id", user.id);
     setSaving(false);
-    setMsg(error ? `Error: ${error.message}` : "Saved");
+    if (error) {
+      setProfile(prev); // revert the optimistic change on failure
+      toast.error("Couldn't save", { description: error.message });
+      return;
+    }
+    setMsg("Saved");
     setTimeout(() => setMsg(null), 1500);
   }
 
@@ -149,7 +162,24 @@ function Settings() {
   if (!profile) {
     return (
       <AppShell title="Settings">
-        <p className="text-sm text-on-surface-variant">Loading…</p>
+        {loadError ? (
+          <div className="space-y-3 text-center">
+            <p className="text-sm text-on-surface-variant">
+              Couldn't load your settings.
+            </p>
+            <button
+              onClick={() => {
+                setLoadError(false);
+                void load();
+              }}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-on-primary"
+            >
+              Try again
+            </button>
+          </div>
+        ) : (
+          <p className="text-sm text-on-surface-variant">Loading…</p>
+        )}
       </AppShell>
     );
   }

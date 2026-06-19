@@ -23,11 +23,14 @@ async function keywordSearch(term: string): Promise<Hit[]> {
     .textSearch("text", term, { config: "english", type: "websearch" })
     .limit(50);
   if (error) {
-    const { data: d2 } = await supabase
+    // Fall back to a simple ILIKE; if that also fails, surface the error so the
+    // UI shows "Search failed" rather than a misleading "No matches".
+    const { data: d2, error: e2 } = await supabase
       .from("verses")
       .select("id, book, chapter, verse, text")
       .ilike("text", `%${term}%`)
       .limit(50);
+    if (e2) throw e2;
     return (d2 ?? []) as Hit[];
   }
   return (data ?? []) as Hit[];

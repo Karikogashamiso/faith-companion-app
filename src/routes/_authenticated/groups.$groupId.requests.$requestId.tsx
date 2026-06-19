@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import { EmptyState } from "@/components/app/ui";
 
 export const Route = createFileRoute(
   "/_authenticated/groups/$groupId/requests/$requestId",
@@ -39,6 +41,7 @@ function RequestDetail() {
   const [testimony, setTestimony] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     void load();
@@ -56,6 +59,7 @@ function RequestDetail() {
       .maybeSingle();
     if (rErr) setError(rErr.message);
     setReq(r as Req | null);
+    setLoaded(true);
 
     const { data: resp } = await supabase
       .from("prayer_responses")
@@ -88,7 +92,7 @@ function RequestDetail() {
       note: note.trim() || null,
     });
     setBusy(false);
-    if (error) setError(error.message);
+    if (error) toast.error("Couldn't add encouragement", { description: error.message });
     else {
       setNote("");
       void load();
@@ -107,22 +111,33 @@ function RequestDetail() {
       })
       .eq("id", req.id);
     setBusy(false);
-    if (error) setError(error.message);
+    if (error) toast.error("Couldn't mark answered", { description: error.message });
     else void load();
   }
 
-  if (error)
+  if (!loaded)
     return (
       <AppShell title="Prayer">
-        <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
-        </p>
+        <p className="text-sm text-on-surface-variant">Loading…</p>
       </AppShell>
     );
   if (!req)
     return (
       <AppShell title="Prayer">
-        <p className="text-sm text-on-surface-variant">Loading…</p>
+        <EmptyState
+          icon="search_off"
+          title="Prayer not available"
+          description={error ?? "This request doesn't exist or you don't have access."}
+        />
+        <div className="mt-4 text-center">
+          <Link
+            to="/groups/$groupId"
+            params={{ groupId }}
+            className="text-sm font-semibold text-primary hover:underline"
+          >
+            Back to group
+          </Link>
+        </div>
       </AppShell>
     );
 

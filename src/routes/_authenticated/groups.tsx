@@ -13,6 +13,7 @@ import {
   ListRow,
   ScreenTitle,
   SectionHeader,
+  Skeleton,
 } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/groups")({
@@ -30,6 +31,7 @@ function GroupsPage() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     void load();
@@ -42,6 +44,7 @@ function GroupsPage() {
       .order("created_at", { ascending: false });
     if (error) setError(error.message);
     else setGroups((data ?? []) as Group[]);
+    setLoaded(true);
   }
 
   function makeJoinCode() {
@@ -107,7 +110,9 @@ function GroupsPage() {
 
         <section className="space-y-3">
           <SectionHeader>Your groups</SectionHeader>
-          {groups.length === 0 ? (
+          {!loaded ? (
+            <Skeleton className="h-16" />
+          ) : groups.length === 0 ? (
             <EmptyState
               icon="groups"
               title="No groups yet"

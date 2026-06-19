@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
-import { Avatar, Button, Card, Chip, Textarea } from "@/components/app/ui";
+import { Avatar, Button, Card, Chip, EmptyState, Textarea } from "@/components/app/ui";
 
 export const Route = createFileRoute("/_authenticated/groups/$groupId")({
   head: () => ({ meta: [{ title: "Group · Faith Companion" }] }),
@@ -49,6 +50,7 @@ function GroupHome() {
   const [me, setMe] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     void load();
@@ -80,6 +82,7 @@ function GroupHome() {
     setGroup(g as Group | null);
     setMembers((ms ?? []) as Member[]);
     setRequests((rs ?? []) as PrayerRequest[]);
+    setLoaded(true);
 
     const memberIds = (ms ?? []).map((m: any) => m.user_id);
     if (memberIds.length) {
@@ -116,7 +119,8 @@ function GroupHome() {
       status: "open",
     });
     setBusy(false);
-    if (error) setError(error.message);
+    // Show mutation errors inline (toast) — don't unmount the page/form.
+    if (error) toast.error("Couldn't post request", { description: error.message });
     else {
       setNewRequest("");
       void load();
@@ -128,24 +132,34 @@ function GroupHome() {
     const { error } = await supabase
       .from("prayer_responses")
       .insert({ request_id: reqId, responder_id: me, prayed: true });
-    if (!error) {
-      setMyPrayed(new Set([...myPrayed, reqId]));
-      void supabase.rpc("unlock_achievement" as any, { _code: "intercessor" });
+    if (error) {
+      toast.error("Couldn't record your prayer", { description: error.message });
+      return;
     }
+    setMyPrayed(new Set([...myPrayed, reqId]));
+    void supabase.rpc("unlock_achievement" as any, { _code: "intercessor" });
+    void load(); // refresh prayed counts
   }
 
-  if (error)
+  if (!loaded)
     return (
       <AppShell title="Group">
-        <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
-        </p>
+        <p className="text-sm text-on-surface-variant">Loading…</p>
       </AppShell>
     );
   if (!group)
     return (
       <AppShell title="Group">
-        <p className="text-sm text-on-surface-variant">Loading…</p>
+        <EmptyState
+          icon="group_off"
+          title="Group not available"
+          description={error ?? "This group doesn't exist or you don't have access."}
+        />
+        <div className="mt-4 text-center">
+          <Link to="/groups" className="text-sm font-semibold text-primary hover:underline">
+            Back to groups
+          </Link>
+        </div>
       </AppShell>
     );
 

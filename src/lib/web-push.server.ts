@@ -175,7 +175,7 @@ export async function sendPush(
       "Content-Type": "application/octet-stream",
       TTL: String(ttlSeconds),
     },
-    body,
+    body: new Uint8Array(body),
   });
   return { ok: res.ok, status: res.status, gone: res.status === 404 || res.status === 410 };
 }
