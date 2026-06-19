@@ -796,8 +796,11 @@ function Pricing() {
             </span>
             <h3 className="font-serif text-2xl text-primary">Companion</h3>
             <p className="text-sm text-on-surface-variant">$2.99/wk · $4.99/mo · $39.99/yr</p>
-            <p className="mt-3 font-serif text-3xl text-on-surface">
+            <p className="mt-3 flex items-baseline gap-2 font-serif text-3xl text-on-surface">
               $39.99<span className="text-base text-on-surface-variant">/yr</span>
+              <span className="rounded-full bg-secondary-container px-2 py-0.5 font-sans text-xs font-bold text-on-secondary-container">
+                Save 33%
+              </span>
             </p>
             <ul className="mt-5 space-y-2 text-sm">
               {[

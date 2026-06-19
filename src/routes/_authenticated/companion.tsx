@@ -264,7 +264,7 @@ function CompanionPaywall() {
                 label="Annual"
                 price={pricing.annual}
                 cadence="per year"
-                note={`${pricing.annualPerMonth}/mo · best value`}
+                note={`${pricing.annualPerMonth}/mo · save ${pricing.annualSavingsPct}%`}
                 highlight
                 onSelect={handleSubscribe}
                 busy={busyPlan === "companion_annual"}

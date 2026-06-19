@@ -52,7 +52,24 @@ export const Route = createFileRoute("/api/public/track")({
           const { supabaseAdmin } = await import(
             "@/integrations/supabase/client.server"
           );
-          await (supabaseAdmin as any).from("landing_events").insert({
+          const admin = supabaseAdmin as any;
+
+          // Per-IP throttle so the open endpoint can't be used to inflate the
+          // funnel. Prefer the trusted Cloudflare header over spoofable XFF, and
+          // namespace the key so it doesn't share the demo's rate bucket.
+          const ip =
+            request.headers.get("cf-connecting-ip") ??
+            request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+            "anon";
+          const { data: rl } = await admin.rpc("demo_rate_check", {
+            _ip: `track:${ip}`,
+            _max: 60,
+            _window_seconds: 600,
+          });
+          const allowed = Array.isArray(rl) ? rl[0]?.allowed : rl?.allowed;
+          if (allowed === false) return Response.json({ ok: true, throttled: true });
+
+          await admin.from("landing_events").insert({
             anon_id,
             event,
             path: path ?? null,

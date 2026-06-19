@@ -14,6 +14,8 @@ export type LocalPricing = {
   monthly: string;
   annual: string;
   annualPerMonth: string;
+  /** % saved by paying annually instead of 12× monthly (rounded). */
+  annualSavingsPct: number;
 };
 
 const MARKETS: Record<
@@ -55,5 +57,6 @@ export function getLocalizedPricing(locale?: string): LocalPricing {
     monthly: fmt(m.monthly),
     annual: fmt(m.annual),
     annualPerMonth: fmt(Math.round((m.annual / 12) * 100) / 100),
+    annualSavingsPct: Math.round((1 - m.annual / (m.monthly * 12)) * 100),
   };
 }
