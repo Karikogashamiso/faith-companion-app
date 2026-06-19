@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/app/icon";
 import { trackLanding } from "@/lib/landing-analytics";
 import sunsetUrl from "@/assets/sunset.jpg";
@@ -53,6 +53,7 @@ function Landing() {
       <main>
         <Hero />
         <TrustStrip />
+        <DenominationsMarquee />
         <LiveDemo />
         <SpotlightAI />
         <SpotlightCommunity />
@@ -66,6 +67,89 @@ function Landing() {
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Motion helpers
+// ---------------------------------------------------------------------------
+/** Reveals its children with a soft upward fade when scrolled into view. */
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className={`reveal ${visible ? "is-visible" : ""} ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** A slow, hover-pausing marquee of the traditions the app serves. */
+function DenominationsMarquee() {
+  const traditions = [
+    "Catholic",
+    "Orthodox",
+    "Anglican",
+    "Lutheran",
+    "Reformed",
+    "Baptist",
+    "Methodist",
+    "Pentecostal",
+    "Non-denominational",
+    "Just exploring",
+  ];
+  const row = [...traditions, ...traditions];
+  return (
+    <section className="border-b border-divider-soft bg-background py-6">
+      <p className="mb-4 text-center text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+        Made for every tradition
+      </p>
+      <div className="marquee">
+        <div className="marquee__track gap-3 pr-3">
+          {row.map((t, i) => (
+            <span
+              key={`${t}-${i}`}
+              className="flex items-center gap-1.5 rounded-full border border-divider-soft bg-card px-4 py-1.5 text-sm text-on-surface-variant"
+            >
+              <Icon name="church" className="text-base text-primary" />
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -85,7 +169,7 @@ function PrimaryCta({
     <Link
       to="/auth"
       onClick={() => trackLanding("cta_click", { location })}
-      className={`candle-glow inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 font-semibold text-on-primary transition-transform hover:scale-[1.02] ${className}`}
+      className={`btn-shine candle-glow inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 font-semibold text-on-primary transition-transform hover:scale-[1.03] active:scale-[0.99] ${className}`}
     >
       {children}
     </Link>
@@ -117,8 +201,21 @@ function StoreBadge({ store, location = "hero" }: { store: "ios" | "android"; lo
 // Nav
 // ---------------------------------------------------------------------------
 function SiteNav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   return (
-    <header className="sticky top-0 z-30 border-b border-divider-soft bg-background/80 backdrop-blur-md">
+    <header
+      className={`sticky top-0 z-30 border-b backdrop-blur-md transition-gentle ${
+        scrolled
+          ? "border-divider-soft bg-background/90 shadow-lg shadow-black/20"
+          : "border-transparent bg-background/70"
+      }`}
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-margin-mobile py-3">
         <Link to="/" className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-on-primary">
@@ -156,10 +253,11 @@ function SiteNav() {
 function Hero() {
   return (
     <section className="relative overflow-hidden">
-      {/* Warm sunset glow, fading into the ink background. */}
+      {/* Breathing aurora + warm sunset glow, fading into the ink background. */}
+      <div aria-hidden className="aurora" />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-30"
+        className="pointer-events-none absolute inset-0 z-0 opacity-30"
         style={{
           backgroundImage: `url(${sunsetUrl})`,
           backgroundSize: "cover",
@@ -168,7 +266,7 @@ function Hero() {
           WebkitMaskImage: "linear-gradient(to bottom, black, transparent 75%)",
         }}
       />
-      <div className="relative mx-auto grid max-w-6xl items-center gap-stack-lg px-margin-mobile py-16 md:grid-cols-2 md:py-24">
+      <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-stack-lg px-margin-mobile py-16 md:grid-cols-2 md:py-24">
         <div className="peaceful-fade-in space-y-stack-md">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/70 px-3 py-1 backdrop-blur">
             <Icon name="verified" filled className="text-base text-primary" />
@@ -181,7 +279,7 @@ function Hero() {
             <br />
             Build the habit.
             <br />
-            <span className="text-on-surface">Never alone.</span>
+            <span className="shimmer-text">Never alone.</span>
           </h1>
           <p className="max-w-md text-lg leading-relaxed text-on-surface-variant">
             A daily reading, a grounded answer when you wonder, guided prayer when
@@ -189,7 +287,7 @@ function Hero() {
             Android. <span className="text-primary">Scripture is free, forever.</span>
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <PrimaryCta location="hero">
+            <PrimaryCta location="hero" className="glow-breath">
               Start free
               <Icon name="arrow_forward" className="text-lg" />
             </PrimaryCta>
@@ -224,7 +322,7 @@ function PhoneMockup() {
     <div
       role="img"
       aria-label="Phone preview showing a daily verse and a tappable AI question"
-      className="peaceful-fade-in mx-auto w-full max-w-[300px]"
+      className="peaceful-fade-in float-soft mx-auto w-full max-w-[300px]"
     >
       <div className="candle-glow relative aspect-[9/19] rounded-[2.5rem] border-8 border-surface-container-high bg-background shadow-2xl">
         <div className="absolute inset-x-12 top-2 h-4 rounded-b-xl bg-surface-container-high" />
@@ -326,7 +424,7 @@ function LiveDemo() {
   return (
     <section id="demo" className="px-margin-mobile py-16" aria-labelledby="demo-heading">
       <div className="mx-auto max-w-3xl space-y-stack-md">
-        <div className="space-y-2 text-center">
+        <Reveal className="space-y-2 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-primary">Try it right now — free</p>
           <h2 id="demo-heading" className="font-serif text-3xl text-primary md:text-4xl">
             Ask a real question. Get a real answer.
@@ -335,9 +433,9 @@ function LiveDemo() {
             Every answer quotes only verses we actually retrieved — with the
             reference attached. If the model tries to invent one, we strip it.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="glass-card rounded-2xl p-5 md:p-6">
+        <Reveal delay={80} className="glass-card rounded-2xl p-5 md:p-6">
           <label htmlFor="demo-q" className="sr-only">
             Your question
           </label>
@@ -389,7 +487,7 @@ function LiveDemo() {
             </div>
           )}
           {err && <p className="mt-4 border-t border-divider-soft pt-4 text-sm text-destructive">{err}</p>}
-        </div>
+        </Reveal>
         <p className="text-center text-xs text-on-surface-variant">
           A few free questions per visitor · unlimited in the app.
         </p>
@@ -421,7 +519,7 @@ function Spotlight({
   return (
     <section className={tone === "muted" ? "bg-surface-container-low px-margin-mobile py-16" : "px-margin-mobile py-16"}>
       <div className="mx-auto grid max-w-6xl items-center gap-stack-lg md:grid-cols-2">
-        <div className={flip ? "md:order-2" : ""}>
+        <Reveal className={flip ? "md:order-2" : ""}>
           <p className="text-xs font-bold uppercase tracking-widest text-primary">{eyebrow}</p>
           <h2 className="mt-2 font-serif text-3xl text-primary md:text-4xl">{title}</h2>
           <p className="mt-3 text-on-surface-variant">{body}</p>
@@ -433,12 +531,15 @@ function Spotlight({
               </li>
             ))}
           </ul>
-        </div>
-        <div className={flip ? "md:order-1" : ""}>
-          <div className="glass-card flex aspect-[4/3] items-center justify-center rounded-2xl">
-            <Icon name={icon} className="text-7xl text-primary opacity-80" />
+        </Reveal>
+        <Reveal delay={120} className={flip ? "md:order-1" : ""}>
+          <div className="glass-card lift-card group flex aspect-[4/3] items-center justify-center rounded-2xl">
+            <Icon
+              name={icon}
+              className="text-7xl text-primary opacity-80 transition-transform duration-500 group-hover:scale-110"
+            />
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -515,25 +616,24 @@ function FeatureGrid() {
   return (
     <section id="features" className="bg-surface-container-low px-margin-mobile py-20">
       <div className="mx-auto max-w-6xl">
-        <div className="mx-auto max-w-2xl text-center">
+        <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="font-serif text-3xl text-primary md:text-4xl">Everything in one quiet place</h2>
           <div className="gold-rule mx-auto mt-4 max-w-xs" />
           <p className="mt-4 text-on-surface-variant">
             A complete companion for the whole journey — not a dozen apps stitched together.
           </p>
-        </div>
+        </Reveal>
         <div className="mt-12 grid gap-gutter sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f) => (
-            <article
-              key={f.title}
-              className="group rounded-2xl border border-divider-soft bg-card p-6 transition-colors hover:border-primary/50"
-            >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary-container text-on-secondary-container">
-                <Icon name={f.icon} filled />
-              </div>
-              <h3 className="mt-4 font-serif text-lg text-primary">{f.title}</h3>
-              <p className="mt-1 text-sm text-on-surface-variant">{f.body}</p>
-            </article>
+          {features.map((f, i) => (
+            <Reveal key={f.title} delay={(i % 3) * 80}>
+              <article className="lift-card group h-full rounded-2xl border border-divider-soft bg-card p-6">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary-container text-on-secondary-container transition-transform duration-300 group-hover:scale-110">
+                  <Icon name={f.icon} filled />
+                </div>
+                <h3 className="mt-4 font-serif text-lg text-primary">{f.title}</h3>
+                <p className="mt-1 text-sm text-on-surface-variant">{f.body}</p>
+              </article>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -554,17 +654,19 @@ function HowItWorks() {
     <section id="how" className="mx-auto max-w-6xl px-margin-mobile py-20">
       <h2 className="mb-12 text-center font-serif text-3xl text-primary md:text-4xl">How it works</h2>
       <ol className="grid gap-gutter md:grid-cols-3">
-        {steps.map((s) => (
-          <li key={s.n} className="relative rounded-2xl border border-divider-soft bg-card p-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-serif text-sm font-bold text-on-primary">
-                {s.n}
+        {steps.map((s, i) => (
+          <Reveal key={s.n} delay={i * 100}>
+            <li className="lift-card relative h-full rounded-2xl border border-divider-soft bg-card p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-serif text-sm font-bold text-on-primary">
+                  {s.n}
+                </div>
+                <Icon name={s.icon} className="text-2xl text-primary" />
               </div>
-              <Icon name={s.icon} className="text-2xl text-primary" />
-            </div>
-            <h3 className="mt-4 font-serif text-xl text-primary">{s.title}</h3>
-            <p className="mt-1 text-on-surface-variant">{s.body}</p>
-          </li>
+              <h3 className="mt-4 font-serif text-xl text-primary">{s.title}</h3>
+              <p className="mt-1 text-on-surface-variant">{s.body}</p>
+            </li>
+          </Reveal>
         ))}
       </ol>
       <div className="mt-10 text-center">
@@ -603,12 +705,14 @@ function LifeScenarios() {
       <div className="mx-auto max-w-6xl">
         <h2 className="mb-12 text-center font-serif text-3xl text-primary md:text-4xl">Made for real life</h2>
         <div className="grid gap-gutter md:grid-cols-3">
-          {cards.map((c) => (
-            <article key={c.when} className="glass-card rounded-2xl p-6">
-              <Icon name={c.icon} filled className="text-3xl text-primary" />
-              <h3 className="mt-3 font-serif text-xl text-on-surface">{c.when}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">{c.then}</p>
-            </article>
+          {cards.map((c, i) => (
+            <Reveal key={c.when} delay={i * 100}>
+              <article className="glass-card lift-card h-full rounded-2xl p-6">
+                <Icon name={c.icon} filled className="text-3xl text-primary" />
+                <h3 className="mt-3 font-serif text-xl text-on-surface">{c.when}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">{c.then}</p>
+              </article>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -631,7 +735,8 @@ function Pricing() {
           </p>
         </div>
         <div className="grid gap-gutter md:grid-cols-2">
-          <article className="rounded-2xl border border-divider-soft bg-card p-6">
+          <Reveal>
+          <article className="lift-card h-full rounded-2xl border border-divider-soft bg-card p-6">
             <h3 className="font-serif text-2xl text-primary">Free</h3>
             <p className="text-sm text-on-surface-variant">Forever · no card</p>
             <p className="mt-3 font-serif text-3xl text-on-surface">$0</p>
@@ -651,7 +756,9 @@ function Pricing() {
             </ul>
             <PrimaryCta location="pricing_free" className="mt-6 w-full">Start free</PrimaryCta>
           </article>
-          <article className="candle-glow relative rounded-2xl border-2 border-primary bg-card p-6">
+          </Reveal>
+          <Reveal delay={100}>
+          <article className="candle-glow lift-card relative h-full rounded-2xl border-2 border-primary bg-card p-6">
             <span className="absolute -top-3 right-5 rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-on-primary">
               7-day free trial
             </span>
@@ -676,6 +783,7 @@ function Pricing() {
             </ul>
             <PrimaryCta location="pricing_companion" className="mt-6 w-full">Try Companion free</PrimaryCta>
           </article>
+          </Reveal>
         </div>
         <p className="text-center text-xs text-on-surface-variant">
           Shown in your local currency in-app · cancel anytime · no dark patterns · we never sell your data.
@@ -721,14 +829,16 @@ function FAQ() {
         Honest answers to honest questions
       </h2>
       <dl className="space-y-3">
-        {items.map((it) => (
-          <details key={it.q} className="group rounded-2xl border border-divider-soft bg-card p-5 open:border-primary/40">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 font-semibold text-primary">
-              {it.q}
-              <Icon name="add" className="text-on-surface-variant transition-transform group-open:rotate-45" />
-            </summary>
-            <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{it.a}</p>
-          </details>
+        {items.map((it, i) => (
+          <Reveal key={it.q} delay={(i % 3) * 70}>
+            <details className="group rounded-2xl border border-divider-soft bg-card p-5 transition-colors open:border-primary/40 hover:border-primary/40">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-2 font-semibold text-primary">
+                {it.q}
+                <Icon name="add" className="text-on-surface-variant transition-transform group-open:rotate-45" />
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">{it.a}</p>
+            </details>
+          </Reveal>
         ))}
       </dl>
     </section>

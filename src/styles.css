@@ -479,3 +479,183 @@
     animation: none;
   }
 }
+
+/* ============================================================================
+ * LANDING — world-class motion layer. Gentle, reverent, candle-warmed.
+ * Everything here is purely decorative and fully disabled for reduced-motion.
+ * ========================================================================== */
+html {
+  scroll-behavior: smooth;
+}
+section[id] {
+  scroll-margin-top: 5rem;
+}
+
+/* Scroll reveal — content rises softly into view. */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.8s var(--ease-gentle),
+    transform 0.8s var(--ease-gentle);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Gentle floating for focal art (the hero phone). */
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.float-soft {
+  animation: float-soft 6s ease-in-out infinite;
+}
+
+/* Aurora — a slow breathing candle/indigo glow behind the hero. */
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) scale(1.15);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(-4%, -2%, 0) scale(1);
+    opacity: 0.5;
+  }
+}
+.aurora {
+  position: absolute;
+  inset: -25%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(38% 38% at 25% 30%, color-mix(in oklab, var(--color-primary) 26%, transparent), transparent 70%),
+    radial-gradient(34% 34% at 78% 22%, color-mix(in oklab, var(--secondary-container) 45%, transparent), transparent 70%),
+    radial-gradient(40% 40% at 60% 82%, color-mix(in oklab, var(--color-primary) 15%, transparent), transparent 70%);
+  filter: blur(40px);
+  animation: aurora-drift 16s ease-in-out infinite;
+}
+
+/* Shimmering gold text — used on a single climax word. */
+@keyframes shimmer-sweep {
+  to {
+    background-position: 200% center;
+  }
+}
+.shimmer-text {
+  background: linear-gradient(100deg, var(--color-primary) 30%, #fff3cf 48%, var(--color-primary) 64%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-sweep 5.5s linear infinite;
+}
+
+/* Candle-glow breathing on focal CTAs. */
+@keyframes glow-breath {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-primary) 30%, transparent),
+      0 8px 30px -12px color-mix(in oklab, var(--color-primary) 35%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--color-primary) 48%, transparent),
+      0 12px 42px -10px color-mix(in oklab, var(--color-primary) 55%, transparent);
+  }
+}
+.glow-breath {
+  animation: glow-breath 4.5s ease-in-out infinite;
+}
+
+/* Shine sweep across a button on hover. */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -130%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, color-mix(in oklab, #fff 55%, transparent), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.7s var(--ease-gentle);
+}
+.btn-shine:hover::after {
+  left: 150%;
+}
+
+/* Card hover lift + gold border glow. */
+.lift-card {
+  transition:
+    transform var(--duration-base) var(--ease-gentle),
+    box-shadow var(--duration-base) var(--ease-gentle),
+    border-color var(--duration-base) var(--ease-gentle);
+}
+.lift-card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in oklab, var(--color-primary) 55%, transparent);
+  box-shadow: 0 16px 44px -20px color-mix(in oklab, var(--color-primary) 45%, transparent);
+}
+
+/* Marquee — slow, pauses on hover. */
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.marquee__track {
+  display: inline-flex;
+  width: max-content;
+  animation: marquee-scroll 36s linear infinite;
+}
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .float-soft,
+  .aurora,
+  .shimmer-text,
+  .glow-breath,
+  .marquee__track {
+    animation: none !important;
+  }
+  .shimmer-text {
+    color: var(--color-primary);
+  }
+  .btn-shine::after {
+    display: none;
+  }
+}
