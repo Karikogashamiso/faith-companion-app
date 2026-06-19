@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { dailyDevotional } from "@/lib/ai-study.functions";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import { VerseImageSheet } from "@/components/app/verse-image";
 import {
   Button,
   Card,
@@ -44,6 +45,7 @@ type PlanDay = {
 function Home() {
   const { user } = Route.useRouteContext();
   const [verse, setVerse] = useState<Verse | null>(null);
+  const [shareVerse, setShareVerse] = useState<Verse | null>(null);
   const [planDay, setPlanDay] = useState<PlanDay | null>(null);
   const [planTitle, setPlanTitle] = useState<string | null>(null);
   const [streak, setStreak] = useState({ current: 0, longest: 0 });
@@ -308,6 +310,15 @@ function Home() {
         <section className="relative overflow-hidden rounded-xl aspect-[16/10] md:aspect-[21/9] shadow-2xl group border border-outline-variant">
           <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high via-surface-container to-background" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+          {verse && (
+            <button
+              onClick={() => setShareVerse(verse)}
+              aria-label="Share today's verse"
+              className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-card/70 text-primary backdrop-blur transition-colors hover:bg-card"
+            >
+              <Icon name="ios_share" />
+            </button>
+          )}
           <div className="relative h-full flex flex-col justify-end p-6 md:p-8 text-center md:text-left">
             <span className="label-caps text-primary mb-2">VERSE OF THE DAY</span>
             {verse ? (
@@ -613,6 +624,15 @@ function Home() {
           </Link>
         </section>
       </div>
+
+      {shareVerse && (
+        <VerseImageSheet
+          open
+          onClose={() => setShareVerse(null)}
+          reference={`${shareVerse.book} ${shareVerse.chapter}:${shareVerse.verse}`}
+          text={shareVerse.text}
+        />
+      )}
     </AppShell>
   );
 }

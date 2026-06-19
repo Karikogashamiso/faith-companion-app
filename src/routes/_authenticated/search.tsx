@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,11 +36,44 @@ async function keywordSearch(term: string): Promise<Hit[]> {
   return (data ?? []) as Hit[];
 }
 
+const RECENTS_KEY = "fc_recent_searches";
+function loadRecents(): string[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(RECENTS_KEY) || "[]");
+    return Array.isArray(v) ? v.slice(0, 6) : [];
+  } catch {
+    return [];
+  }
+}
+function pushRecent(term: string): string[] {
+  const t = term.trim();
+  const base = loadRecents();
+  if (!t) return base;
+  const next = [t, ...base.filter((x) => x.toLowerCase() !== t.toLowerCase())].slice(0, 6);
+  try {
+    localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+  } catch {
+    /* storage unavailable */
+  }
+  return next;
+}
+
 function SearchPage() {
   const [q, setQ] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [mode, setMode] = useState<Mode>("keyword");
+  const [recents, setRecents] = useState<string[]>([]);
   const semanticFn = useServerFn(semanticVerseSearch);
+
+  useEffect(() => {
+    setRecents(loadRecents());
+  }, []);
+
+  function runSearch(term: string) {
+    setQ(term);
+    setSubmitted(term);
+    setRecents(pushRecent(term));
+  }
 
   const query = useQuery({
     queryKey: ["verse-search", mode, submitted],
@@ -89,7 +122,7 @@ function SearchPage() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            setSubmitted(q);
+            if (q.trim()) runSearch(q.trim());
           }}
           className="flex gap-2"
         >
@@ -118,6 +151,37 @@ function SearchPage() {
             Search
           </Button>
         </form>
+
+        {recents.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              Recent
+            </span>
+            {recents.map((r) => (
+              <button
+                key={r}
+                onClick={() => runSearch(r)}
+                className="flex items-center gap-1 rounded-full border border-divider-soft bg-card px-3 py-1 text-xs text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
+              >
+                <Icon name="history" className="text-sm" />
+                {r}
+              </button>
+            ))}
+            <button
+              onClick={() => {
+                try {
+                  localStorage.removeItem(RECENTS_KEY);
+                } catch {
+                  /* ignore */
+                }
+                setRecents([]);
+              }}
+              className="text-xs text-on-surface-variant underline-offset-2 hover:underline"
+            >
+              Clear
+            </button>
+          </div>
+        )}
 
         {mode === "meaning" && (
           <p className="text-xs text-on-surface-variant">
