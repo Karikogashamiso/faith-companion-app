@@ -14,22 +14,30 @@ export type LocalPricing = {
   monthly: string;
   annual: string;
   annualPerMonth: string;
+  lifetime: string;
   /** % saved by paying annually instead of 12× monthly (rounded). */
   annualSavingsPct: number;
 };
 
 const MARKETS: Record<
   string,
-  { currency: string; weekly: number; monthly: number; annual: number; locale: string }
+  {
+    currency: string;
+    weekly: number;
+    monthly: number;
+    annual: number;
+    lifetime: number;
+    locale: string;
+  }
 > = {
-  US: { currency: "USD", weekly: 2.99, monthly: 4.99, annual: 39.99, locale: "en-US" },
-  GB: { currency: "GBP", weekly: 2.49, monthly: 3.99, annual: 32.99, locale: "en-GB" },
-  PH: { currency: "PHP", weekly: 49, monthly: 149, annual: 999, locale: "en-PH" },
-  IN: { currency: "INR", weekly: 99, monthly: 299, annual: 1999, locale: "en-IN" },
-  BR: { currency: "BRL", weekly: 7.9, monthly: 19.9, annual: 119, locale: "pt-BR" },
-  MX: { currency: "MXN", weekly: 39, monthly: 99, annual: 699, locale: "es-MX" },
-  NG: { currency: "NGN", weekly: 900, monthly: 2500, annual: 17000, locale: "en-NG" },
-  PL: { currency: "PLN", weekly: 9.99, monthly: 24.99, annual: 159, locale: "pl-PL" },
+  US: { currency: "USD", weekly: 2.99, monthly: 4.99, annual: 39.99, lifetime: 149.99, locale: "en-US" },
+  GB: { currency: "GBP", weekly: 2.49, monthly: 3.99, annual: 32.99, lifetime: 119.99, locale: "en-GB" },
+  PH: { currency: "PHP", weekly: 49, monthly: 149, annual: 999, lifetime: 2999, locale: "en-PH" },
+  IN: { currency: "INR", weekly: 99, monthly: 299, annual: 1999, lifetime: 5999, locale: "en-IN" },
+  BR: { currency: "BRL", weekly: 7.9, monthly: 19.9, annual: 119, lifetime: 399, locale: "pt-BR" },
+  MX: { currency: "MXN", weekly: 39, monthly: 99, annual: 699, lifetime: 1999, locale: "es-MX" },
+  NG: { currency: "NGN", weekly: 900, monthly: 2500, annual: 17000, lifetime: 49000, locale: "en-NG" },
+  PL: { currency: "PLN", weekly: 9.99, monthly: 24.99, annual: 159, lifetime: 449, locale: "pl-PL" },
 };
 
 /** Pull the region subtag from a BCP-47 locale ("en-PH" → "PH"); US fallback. */
@@ -57,6 +65,7 @@ export function getLocalizedPricing(locale?: string): LocalPricing {
     monthly: fmt(m.monthly),
     annual: fmt(m.annual),
     annualPerMonth: fmt(Math.round((m.annual / 12) * 100) / 100),
+    lifetime: fmt(m.lifetime),
     annualSavingsPct: Math.round((1 - m.annual / (m.monthly * 12)) * 100),
   };
 }

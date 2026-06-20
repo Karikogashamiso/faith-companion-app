@@ -18,6 +18,12 @@ recurring prices**:
 | Weekly  | every 1 week  | $2.99 |
 | Monthly | every 1 month | $4.99 |
 | Annual  | every 1 year  | $39.99 |
+| **Lifetime** | **one-time** (not recurring) | $149.99 |
+
+> The Lifetime price must be a **one-time** price, not recurring. The app checks
+> out Lifetime in Stripe `payment` mode; the webhook records a Companion
+> entitlement with no expiry (never expires). Set the display price to match in
+> `src/lib/pricing.ts` (`MARKETS.*.lifetime`).
 
 > Localized prices shown in-app come from `src/lib/pricing.ts`. To charge in
 > local currencies, add per-currency prices in Stripe (Stripe picks the buyer's
@@ -36,6 +42,7 @@ STRIPE_WEBHOOK_SECRET=whsec_…          # from step 3
 STRIPE_PRICE_WEEKLY=price_…
 STRIPE_PRICE_MONTHLY=price_…
 STRIPE_PRICE_ANNUAL=price_…
+STRIPE_PRICE_LIFETIME=price_…       # one-time price (Lifetime tier)
 ```
 
 If `STRIPE_SECRET_KEY` is unset, the paywall safely falls back to the

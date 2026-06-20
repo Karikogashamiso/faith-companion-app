@@ -11,7 +11,11 @@ import { createCheckout, createBillingPortal } from "@/lib/billing.functions";
 import { isNativePlatform } from "@/lib/native";
 import { configureIap, purchasePlan, restoreNative } from "@/lib/native-iap";
 
-type PlanId = "companion_weekly" | "companion_monthly" | "companion_annual";
+type PlanId =
+  | "companion_weekly"
+  | "companion_monthly"
+  | "companion_annual"
+  | "companion_lifetime";
 
 const MOBILE_FALLBACK = {
   description:
@@ -274,6 +278,25 @@ function CompanionPaywall() {
             <p className="text-center text-xs text-on-surface-variant">
               Shown in your local currency · billed securely. Cancel anytime.
             </p>
+
+            {/* Lifetime — one-time purchase, never expires */}
+            <button
+              onClick={() => handleSubscribe("companion_lifetime")}
+              disabled={busyPlan !== null}
+              className="flex w-full items-center gap-4 rounded-xl border border-wood-warm bg-card p-5 text-left transition-all hover:border-primary disabled:opacity-60"
+            >
+              <Icon name="all_inclusive" filled className="text-3xl text-wood-warm" />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-primary">Lifetime — pay once, yours forever</p>
+                <p className="text-xs text-on-surface-variant">
+                  No subscription. One payment unlocks Companion for good.
+                </p>
+                {busyPlan === "companion_lifetime" && (
+                  <p className="mt-1 text-xs font-semibold text-primary">Starting…</p>
+                )}
+              </div>
+              <span className="shrink-0 font-serif text-2xl text-primary">{pricing.lifetime}</span>
+            </button>
           </>
         )}
 

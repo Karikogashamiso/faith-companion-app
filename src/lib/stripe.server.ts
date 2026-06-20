@@ -6,7 +6,11 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
-export type Plan = "companion_weekly" | "companion_monthly" | "companion_annual";
+export type Plan =
+  | "companion_weekly"
+  | "companion_monthly"
+  | "companion_annual"
+  | "companion_lifetime";
 
 // Each plan's Stripe Price id comes from an env var so the same code works in
 // test and live mode without redeploying.
@@ -14,6 +18,7 @@ const PRICE_ENV: Record<Plan, string> = {
   companion_weekly: "STRIPE_PRICE_WEEKLY",
   companion_monthly: "STRIPE_PRICE_MONTHLY",
   companion_annual: "STRIPE_PRICE_ANNUAL",
+  companion_lifetime: "STRIPE_PRICE_LIFETIME",
 };
 
 export function stripeConfigured(): boolean {
@@ -97,7 +102,10 @@ export async function ensureCustomer(opts: {
   return customer.id as string;
 }
 
-/** Create a hosted Checkout session for a subscription; returns its URL. */
+/**
+ * Create a hosted Checkout session; returns its URL. `mode: "payment"` is used
+ * for the one-time Lifetime purchase (no subscription, never expires).
+ */
 export async function createCheckoutSession(opts: {
   plan: Plan;
   customerId: string;
@@ -105,19 +113,26 @@ export async function createCheckoutSession(opts: {
   successUrl: string;
   cancelUrl: string;
   trialDays?: number;
+  mode?: "subscription" | "payment";
 }): Promise<string> {
+  const mode = opts.mode ?? "subscription";
   const session = await stripePost("/checkout/sessions", {
-    mode: "subscription",
+    mode,
     customer: opts.customerId,
     client_reference_id: opts.userId,
     "line_items": [{ price: priceForPlan(opts.plan), quantity: 1 }],
     success_url: opts.successUrl,
     cancel_url: opts.cancelUrl,
     allow_promotion_codes: true,
-    subscription_data: {
-      metadata: { user_id: opts.userId, plan: opts.plan },
-      ...(opts.trialDays ? { trial_period_days: opts.trialDays } : {}),
-    },
+    // Subscription-only metadata/trial; omitted for one-time payments.
+    ...(mode === "subscription"
+      ? {
+          subscription_data: {
+            metadata: { user_id: opts.userId, plan: opts.plan },
+            ...(opts.trialDays ? { trial_period_days: opts.trialDays } : {}),
+          },
+        }
+      : {}),
     metadata: { user_id: opts.userId, plan: opts.plan },
   });
   return session.url as string;

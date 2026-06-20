@@ -3,7 +3,12 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const PLANS = ["companion_weekly", "companion_monthly", "companion_annual"] as const;
+const PLANS = [
+  "companion_weekly",
+  "companion_monthly",
+  "companion_annual",
+  "companion_lifetime",
+] as const;
 
 const CheckoutInput = z.object({
   plan: z.enum(PLANS),
@@ -52,7 +57,9 @@ export const createCheckout = createServerFn({ method: "POST" })
       { onConflict: "user_id" },
     );
 
-    // Annual plan carries the advertised 7-day free trial.
+    // Lifetime is a one-time purchase; the rest are subscriptions (annual gets
+    // the advertised 7-day trial).
+    const lifetime = data.plan === "companion_lifetime";
     const trialDays = data.plan === "companion_annual" ? 7 : undefined;
 
     const url = await stripe.createCheckoutSession({
@@ -62,6 +69,7 @@ export const createCheckout = createServerFn({ method: "POST" })
       successUrl: `${data.origin}/companion?checkout=success`,
       cancelUrl: `${data.origin}/companion?checkout=cancelled`,
       trialDays,
+      mode: lifetime ? "payment" : "subscription",
     });
 
     return { configured: true as const, url };
