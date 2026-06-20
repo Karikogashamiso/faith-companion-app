@@ -1070,3 +1070,44 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $fn$
 $fn$;
 REVOKE EXECUTE ON FUNCTION public.is_admin() FROM public, anon;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated, service_role;
+
+
+-- ===== 20260617110000_challenges.sql =====
+-- Multi-day community challenges (see migration file for the full seed data).
+CREATE TABLE IF NOT EXISTS public.challenges (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  slug text NOT NULL UNIQUE, title text NOT NULL, subtitle text, description text,
+  day_count int NOT NULL DEFAULT 7, accent text, is_active boolean NOT NULL DEFAULT true,
+  sort int NOT NULL DEFAULT 0, created_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT ON public.challenges TO anon, authenticated;
+GRANT ALL ON public.challenges TO service_role;
+ALTER TABLE public.challenges ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "anyone reads active challenges" ON public.challenges;
+CREATE POLICY "anyone reads active challenges" ON public.challenges FOR SELECT TO anon, authenticated USING (is_active);
+CREATE TABLE IF NOT EXISTS public.challenge_days (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  challenge_id uuid NOT NULL REFERENCES public.challenges(id) ON DELETE CASCADE,
+  day_number int NOT NULL, title text NOT NULL, scripture_ref text, prompt text, prayer text,
+  UNIQUE (challenge_id, day_number));
+GRANT SELECT ON public.challenge_days TO anon, authenticated;
+GRANT ALL ON public.challenge_days TO service_role;
+ALTER TABLE public.challenge_days ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "anyone reads challenge days" ON public.challenge_days;
+CREATE POLICY "anyone reads challenge days" ON public.challenge_days FOR SELECT TO anon, authenticated USING (true);
+CREATE TABLE IF NOT EXISTS public.challenge_participants (
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  challenge_id uuid NOT NULL REFERENCES public.challenges(id) ON DELETE CASCADE,
+  joined_at timestamptz NOT NULL DEFAULT now(), last_completed_day int NOT NULL DEFAULT 0,
+  completed_at timestamptz, PRIMARY KEY (user_id, challenge_id));
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.challenge_participants TO authenticated;
+GRANT ALL ON public.challenge_participants TO service_role;
+ALTER TABLE public.challenge_participants ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "own challenge participation" ON public.challenge_participants;
+CREATE POLICY "own challenge participation" ON public.challenge_participants FOR ALL TO authenticated
+  USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+CREATE OR REPLACE FUNCTION public.challenge_participant_count(_challenge_id uuid)
+RETURNS int LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $fn$
+  SELECT count(*)::int FROM public.challenge_participants WHERE challenge_id = _challenge_id;
+$fn$;
+GRANT EXECUTE ON FUNCTION public.challenge_participant_count(uuid) TO anon, authenticated, service_role;
+-- NOTE: run the full migration file 20260617110000_challenges.sql for the seeded challenges.

@@ -323,6 +323,23 @@ function Home() {
           <Icon name="arrow_forward" className="text-on-surface-variant" />
         </Link>
 
+        {/* Community challenges */}
+        <Link
+          to="/challenges"
+          className="flex items-center gap-3 rounded-xl border border-divider-soft bg-card p-4 transition-colors hover:border-primary"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-on-primary">
+            <Icon name="local_fire_department" filled />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-primary">Join a challenge</p>
+            <p className="text-xs text-on-surface-variant">
+              Short guided journeys — and thousands praying alongside you.
+            </p>
+          </div>
+          <Icon name="arrow_forward" className="text-on-surface-variant" />
+        </Link>
+
         {/* Streak-at-risk nudge */}
         {!completedToday && streak.current >= 2 && (
           <button
