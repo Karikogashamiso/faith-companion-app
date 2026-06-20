@@ -2,7 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { useEntitlement } from "@/hooks/use-entitlement";
+import { saveTrack, deleteTrack, getOfflineUrl, savedTrackIds } from "@/lib/audio-offline";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
 import {
@@ -49,6 +51,36 @@ function Listen() {
   const { entitlement } = useEntitlement();
   const isCompanion = entitlement?.isCompanion ?? false;
   const [current, setCurrent] = useState<Track | null>(null);
+  const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [downloading, setDownloading] = useState<string | null>(null);
+
+  useEffect(() => {
+    void savedTrackIds().then((ids) => setSaved(new Set(ids)));
+  }, []);
+
+  async function toggleDownload(t: Track) {
+    if (!t.audio_url) return;
+    if (saved.has(t.id)) {
+      await deleteTrack(t.id);
+      setSaved((s) => {
+        const n = new Set(s);
+        n.delete(t.id);
+        return n;
+      });
+      toast("Removed download");
+      return;
+    }
+    setDownloading(t.id);
+    try {
+      await saveTrack(t.id, t.audio_url);
+      setSaved((s) => new Set(s).add(t.id));
+      toast.success("Saved for offline");
+    } catch (e) {
+      toast.error("Download failed", { description: (e as Error).message });
+    } finally {
+      setDownloading(null);
+    }
+  }
 
   const tracksQuery = useQuery({
     queryKey: ["audio-tracks"],
@@ -117,12 +149,15 @@ function Listen() {
                     const locked = t.is_premium && !isCompanion;
                     const active = current?.id === t.id;
                     return (
-                      <li key={t.id}>
+                      <li
+                        key={t.id}
+                        className={`flex items-center gap-1 rounded-xl border bg-card pr-2 transition-colors hover:border-wood-warm ${
+                          active ? "border-2 border-primary" : "border-divider-soft"
+                        }`}
+                      >
                         <button
                           onClick={() => onSelect(t)}
-                          className={`flex w-full items-center gap-3 rounded-xl border bg-card p-3 text-left transition-colors hover:border-wood-warm ${
-                            active ? "border-2 border-primary" : "border-divider-soft"
-                          }`}
+                          className="flex min-w-0 flex-1 items-center gap-3 p-3 text-left"
                         >
                           <IconBadge
                             name={locked ? "lock" : "play_arrow"}
@@ -141,6 +176,13 @@ function Listen() {
                                   className="shrink-0 text-xs text-wood-warm"
                                 />
                               )}
+                              {saved.has(t.id) && (
+                                <Icon
+                                  name="offline_pin"
+                                  filled
+                                  className="shrink-0 text-xs text-primary"
+                                />
+                              )}
                             </span>
                             {t.subtitle && (
                               <span className="block truncate text-sm text-on-surface-variant">
@@ -152,6 +194,26 @@ function Listen() {
                             {fmt(t.duration_seconds)}
                           </span>
                         </button>
+                        {isCompanion && t.audio_url && (
+                          <button
+                            onClick={() => toggleDownload(t)}
+                            disabled={downloading === t.id}
+                            aria-label={saved.has(t.id) ? "Remove download" : "Download for offline"}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-on-surface-variant transition-colors hover:text-primary disabled:opacity-50"
+                          >
+                            <Icon
+                              name={
+                                downloading === t.id
+                                  ? "progress_activity"
+                                  : saved.has(t.id)
+                                    ? "download_done"
+                                    : "download"
+                              }
+                              filled={saved.has(t.id)}
+                              className={downloading === t.id ? "animate-spin" : ""}
+                            />
+                          </button>
+                        )}
                       </li>
                     );
                   })}
@@ -202,6 +264,29 @@ function Player({
   const [playing, setPlaying] = useState(false);
   const [pos, setPos] = useState(0);
   const [dur, setDur] = useState(track.duration_seconds);
+  const [srcUrl, setSrcUrl] = useState<string | null>(track.audio_url ?? null);
+
+  // Prefer an offline copy if the user downloaded this track.
+  useEffect(() => {
+    let cancelled = false;
+    let objUrl: string | null = null;
+    void getOfflineUrl(track.id).then((url) => {
+      if (cancelled) {
+        if (url) URL.revokeObjectURL(url);
+        return;
+      }
+      if (url) {
+        objUrl = url;
+        setSrcUrl(url);
+      } else {
+        setSrcUrl(track.audio_url ?? null);
+      }
+    });
+    return () => {
+      cancelled = true;
+      if (objUrl) URL.revokeObjectURL(objUrl);
+    };
+  }, [track.id, track.audio_url]);
 
   // Resume from saved position when a track opens.
   useEffect(() => {
@@ -301,7 +386,7 @@ function Player({
       <div className="mx-auto w-full max-w-[720px] px-margin-mobile py-3">
         <audio
           ref={audioRef}
-          src={track.audio_url ?? undefined}
+          src={srcUrl ?? undefined}
           onPlay={() => setPlaying(true)}
           onPause={() => {
             setPlaying(false);
