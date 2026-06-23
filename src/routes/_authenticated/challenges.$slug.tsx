@@ -85,10 +85,15 @@ function ChallengeDetail() {
         .eq("user_id", user.id)
         .eq("challenge_id", c.id);
       if (error) throw error;
-      // Feed the daily streak.
-      await supabase
-        .from("daily_activity")
-        .upsert({ user_id: user.id, activity_date: new Date().toISOString().slice(0, 10), source: "challenge" });
+      // Best-effort streak credit — never block completion if it fails.
+      await supabase.from("daily_activity").upsert(
+        {
+          user_id: user.id,
+          activity_date: new Date().toISOString().slice(0, 10),
+          source: "challenge",
+        },
+        { onConflict: "user_id,activity_date" },
+      );
       return isLast;
     },
     onSuccess: (isLast) => {

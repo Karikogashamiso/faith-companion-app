@@ -113,7 +113,7 @@ function Feelings() {
               </div>
             </Card>
 
-            {q.isFetching ? (
+            {q.isLoading ? (
               <div className="space-y-2">
                 {[0, 1, 2].map((i) => (
                   <Skeleton key={i} className="h-20" />

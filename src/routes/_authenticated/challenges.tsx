@@ -40,9 +40,14 @@ function Challenges() {
         ((mine ?? []) as any[]).map((m) => [m.challenge_id as string, m]),
       );
 
+      // Participant count is just social proof — never let one failing RPC
+      // (or a transport error) take down the whole list.
       const counts = await Promise.all(
         list.map((c) =>
-          (supabase as any).rpc("challenge_participant_count", { _challenge_id: c.id }),
+          (supabase as any)
+            .rpc("challenge_participant_count", { _challenge_id: c.id })
+            .then((r: any) => ({ data: r?.data ?? 0 }))
+            .catch(() => ({ data: 0 })),
         ),
       );
 

@@ -1111,3 +1111,12 @@ RETURNS int LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $fn
 $fn$;
 GRANT EXECUTE ON FUNCTION public.challenge_participant_count(uuid) TO anon, authenticated, service_role;
 -- NOTE: run the full migration file 20260617110000_challenges.sql for the seeded challenges.
+
+
+-- ===== 20260617120000_daily_activity_challenge_source.sql =====
+-- Allow 'challenge' as a daily_activity source (challenge completions feed the
+-- streak). Idempotent.
+ALTER TABLE public.daily_activity DROP CONSTRAINT IF EXISTS daily_activity_source_chk;
+ALTER TABLE public.daily_activity
+  ADD CONSTRAINT daily_activity_source_chk
+  CHECK (source IN ('home','reader','plan','widget','prayer','search','challenge')) NOT VALID;
