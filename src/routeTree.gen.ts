@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,14 +29,32 @@ import { Route as AuthenticatedListenRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedGitSyncRouteImport } from './routes/_authenticated/git-sync'
+import { Route as AuthenticatedFeelingsRouteImport } from './routes/_authenticated/feelings'
 import { Route as AuthenticatedCompanionRouteImport } from './routes/_authenticated/companion'
+import { Route as AuthenticatedChallengesRouteImport } from './routes/_authenticated/challenges'
 import { Route as AuthenticatedBibleRouteImport } from './routes/_authenticated/bible'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
+import { Route as ApiCronPushDueRouteImport } from './routes/api/cron/push-due'
 import { Route as AuthenticatedGroupsGroupIdRouteImport } from './routes/_authenticated/groups.$groupId'
+import { Route as AuthenticatedChallengesSlugRouteImport } from './routes/_authenticated/challenges.$slug'
+import { Route as AuthenticatedAdminAudioRouteImport } from './routes/_authenticated/admin.audio'
 import { Route as ApiPublicWidgetVerseOfTheDayRouteImport } from './routes/api/public/widget/verse-of-the-day'
+import { Route as ApiPublicHooksStripeRouteImport } from './routes/api/public/hooks/stripe'
 import { Route as ApiPublicHooksRevenuecatRouteImport } from './routes/api/public/hooks/revenuecat'
 import { Route as ApiPublicDemoAskRouteImport } from './routes/api/public/demo/ask'
 import { Route as AuthenticatedGroupsGroupIdRequestsRequestIdRouteImport } from './routes/_authenticated/groups.$groupId.requests.$requestId'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -124,9 +144,19 @@ const AuthenticatedGitSyncRoute = AuthenticatedGitSyncRouteImport.update({
   path: '/git-sync',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFeelingsRoute = AuthenticatedFeelingsRouteImport.update({
+  id: '/feelings',
+  path: '/feelings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCompanionRoute = AuthenticatedCompanionRouteImport.update({
   id: '/companion',
   path: '/companion',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedChallengesRoute = AuthenticatedChallengesRouteImport.update({
+  id: '/challenges',
+  path: '/challenges',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedBibleRoute = AuthenticatedBibleRouteImport.update({
@@ -134,18 +164,49 @@ const AuthenticatedBibleRoute = AuthenticatedBibleRouteImport.update({
   path: '/bible',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCronPushDueRoute = ApiCronPushDueRouteImport.update({
+  id: '/api/cron/push-due',
+  path: '/api/cron/push-due',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedGroupsGroupIdRoute =
   AuthenticatedGroupsGroupIdRouteImport.update({
     id: '/$groupId',
     path: '/$groupId',
     getParentRoute: () => AuthenticatedGroupsRoute,
   } as any)
+const AuthenticatedChallengesSlugRoute =
+  AuthenticatedChallengesSlugRouteImport.update({
+    id: '/$slug',
+    path: '/$slug',
+    getParentRoute: () => AuthenticatedChallengesRoute,
+  } as any)
+const AuthenticatedAdminAudioRoute = AuthenticatedAdminAudioRouteImport.update({
+  id: '/audio',
+  path: '/audio',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const ApiPublicWidgetVerseOfTheDayRoute =
   ApiPublicWidgetVerseOfTheDayRouteImport.update({
     id: '/api/public/widget/verse-of-the-day',
     path: '/api/public/widget/verse-of-the-day',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksStripeRoute = ApiPublicHooksStripeRouteImport.update({
+  id: '/api/public/hooks/stripe',
+  path: '/api/public/hooks/stripe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksRevenuecatRoute =
   ApiPublicHooksRevenuecatRouteImport.update({
     id: '/api/public/hooks/revenuecat',
@@ -167,8 +228,13 @@ const AuthenticatedGroupsGroupIdRequestsRequestIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/bible': typeof AuthenticatedBibleRoute
+  '/challenges': typeof AuthenticatedChallengesRouteWithChildren
   '/companion': typeof AuthenticatedCompanionRoute
+  '/feelings': typeof AuthenticatedFeelingsRoute
   '/git-sync': typeof AuthenticatedGitSyncRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
@@ -184,17 +250,27 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
   '/wall': typeof AuthenticatedWallRoute
+  '/admin/audio': typeof AuthenticatedAdminAudioRoute
+  '/challenges/$slug': typeof AuthenticatedChallengesSlugRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/cron/push-due': typeof ApiCronPushDueRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/api/public/demo/ask': typeof ApiPublicDemoAskRoute
   '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
+  '/api/public/hooks/stripe': typeof ApiPublicHooksStripeRoute
   '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/bible': typeof AuthenticatedBibleRoute
+  '/challenges': typeof AuthenticatedChallengesRouteWithChildren
   '/companion': typeof AuthenticatedCompanionRoute
+  '/feelings': typeof AuthenticatedFeelingsRoute
   '/git-sync': typeof AuthenticatedGitSyncRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/home': typeof AuthenticatedHomeRoute
@@ -210,9 +286,14 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
   '/wall': typeof AuthenticatedWallRoute
+  '/admin/audio': typeof AuthenticatedAdminAudioRoute
+  '/challenges/$slug': typeof AuthenticatedChallengesSlugRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/cron/push-due': typeof ApiCronPushDueRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/api/public/demo/ask': typeof ApiPublicDemoAskRoute
   '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
+  '/api/public/hooks/stripe': typeof ApiPublicHooksStripeRoute
   '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
@@ -221,8 +302,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/bible': typeof AuthenticatedBibleRoute
+  '/_authenticated/challenges': typeof AuthenticatedChallengesRouteWithChildren
   '/_authenticated/companion': typeof AuthenticatedCompanionRoute
+  '/_authenticated/feelings': typeof AuthenticatedFeelingsRoute
   '/_authenticated/git-sync': typeof AuthenticatedGitSyncRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/home': typeof AuthenticatedHomeRoute
@@ -238,9 +324,14 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
   '/_authenticated/wall': typeof AuthenticatedWallRoute
+  '/_authenticated/admin/audio': typeof AuthenticatedAdminAudioRoute
+  '/_authenticated/challenges/$slug': typeof AuthenticatedChallengesSlugRoute
   '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
+  '/api/cron/push-due': typeof ApiCronPushDueRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/api/public/demo/ask': typeof ApiPublicDemoAskRoute
   '/api/public/hooks/revenuecat': typeof ApiPublicHooksRevenuecatRoute
+  '/api/public/hooks/stripe': typeof ApiPublicHooksStripeRoute
   '/api/public/widget/verse-of-the-day': typeof ApiPublicWidgetVerseOfTheDayRoute
   '/_authenticated/groups/$groupId/requests/$requestId': typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
 }
@@ -249,8 +340,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/admin'
     | '/bible'
+    | '/challenges'
     | '/companion'
+    | '/feelings'
     | '/git-sync'
     | '/groups'
     | '/home'
@@ -266,17 +362,27 @@ export interface FileRouteTypes {
     | '/settings'
     | '/study'
     | '/wall'
+    | '/admin/audio'
+    | '/challenges/$slug'
     | '/groups/$groupId'
+    | '/api/cron/push-due'
+    | '/api/public/track'
     | '/api/public/demo/ask'
     | '/api/public/hooks/revenuecat'
+    | '/api/public/hooks/stripe'
     | '/api/public/widget/verse-of-the-day'
     | '/groups/$groupId/requests/$requestId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/admin'
     | '/bible'
+    | '/challenges'
     | '/companion'
+    | '/feelings'
     | '/git-sync'
     | '/groups'
     | '/home'
@@ -292,9 +398,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/study'
     | '/wall'
+    | '/admin/audio'
+    | '/challenges/$slug'
     | '/groups/$groupId'
+    | '/api/cron/push-due'
+    | '/api/public/track'
     | '/api/public/demo/ask'
     | '/api/public/hooks/revenuecat'
+    | '/api/public/hooks/stripe'
     | '/api/public/widget/verse-of-the-day'
     | '/groups/$groupId/requests/$requestId'
   id:
@@ -302,8 +413,13 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/_authenticated/admin'
     | '/_authenticated/bible'
+    | '/_authenticated/challenges'
     | '/_authenticated/companion'
+    | '/_authenticated/feelings'
     | '/_authenticated/git-sync'
     | '/_authenticated/groups'
     | '/_authenticated/home'
@@ -319,9 +435,14 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/study'
     | '/_authenticated/wall'
+    | '/_authenticated/admin/audio'
+    | '/_authenticated/challenges/$slug'
     | '/_authenticated/groups/$groupId'
+    | '/api/cron/push-due'
+    | '/api/public/track'
     | '/api/public/demo/ask'
     | '/api/public/hooks/revenuecat'
+    | '/api/public/hooks/stripe'
     | '/api/public/widget/verse-of-the-day'
     | '/_authenticated/groups/$groupId/requests/$requestId'
   fileRoutesById: FileRoutesById
@@ -330,13 +451,32 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiCronPushDueRoute: typeof ApiCronPushDueRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   ApiPublicDemoAskRoute: typeof ApiPublicDemoAskRoute
   ApiPublicHooksRevenuecatRoute: typeof ApiPublicHooksRevenuecatRoute
+  ApiPublicHooksStripeRoute: typeof ApiPublicHooksStripeRoute
   ApiPublicWidgetVerseOfTheDayRoute: typeof ApiPublicWidgetVerseOfTheDayRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -463,11 +603,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGitSyncRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/feelings': {
+      id: '/_authenticated/feelings'
+      path: '/feelings'
+      fullPath: '/feelings'
+      preLoaderRoute: typeof AuthenticatedFeelingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/companion': {
       id: '/_authenticated/companion'
       path: '/companion'
       fullPath: '/companion'
       preLoaderRoute: typeof AuthenticatedCompanionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/challenges': {
+      id: '/_authenticated/challenges'
+      path: '/challenges'
+      fullPath: '/challenges'
+      preLoaderRoute: typeof AuthenticatedChallengesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/bible': {
@@ -477,6 +631,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBibleRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron/push-due': {
+      id: '/api/cron/push-due'
+      path: '/api/cron/push-due'
+      fullPath: '/api/cron/push-due'
+      preLoaderRoute: typeof ApiCronPushDueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/groups/$groupId': {
       id: '/_authenticated/groups/$groupId'
       path: '/$groupId'
@@ -484,11 +659,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGroupsGroupIdRouteImport
       parentRoute: typeof AuthenticatedGroupsRoute
     }
+    '/_authenticated/challenges/$slug': {
+      id: '/_authenticated/challenges/$slug'
+      path: '/$slug'
+      fullPath: '/challenges/$slug'
+      preLoaderRoute: typeof AuthenticatedChallengesSlugRouteImport
+      parentRoute: typeof AuthenticatedChallengesRoute
+    }
+    '/_authenticated/admin/audio': {
+      id: '/_authenticated/admin/audio'
+      path: '/audio'
+      fullPath: '/admin/audio'
+      preLoaderRoute: typeof AuthenticatedAdminAudioRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/api/public/widget/verse-of-the-day': {
       id: '/api/public/widget/verse-of-the-day'
       path: '/api/public/widget/verse-of-the-day'
       fullPath: '/api/public/widget/verse-of-the-day'
       preLoaderRoute: typeof ApiPublicWidgetVerseOfTheDayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/stripe': {
+      id: '/api/public/hooks/stripe'
+      path: '/api/public/hooks/stripe'
+      fullPath: '/api/public/hooks/stripe'
+      preLoaderRoute: typeof ApiPublicHooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/revenuecat': {
@@ -514,6 +710,31 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAudioRoute: typeof AuthenticatedAdminAudioRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAudioRoute: AuthenticatedAdminAudioRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedChallengesRouteChildren {
+  AuthenticatedChallengesSlugRoute: typeof AuthenticatedChallengesSlugRoute
+}
+
+const AuthenticatedChallengesRouteChildren: AuthenticatedChallengesRouteChildren =
+  {
+    AuthenticatedChallengesSlugRoute: AuthenticatedChallengesSlugRoute,
+  }
+
+const AuthenticatedChallengesRouteWithChildren =
+  AuthenticatedChallengesRoute._addFileChildren(
+    AuthenticatedChallengesRouteChildren,
+  )
 
 interface AuthenticatedGroupsGroupIdRouteChildren {
   AuthenticatedGroupsGroupIdRequestsRequestIdRoute: typeof AuthenticatedGroupsGroupIdRequestsRequestIdRoute
@@ -542,8 +763,11 @@ const AuthenticatedGroupsRouteWithChildren =
   AuthenticatedGroupsRoute._addFileChildren(AuthenticatedGroupsRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedBibleRoute: typeof AuthenticatedBibleRoute
+  AuthenticatedChallengesRoute: typeof AuthenticatedChallengesRouteWithChildren
   AuthenticatedCompanionRoute: typeof AuthenticatedCompanionRoute
+  AuthenticatedFeelingsRoute: typeof AuthenticatedFeelingsRoute
   AuthenticatedGitSyncRoute: typeof AuthenticatedGitSyncRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
@@ -562,8 +786,11 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedBibleRoute: AuthenticatedBibleRoute,
+  AuthenticatedChallengesRoute: AuthenticatedChallengesRouteWithChildren,
   AuthenticatedCompanionRoute: AuthenticatedCompanionRoute,
+  AuthenticatedFeelingsRoute: AuthenticatedFeelingsRoute,
   AuthenticatedGitSyncRoute: AuthenticatedGitSyncRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
@@ -588,10 +815,25 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiCronPushDueRoute: ApiCronPushDueRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
   ApiPublicDemoAskRoute: ApiPublicDemoAskRoute,
   ApiPublicHooksRevenuecatRoute: ApiPublicHooksRevenuecatRoute,
+  ApiPublicHooksStripeRoute: ApiPublicHooksStripeRoute,
   ApiPublicWidgetVerseOfTheDayRoute: ApiPublicWidgetVerseOfTheDayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
