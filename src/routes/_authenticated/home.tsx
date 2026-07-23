@@ -65,9 +65,13 @@ function Home() {
   const [day1Started, setDay1Started] = useState(false);
   const [day1Viewed, setDay1Viewed] = useState<Record<string, boolean>>({});
   const [resumeHighlightId, setResumeHighlightId] = useState<string | null>(null);
-  const [resumeAnnouncement, setResumeAnnouncement] = useState<string>("");
+  // Non-empty sentinel so the aria-live region always has a node with text,
+  // avoiding an empty region after review/resume announcements clear.
+  const IDLE_ANNOUNCEMENT = "\u00A0";
+  const [resumeAnnouncement, setResumeAnnouncement] = useState<string>(IDLE_ANNOUNCEMENT);
   const announcedCompleteRef = useRef(false);
   const announceTimerRef = useRef<number | null>(null);
+
   useEffect(() => setResume(getReadingPosition()), []);
 
   // Local per-device tracking of Day 1 "started" + which sub-items the user
@@ -132,12 +136,25 @@ function Home() {
       announcedCompleteRef.current = true;
       if (announceTimerRef.current) window.clearTimeout(announceTimerRef.current);
       setResumeAnnouncement("Day 1 is fully completed.");
-      announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(""), 3000);
+      announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(IDLE_ANNOUNCEMENT), 3000);
     }
     if (!fullyCompleted) {
       announcedCompleteRef.current = false;
     }
   }, [day1Viewed, planDay, planCurrentDay]);
+
+  // Clear any pending announcement timer on unmount (route change) so a
+  // stale callback can't fire against an unmounted component or wipe the
+  // live region after we've navigated away.
+  useEffect(() => {
+    return () => {
+      if (announceTimerRef.current) {
+        window.clearTimeout(announceTimerRef.current);
+        announceTimerRef.current = null;
+      }
+    };
+  }, []);
+
 
   const devotionalFn = useServerFn(dailyDevotional);
   const [devo, setDevo] = useState<{
@@ -406,7 +423,7 @@ function Home() {
                 target.focus({ preventScroll: true });
                 setResumeHighlightId(targetId);
                 window.setTimeout(() => setResumeHighlightId(null), 2400);
-                announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(""), 3000);
+                announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(IDLE_ANNOUNCEMENT), 3000);
               };
               const fallbackTimer = window.setTimeout(finish, 800);
               window.addEventListener("scrollend", finish, { once: true });
