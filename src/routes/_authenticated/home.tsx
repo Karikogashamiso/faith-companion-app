@@ -256,8 +256,27 @@ function Home() {
   return (
     <AppShell>
       <div className="space-y-stack-lg">
+        {/* First-run nudge — show until the user has picked a plan. */}
+        {!activePlanId && (
+          <Link to="/welcome" className="block">
+            <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
+              <IconBadge name="waving_hand" filled tone="wood" />
+              <div className="min-w-0 flex-1">
+                <p className="font-serif text-lg text-primary">Get set up in 60 seconds</p>
+                <p className="truncate text-sm text-on-surface-variant">
+                  Pick your tradition, confirm AI, and start your first reading plan.
+                </p>
+              </div>
+              <Chip tone="ink" className="shrink-0">
+                Start
+              </Chip>
+            </Card>
+          </Link>
+        )}
+
         {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
         {aiEnabled && season && (
+
           <Link to="/companion" className="block">
             <Card tone="accent" interactive className="flex items-center gap-4">
               <IconBadge name="local_florist" filled tone="wood" />
