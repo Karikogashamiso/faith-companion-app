@@ -352,11 +352,27 @@ function Home() {
             type="button"
             onClick={async () => {
               // Fire-and-forget: unlock the achievement on the first tap only.
-              void supabase.rpc("unlock_achievement" as any, { _code: "plan_started" });
-              const el = document.getElementById("todays-journey");
+              if (!day1Started) {
+                void supabase.rpc("unlock_achievement" as any, { _code: "plan_started" });
+                if (startedKey) {
+                  try { localStorage.setItem(startedKey, "1"); } catch { /* ignore */ }
+                }
+                setDay1Started(true);
+              }
+              // Scroll to the first sub-item the user hasn't viewed yet;
+              // fall back to the journey section itself.
+              const order: Array<{ id: string; present: boolean }> = [
+                { id: "plan-passage", present: true },
+                { id: "plan-reflection", present: Boolean(planDay.reflection_md) },
+                { id: "plan-prayer", present: Boolean(planDay.prayer_md) },
+              ];
+              const firstIncomplete =
+                order.find((o) => o.present && !day1Viewed[o.id])?.id ?? "todays-journey";
+              const el =
+                document.getElementById(firstIncomplete) ??
+                document.getElementById("todays-journey");
               if (el) {
                 el.scrollIntoView({ behavior: "smooth", block: "start" });
-                // Nudge focus for keyboard/AT users.
                 (el as HTMLElement).setAttribute("tabindex", "-1");
                 (el as HTMLElement).focus({ preventScroll: true });
               }
@@ -364,14 +380,16 @@ function Home() {
             className="block w-full text-left"
           >
             <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
-              <IconBadge name="play_arrow" filled tone="wood" />
+              <IconBadge name={day1Started ? "play_circle" : "play_arrow"} filled tone="wood" />
               <div className="min-w-0 flex-1">
-                <p className="font-serif text-lg text-primary">Start my plan</p>
+                <p className="font-serif text-lg text-primary">
+                  {day1Started ? "Resume Day 1" : "Start my plan"}
+                </p>
                 <p className="truncate text-sm text-on-surface-variant">
                   {planTitle ? `${planTitle} — Day 1` : "Begin day 1 of your reading plan."}
                 </p>
               </div>
-              <Chip tone="ink" className="shrink-0">Begin</Chip>
+              <Chip tone="ink" className="shrink-0">{day1Started ? "Resume" : "Begin"}</Chip>
             </Card>
           </button>
         )}
