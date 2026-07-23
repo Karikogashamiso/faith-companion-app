@@ -106,11 +106,17 @@ function Home() {
   async function load() {
       const { data: prof } = await (supabase as any)
         .from("profiles")
-        .select("default_version_id, active_plan_id, ai_enabled")
+        .select("default_version_id, active_plan_id, ai_enabled, welcome_progress")
         .eq("id", user.id)
         .maybeSingle();
 
     setAiEnabled((prof?.ai_enabled as boolean | undefined) ?? true);
+    const wp = (prof?.welcome_progress ?? {}) as {
+      step?: number;
+      completed_at?: string | null;
+    };
+    setWelcomeCompleted(Boolean(wp.completed_at));
+    setWelcomeStep(typeof wp.step === "number" ? wp.step : null);
 
     let versionId = prof?.default_version_id;
     if (!versionId) {
