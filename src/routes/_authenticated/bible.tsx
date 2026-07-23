@@ -305,6 +305,38 @@ function Bible() {
     const next = new Map(highlights); next.set(v.id, color); setHighlights(next);
   }
 
+  async function saveNote(v: Verse) {
+    const body = noteDraft.trim();
+    const existing = notes.get(v.id);
+    setNoteSaving(true);
+    try {
+      if (!body) {
+        if (!existing) return;
+        const { error } = await (supabase as any).from("user_notes").delete().eq("user_id", user.id).eq("verse_id", v.id);
+        if (error) throw error;
+        const next = new Map(notes); next.delete(v.id); setNotes(next);
+        toast("Note removed");
+        return;
+      }
+      if (existing) {
+        const { error } = await (supabase as any).from("user_notes").update({ body }).eq("user_id", user.id).eq("verse_id", v.id);
+        if (error) throw error;
+        const next = new Map(notes); next.set(v.id, { id: existing.id, body }); setNotes(next);
+      } else {
+        const { data, error } = await (supabase as any).from("user_notes")
+          .insert({ user_id: user.id, verse_id: v.id, body })
+          .select("id").single();
+        if (error) throw error;
+        const next = new Map(notes); next.set(v.id, { id: data.id, body }); setNotes(next);
+      }
+      toast("Note saved");
+    } catch (e: any) {
+      toast.error("Couldn't save note", { description: e?.message });
+    } finally {
+      setNoteSaving(false);
+    }
+  }
+
   function stepScale(dir: 1 | -1) {
     const idx = (SCALES as readonly number[]).indexOf(scale);
     const nextIdx = Math.min(SCALES.length - 1, Math.max(0, (idx === -1 ? 1 : idx) + dir));
