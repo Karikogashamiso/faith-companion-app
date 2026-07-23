@@ -64,6 +64,7 @@ function Home() {
   const [welcomeCompleted, setWelcomeCompleted] = useState<boolean>(false);
   const [day1Started, setDay1Started] = useState(false);
   const [day1Viewed, setDay1Viewed] = useState<Record<string, boolean>>({});
+  const [resumeHighlightId, setResumeHighlightId] = useState<string | null>(null);
   useEffect(() => setResume(getReadingPosition()), []);
 
   // Local per-device tracking of Day 1 "started" + which sub-items the user
