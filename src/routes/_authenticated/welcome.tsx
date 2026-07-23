@@ -83,6 +83,11 @@ function WelcomeWizard() {
       if (typeof prof?.ai_enabled === "boolean") setAiEnabled(prof.ai_enabled);
       const progress = ((prof as unknown as { welcome_progress?: WelcomeProgress } | null)
         ?.welcome_progress ?? {}) as WelcomeProgress;
+      // If the user already finished the wizard, don't drag them back through it.
+      if (progress.completed_at) {
+        navigate({ to: "/home" });
+        return;
+      }
       if (progress.tradition) setTradition(progress.tradition);
       if (typeof progress.ai_enabled === "boolean") setAiEnabled(progress.ai_enabled);
       if (progress.plan_id) setPlanId(progress.plan_id);
