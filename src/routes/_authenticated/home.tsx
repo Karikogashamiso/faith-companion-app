@@ -64,6 +64,7 @@ function Home() {
   const [welcomeCompleted, setWelcomeCompleted] = useState<boolean>(false);
   const [day1Started, setDay1Started] = useState(false);
   const [day1Viewed, setDay1Viewed] = useState<Record<string, boolean>>({});
+  const [resumeHighlightId, setResumeHighlightId] = useState<string | null>(null);
   useEffect(() => setResume(getReadingPosition()), []);
 
   // Local per-device tracking of Day 1 "started" + which sub-items the user
@@ -375,6 +376,8 @@ function Home() {
                 el.scrollIntoView({ behavior: "smooth", block: "start" });
                 (el as HTMLElement).setAttribute("tabindex", "-1");
                 (el as HTMLElement).focus({ preventScroll: true });
+                setResumeHighlightId(firstIncomplete);
+                window.setTimeout(() => setResumeHighlightId(null), 2400);
               }
             }}
             className="block w-full text-left"
@@ -706,7 +709,7 @@ function Home() {
 
           {planDay ? (
             <div className="grid grid-cols-1 gap-gutter md:grid-cols-2">
-              <div id="plan-passage" className="scroll-mt-24 outline-none">
+              <div id="plan-passage" className={`scroll-mt-24 outline-none rounded-lg transition-shadow ${resumeHighlightId === "plan-passage" ? "resume-highlight" : ""}`}>
                 <JourneyCard
                   icon="menu_book"
                   eyebrow="The Passage"
@@ -715,7 +718,7 @@ function Home() {
                 />
               </div>
               {planDay.reflection_md && (
-                <div id="plan-reflection" className="scroll-mt-24 outline-none">
+                <div id="plan-reflection" className={`scroll-mt-24 outline-none rounded-lg transition-shadow ${resumeHighlightId === "plan-reflection" ? "resume-highlight" : ""}`}>
                   <JourneyCard
                     icon="psychology"
                     eyebrow="Reflection"
@@ -725,7 +728,7 @@ function Home() {
                 </div>
               )}
               {planDay.prayer_md && (
-                <div id="plan-prayer" className="scroll-mt-24 outline-none md:col-span-2">
+                <div id="plan-prayer" className={`scroll-mt-24 outline-none rounded-lg transition-shadow md:col-span-2 ${resumeHighlightId === "plan-prayer" ? "resume-highlight" : ""}`}>
                   <Card
                     tone="info"
                     className="flex flex-col items-start gap-4"
