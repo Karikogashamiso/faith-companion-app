@@ -58,6 +58,7 @@ function WelcomeWizard() {
   const [step, setStep] = useState(stepFromUrl ?? 0);
   const [saving, setSaving] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [completedAt, setCompletedAt] = useState<string | null>(null);
 
   const [tradition, setTradition] = useState<Tradition>("unspecified");
   const [aiEnabled, setAiEnabled] = useState(true);
