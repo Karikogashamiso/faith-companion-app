@@ -115,6 +115,28 @@ function Home() {
     return () => io.disconnect();
   }, [viewedKey, planDay?.id, planCurrentDay]);
 
+  // Announce when every present Day 1 sub-item has been viewed.
+  useEffect(() => {
+    if (!planDay || planCurrentDay !== 1) {
+      announcedCompleteRef.current = false;
+      return;
+    }
+    const presentIds = [
+      "plan-passage",
+      ...(planDay.reflection_md ? ["plan-reflection"] : []),
+      ...(planDay.prayer_md ? ["plan-prayer"] : []),
+    ];
+    const fullyCompleted = presentIds.length > 0 && presentIds.every((id) => day1Viewed[id]);
+    if (fullyCompleted && !announcedCompleteRef.current) {
+      announcedCompleteRef.current = true;
+      setResumeAnnouncement("Day 1 is fully completed.");
+      window.setTimeout(() => setResumeAnnouncement(""), 3000);
+    }
+    if (!fullyCompleted) {
+      announcedCompleteRef.current = false;
+    }
+  }, [day1Viewed, planDay, planCurrentDay]);
+
   const devotionalFn = useServerFn(dailyDevotional);
   const [devo, setDevo] = useState<{
     reflection: string;
