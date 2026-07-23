@@ -706,40 +706,46 @@ function Home() {
 
           {planDay ? (
             <div className="grid grid-cols-1 gap-gutter md:grid-cols-2">
-              <JourneyCard
-                icon="menu_book"
-                eyebrow="The Passage"
-                title={planDay.passage_ref}
-                body={planTitle ?? "Today's reading"}
-              />
-              {planDay.reflection_md && (
+              <div id="plan-passage" className="scroll-mt-24 outline-none">
                 <JourneyCard
-                  icon="psychology"
-                  eyebrow="Reflection"
-                  title="Sit & reflect"
-                  body={planDay.reflection_md}
+                  icon="menu_book"
+                  eyebrow="The Passage"
+                  title={planDay.passage_ref}
+                  body={planTitle ?? "Today's reading"}
                 />
+              </div>
+              {planDay.reflection_md && (
+                <div id="plan-reflection" className="scroll-mt-24 outline-none">
+                  <JourneyCard
+                    icon="psychology"
+                    eyebrow="Reflection"
+                    title="Sit & reflect"
+                    body={planDay.reflection_md}
+                  />
+                </div>
               )}
               {planDay.prayer_md && (
-                <Card
-                  tone="info"
-                  className="flex flex-col items-start gap-4 md:col-span-2"
-                >
-                  <div className="flex items-center gap-4">
-                    <IconBadge name="front_hand" filled tone="ink" shape="round" size="lg" />
-                    <div>
-                      <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-                        The Prayer
-                      </p>
-                      <h4 className="font-serif text-xl text-primary">
-                        A moment of prayer
-                      </h4>
+                <div id="plan-prayer" className="scroll-mt-24 outline-none md:col-span-2">
+                  <Card
+                    tone="info"
+                    className="flex flex-col items-start gap-4"
+                  >
+                    <div className="flex items-center gap-4">
+                      <IconBadge name="front_hand" filled tone="ink" shape="round" size="lg" />
+                      <div>
+                        <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+                          The Prayer
+                        </p>
+                        <h4 className="font-serif text-xl text-primary">
+                          A moment of prayer
+                        </h4>
+                      </div>
                     </div>
-                  </div>
-                  <p className="whitespace-pre-wrap font-serif italic leading-relaxed text-on-surface-variant">
-                    {planDay.prayer_md}
-                  </p>
-                </Card>
+                    <p className="whitespace-pre-wrap font-serif italic leading-relaxed text-on-surface-variant">
+                      {planDay.prayer_md}
+                    </p>
+                  </Card>
+                </div>
               )}
             </div>
           ) : planComplete ? (
