@@ -728,6 +728,48 @@ function Bible() {
               <Button size="sm" variant="ghost" className="ml-auto" onClick={() => { setSelected(null); setRelated(null); }}>Close</Button>
             </div>
 
+            {/* Personal note (per translation — verses are version-scoped) */}
+            <div className="space-y-2 border-t border-divider-soft pt-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                  <Icon name="sticky_note_2" className="text-sm" /> My note
+                  <span className="text-[10px] font-normal text-on-surface-variant/70">· {activeAbbr}</span>
+                </p>
+                {notes.has(selected.id) && (
+                  <span className="text-[10px] text-primary/70 uppercase tracking-wider">Saved</span>
+                )}
+              </div>
+              <textarea
+                value={noteDraft}
+                onChange={(e) => setNoteDraft(e.target.value)}
+                placeholder="What is God saying to you in this verse?"
+                rows={4}
+                className="w-full rounded-lg border border-primary/20 bg-background px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary resize-y"
+              />
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  leftIcon="save"
+                  loading={noteSaving}
+                  onClick={() => void saveNote(selected)}
+                  disabled={noteDraft.trim() === (notes.get(selected.id)?.body ?? "")}
+                >
+                  {notes.has(selected.id) ? (noteDraft.trim() === "" ? "Delete note" : "Update note") : "Save note"}
+                </Button>
+                {notes.has(selected.id) && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    leftIcon="delete_outline"
+                    onClick={() => { setNoteDraft(""); void saveNote(selected); }}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </div>
+            </div>
+
+
             {related && (
               <div className="space-y-2 border-t border-divider-soft pt-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">Verses like this</p>
