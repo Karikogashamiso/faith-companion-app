@@ -297,9 +297,24 @@ function Home() {
         })()}
 
         {/* Post-onboarding CTA — first-time users see a clear "Start my plan"
-            entry point until they complete day 1. */}
+            entry point until they complete day 1. Jumps straight into today's
+            plan details below and unlocks the "plan started" achievement. */}
         {welcomeCompleted && activePlanId && planCurrentDay === 1 && !completedToday && planDay && (
-          <Link to="/plans" className="block">
+          <button
+            type="button"
+            onClick={async () => {
+              // Fire-and-forget: unlock the achievement on the first tap only.
+              void supabase.rpc("unlock_achievement" as any, { _code: "plan_started" });
+              const el = document.getElementById("todays-journey");
+              if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "start" });
+                // Nudge focus for keyboard/AT users.
+                (el as HTMLElement).setAttribute("tabindex", "-1");
+                (el as HTMLElement).focus({ preventScroll: true });
+              }
+            }}
+            className="block w-full text-left"
+          >
             <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
               <IconBadge name="play_arrow" filled tone="wood" />
               <div className="min-w-0 flex-1">
@@ -310,7 +325,7 @@ function Home() {
               </div>
               <Chip tone="ink" className="shrink-0">Begin</Chip>
             </Card>
-          </Link>
+          </button>
         )}
 
         {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
