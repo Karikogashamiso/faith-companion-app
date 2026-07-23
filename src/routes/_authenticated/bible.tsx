@@ -185,16 +185,16 @@ function Bible() {
         .order("verse");
       setVerses((data ?? []) as Verse[]);
       if (data?.length) {
-        const { data: h } = await supabase
-          .from("user_highlights")
-          .select("verse_id, color")
-          .eq("user_id", user.id)
-          .in("verse_id", data.map((v: any) => v.id));
-        setHighlights(
-          new Map((h ?? []).map((x: any) => [x.verse_id, x.color || "yellow"])),
-        );
+        const ids = data.map((v: any) => v.id);
+        const [{ data: h }, { data: n }] = await Promise.all([
+          supabase.from("user_highlights").select("verse_id, color").eq("user_id", user.id).in("verse_id", ids),
+          (supabase as any).from("user_notes").select("id, verse_id, body").eq("user_id", user.id).in("verse_id", ids),
+        ]);
+        setHighlights(new Map((h ?? []).map((x: any) => [x.verse_id, x.color || "yellow"])));
+        setNotes(new Map((n ?? []).map((x: any) => [x.verse_id, { id: x.id, body: x.body }])));
       } else {
         setHighlights(new Map());
+        setNotes(new Map());
       }
       setVersesLoading(false);
     })();
