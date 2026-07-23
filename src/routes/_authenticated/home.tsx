@@ -709,7 +709,7 @@ function Home() {
 
           {planDay ? (
             <div className="grid grid-cols-1 gap-gutter md:grid-cols-2">
-              <div id="plan-passage" className="scroll-mt-24 outline-none">
+              <div id="plan-passage" className={`scroll-mt-24 outline-none rounded-lg transition-shadow ${resumeHighlightId === "plan-passage" ? "resume-highlight" : ""}`}>
                 <JourneyCard
                   icon="menu_book"
                   eyebrow="The Passage"
