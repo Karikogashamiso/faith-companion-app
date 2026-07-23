@@ -411,6 +411,12 @@ function Home() {
           </button>
         )}
 
+        {/* Screen-reader-only live region announcing Resume Day 1 navigation. */}
+        <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+          {resumeAnnouncement}
+        </div>
+
+
         {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
         {aiEnabled && season && (
 
