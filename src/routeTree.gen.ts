@@ -14,6 +14,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedWelcomeRouteImport } from './routes/_authenticated/welcome'
 import { Route as AuthenticatedWallRouteImport } from './routes/_authenticated/wall'
 import { Route as AuthenticatedStudyRouteImport } from './routes/_authenticated/study'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -68,6 +69,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedWelcomeRoute = AuthenticatedWelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedWallRoute = AuthenticatedWallRouteImport.update({
   id: '/wall',
@@ -250,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
   '/wall': typeof AuthenticatedWallRoute
+  '/welcome': typeof AuthenticatedWelcomeRoute
   '/admin/audio': typeof AuthenticatedAdminAudioRoute
   '/challenges/$slug': typeof AuthenticatedChallengesSlugRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
@@ -286,6 +293,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/study': typeof AuthenticatedStudyRoute
   '/wall': typeof AuthenticatedWallRoute
+  '/welcome': typeof AuthenticatedWelcomeRoute
   '/admin/audio': typeof AuthenticatedAdminAudioRoute
   '/challenges/$slug': typeof AuthenticatedChallengesSlugRoute
   '/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
@@ -324,6 +332,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/study': typeof AuthenticatedStudyRoute
   '/_authenticated/wall': typeof AuthenticatedWallRoute
+  '/_authenticated/welcome': typeof AuthenticatedWelcomeRoute
   '/_authenticated/admin/audio': typeof AuthenticatedAdminAudioRoute
   '/_authenticated/challenges/$slug': typeof AuthenticatedChallengesSlugRoute
   '/_authenticated/groups/$groupId': typeof AuthenticatedGroupsGroupIdRouteWithChildren
@@ -362,6 +371,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/study'
     | '/wall'
+    | '/welcome'
     | '/admin/audio'
     | '/challenges/$slug'
     | '/groups/$groupId'
@@ -398,6 +408,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/study'
     | '/wall'
+    | '/welcome'
     | '/admin/audio'
     | '/challenges/$slug'
     | '/groups/$groupId'
@@ -435,6 +446,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/study'
     | '/_authenticated/wall'
+    | '/_authenticated/welcome'
     | '/_authenticated/admin/audio'
     | '/_authenticated/challenges/$slug'
     | '/_authenticated/groups/$groupId'
@@ -497,6 +509,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/welcome': {
+      id: '/_authenticated/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof AuthenticatedWelcomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/wall': {
       id: '/_authenticated/wall'
@@ -783,6 +802,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudyRoute: typeof AuthenticatedStudyRoute
   AuthenticatedWallRoute: typeof AuthenticatedWallRoute
+  AuthenticatedWelcomeRoute: typeof AuthenticatedWelcomeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -806,6 +826,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudyRoute: AuthenticatedStudyRoute,
   AuthenticatedWallRoute: AuthenticatedWallRoute,
+  AuthenticatedWelcomeRoute: AuthenticatedWelcomeRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
