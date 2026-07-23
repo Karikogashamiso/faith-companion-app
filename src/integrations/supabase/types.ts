@@ -104,6 +104,7 @@ export type Database = {
       bible_versions: {
         Row: {
           abbreviation: string
+          api_bible_id: string | null
           created_at: string
           id: string
           is_public_domain: boolean
@@ -113,6 +114,7 @@ export type Database = {
         }
         Insert: {
           abbreviation: string
+          api_bible_id?: string | null
           created_at?: string
           id?: string
           is_public_domain?: boolean
@@ -122,6 +124,7 @@ export type Database = {
         }
         Update: {
           abbreviation?: string
+          api_bible_id?: string | null
           created_at?: string
           id?: string
           is_public_domain?: boolean
