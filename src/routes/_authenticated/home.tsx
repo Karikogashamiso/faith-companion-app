@@ -62,7 +62,55 @@ function Home() {
   const [aiEnabled, setAiEnabled] = useState(true);
   const [welcomeStep, setWelcomeStep] = useState<number | null>(null);
   const [welcomeCompleted, setWelcomeCompleted] = useState<boolean>(false);
+  const [day1Started, setDay1Started] = useState(false);
+  const [day1Viewed, setDay1Viewed] = useState<Record<string, boolean>>({});
   useEffect(() => setResume(getReadingPosition()), []);
+
+  // Local per-device tracking of Day 1 "started" + which sub-items the user
+  // has actually seen. Enables the "Resume Day 1" affordance and lets us
+  // scroll to the first item that hasn't been viewed yet.
+  const startedKey = activePlanId ? `plan-started:${activePlanId}:day1` : null;
+  const viewedKey = activePlanId ? `plan-viewed:${activePlanId}:day1` : null;
+  useEffect(() => {
+    if (!startedKey || !viewedKey) return;
+    try {
+      setDay1Started(localStorage.getItem(startedKey) === "1");
+      setDay1Viewed(JSON.parse(localStorage.getItem(viewedKey) ?? "{}"));
+    } catch {
+      /* ignore */
+    }
+  }, [startedKey, viewedKey]);
+
+  // Observe journey sub-items and mark them viewed once they enter the viewport.
+  useEffect(() => {
+    if (!viewedKey || !planDay || planCurrentDay !== 1) return;
+    const ids = ["plan-passage", "plan-reflection", "plan-prayer"];
+    const io = new IntersectionObserver(
+      (entries) => {
+        setDay1Viewed((prev) => {
+          let changed = false;
+          const next = { ...prev };
+          for (const e of entries) {
+            if (e.isIntersecting && !next[e.target.id]) {
+              next[e.target.id] = true;
+              changed = true;
+            }
+          }
+          if (changed) {
+            try { localStorage.setItem(viewedKey, JSON.stringify(next)); } catch { /* ignore */ }
+            return next;
+          }
+          return prev;
+        });
+      },
+      { threshold: 0.5 },
+    );
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  }, [viewedKey, planDay?.id, planCurrentDay]);
 
   const devotionalFn = useServerFn(dailyDevotional);
   const [devo, setDevo] = useState<{
