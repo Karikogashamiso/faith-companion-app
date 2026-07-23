@@ -132,12 +132,25 @@ function Home() {
       announcedCompleteRef.current = true;
       if (announceTimerRef.current) window.clearTimeout(announceTimerRef.current);
       setResumeAnnouncement("Day 1 is fully completed.");
-      announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(""), 3000);
+      announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(IDLE_ANNOUNCEMENT), 3000);
     }
     if (!fullyCompleted) {
       announcedCompleteRef.current = false;
     }
   }, [day1Viewed, planDay, planCurrentDay]);
+
+  // Clear any pending announcement timer on unmount (route change) so a
+  // stale callback can't fire against an unmounted component or wipe the
+  // live region after we've navigated away.
+  useEffect(() => {
+    return () => {
+      if (announceTimerRef.current) {
+        window.clearTimeout(announceTimerRef.current);
+        announceTimerRef.current = null;
+      }
+    };
+  }, []);
+
 
   const devotionalFn = useServerFn(dailyDevotional);
   const [devo, setDevo] = useState<{
