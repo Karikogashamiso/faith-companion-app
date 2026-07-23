@@ -375,16 +375,25 @@ function Home() {
                 document.getElementById(targetId) ??
                 document.getElementById("todays-journey");
               if (el) {
-                el.scrollIntoView({ behavior: "smooth", block: "start" });
                 const target = el as HTMLElement;
                 if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
-                // Defer focus until after smooth scroll begins so screen readers
-                // announce the destination rather than the scroll origin.
-                window.setTimeout(() => target.focus({ preventScroll: true }), 250);
-                setResumeHighlightId(targetId);
                 setResumeAnnouncement(`Resuming Day 1 at ${targetLabel}.`);
-                window.setTimeout(() => setResumeHighlightId(null), 2400);
-                window.setTimeout(() => setResumeAnnouncement(""), 3000);
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+                // Wait for the smooth scroll to land before starting the
+                // highlight, so the ring never animates off-screen.
+                let finished = false;
+                const finishResume = () => {
+                  if (finished) return;
+                  finished = true;
+                  window.clearTimeout(fallbackTimer);
+                  target.focus({ preventScroll: true });
+                  setResumeHighlightId(targetId);
+                  window.setTimeout(() => setResumeHighlightId(null), 2400);
+                  window.setTimeout(() => setResumeAnnouncement(""), 3000);
+                };
+                const fallbackTimer = window.setTimeout(finishResume, 800);
+                window.addEventListener("scrollend", finishResume, { once: true });
               }
             }}
             className="block w-full text-left"
