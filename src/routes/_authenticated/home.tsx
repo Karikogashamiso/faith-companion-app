@@ -379,39 +379,83 @@ function Home() {
               { id: "plan-reflection", present: Boolean(planDay.reflection_md), label: "Reflection" },
               { id: "plan-prayer", present: Boolean(planDay.prayer_md), label: "Prayer" },
             ];
-            const presentIds = order.filter((o) => o.present).map((o) => o.id);
-            const day1FullyCompleted = presentIds.length > 0 && presentIds.every((id) => day1Viewed[id]);
+            const presentItems = order.filter((o) => o.present);
+            const day1FullyCompleted = presentItems.length > 0 && presentItems.every((o) => day1Viewed[o.id]);
+
+            const scrollToItem = (targetId: string, label: string, mode: "resume" | "review") => {
+              const el = document.getElementById(targetId);
+              if (!el) return;
+              const target = el as HTMLElement;
+              if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+              setResumeAnnouncement(
+                mode === "review" ? `Reviewing ${label}.` : `Resuming Day 1 at ${label}.`
+              );
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+              let finished = false;
+              const finish = () => {
+                if (finished) return;
+                finished = true;
+                window.clearTimeout(fallbackTimer);
+                target.focus({ preventScroll: true });
+                setResumeHighlightId(targetId);
+                window.setTimeout(() => setResumeHighlightId(null), 2400);
+                window.setTimeout(() => setResumeAnnouncement(""), 3000);
+              };
+              const fallbackTimer = window.setTimeout(finish, 800);
+              window.addEventListener("scrollend", finish, { once: true });
+            };
+
+            if (day1FullyCompleted) {
+              return (
+                <Card tone="accent" className="space-y-3 gold-ribbon">
+                  <div className="flex items-center gap-3 px-1">
+                    <IconBadge name="replay" filled tone="wood" />
+                    <div>
+                      <p className="font-serif text-lg text-primary">Day 1 complete</p>
+                      <p className="text-sm text-on-surface-variant">
+                        Revisit any part of today&apos;s journey.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {presentItems.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => scrollToItem(item.id, item.label, "review")}
+                        className="flex items-center justify-between gap-3 rounded-xl border border-outline-variant bg-surface-container-low p-3 text-left transition-colors hover:border-primary hover:bg-surface-container"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-crisis-blue text-primary">
+                            <Icon
+                              name={
+                                item.id === "plan-passage"
+                                  ? "menu_book"
+                                  : item.id === "plan-reflection"
+                                    ? "psychology"
+                                    : "front_hand"
+                              }
+                            />
+                          </span>
+                          <span className="font-serif text-base text-primary">
+                            Review {item.label}
+                          </span>
+                        </div>
+                        <Chip tone="ink" className="shrink-0">
+                          Review
+                        </Chip>
+                      </button>
+                    ))}
+                  </div>
+                </Card>
+              );
+            }
+
             return (
               <button
                 type="button"
                 onClick={async () => {
-                  if (day1FullyCompleted) {
-                    // Review mode: jump back to the first sub-item so the user
-                    // can re-read Passage, Reflection, and Prayer.
-                    const targetId = "plan-passage";
-                    const el = document.getElementById(targetId);
-                    if (el) {
-                      const target = el as HTMLElement;
-                      if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
-                      setResumeAnnouncement("Reviewing Day 1 at Passage.");
-                      target.scrollIntoView({ behavior: "smooth", block: "start" });
-
-                      let finished = false;
-                      const finishReview = () => {
-                        if (finished) return;
-                        finished = true;
-                        window.clearTimeout(fallbackTimer);
-                        target.focus({ preventScroll: true });
-                        setResumeHighlightId(targetId);
-                        window.setTimeout(() => setResumeHighlightId(null), 2400);
-                        window.setTimeout(() => setResumeAnnouncement(""), 3000);
-                      };
-                      const fallbackTimer = window.setTimeout(finishReview, 800);
-                      window.addEventListener("scrollend", finishReview, { once: true });
-                    }
-                    return;
-                  }
-
                   // Fire-and-forget: unlock the achievement on the first tap only.
                   if (!day1Started) {
                     void supabase.rpc("unlock_achievement" as any, { _code: "plan_started" });
@@ -422,52 +466,29 @@ function Home() {
                   }
                   // Scroll to the first sub-item the user hasn't viewed yet;
                   // fall back to the journey section itself.
-                  const firstIncomplete = order.find((o) => o.present && !day1Viewed[o.id]);
-                  const targetId = firstIncomplete?.id ?? "todays-journey";
-                  const targetLabel = firstIncomplete?.label ?? "Today's Journey";
-                  const el =
-                    document.getElementById(targetId) ??
-                    document.getElementById("todays-journey");
-                  if (el) {
-                    const target = el as HTMLElement;
-                    if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
-                    setResumeAnnouncement(`Resuming Day 1 at ${targetLabel}.`);
-                    target.scrollIntoView({ behavior: "smooth", block: "start" });
-
-                    // Wait for the smooth scroll to land before starting the
-                    // highlight, so the ring never animates off-screen.
-                    let finished = false;
-                    const finishResume = () => {
-                      if (finished) return;
-                      finished = true;
-                      window.clearTimeout(fallbackTimer);
-                      target.focus({ preventScroll: true });
-                      setResumeHighlightId(targetId);
-                      window.setTimeout(() => setResumeHighlightId(null), 2400);
-                      window.setTimeout(() => setResumeAnnouncement(""), 3000);
-                    };
-                    const fallbackTimer = window.setTimeout(finishResume, 800);
-                    window.addEventListener("scrollend", finishResume, { once: true });
-                  }
+                  const firstIncomplete = presentItems.find((o) => !day1Viewed[o.id]);
+                  scrollToItem(
+                    firstIncomplete?.id ?? "todays-journey",
+                    firstIncomplete?.label ?? "Today's Journey",
+                    "resume"
+                  );
                 }}
                 className="block w-full text-left"
               >
                 <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
-                  <IconBadge name={day1FullyCompleted ? "replay" : day1Started ? "play_circle" : "play_arrow"} filled tone="wood" />
+                  <IconBadge name={day1Started ? "play_circle" : "play_arrow"} filled tone="wood" />
                   <div className="min-w-0 flex-1">
                     <p className="font-serif text-lg text-primary">
-                      {day1FullyCompleted ? "Review Day 1" : day1Started ? "Resume Day 1" : "Start my plan"}
+                      {day1Started ? "Resume Day 1" : "Start my plan"}
                     </p>
                     <p className="truncate text-sm text-on-surface-variant">
-                      {day1FullyCompleted
-                        ? "Revisit Passage, Reflection, and Prayer."
-                        : planTitle
-                          ? `${planTitle} — Day 1`
-                          : "Begin day 1 of your reading plan."}
+                      {planTitle
+                        ? `${planTitle} — Day 1`
+                        : "Begin day 1 of your reading plan."}
                     </p>
                   </div>
                   <Chip tone="ink" className="shrink-0">
-                    {day1FullyCompleted ? "Review" : day1Started ? "Resume" : "Begin"}
+                    {day1Started ? "Resume" : "Begin"}
                   </Chip>
                 </Card>
               </button>
