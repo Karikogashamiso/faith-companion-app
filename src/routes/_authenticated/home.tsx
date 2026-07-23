@@ -60,6 +60,8 @@ function Home() {
   const season = currentSeason();
   const [resume, setResume] = useState<ReadingPosition | null>(null);
   const [aiEnabled, setAiEnabled] = useState(true);
+  const [welcomeStep, setWelcomeStep] = useState<number | null>(null);
+  const [welcomeCompleted, setWelcomeCompleted] = useState<boolean>(false);
   useEffect(() => setResume(getReadingPosition()), []);
 
   const devotionalFn = useServerFn(dailyDevotional);
@@ -104,11 +106,17 @@ function Home() {
   async function load() {
       const { data: prof } = await (supabase as any)
         .from("profiles")
-        .select("default_version_id, active_plan_id, ai_enabled")
+        .select("default_version_id, active_plan_id, ai_enabled, welcome_progress")
         .eq("id", user.id)
         .maybeSingle();
 
     setAiEnabled((prof?.ai_enabled as boolean | undefined) ?? true);
+    const wp = (prof?.welcome_progress ?? {}) as {
+      step?: number;
+      completed_at?: string | null;
+    };
+    setWelcomeCompleted(Boolean(wp.completed_at));
+    setWelcomeStep(typeof wp.step === "number" ? wp.step : null);
 
     let versionId = prof?.default_version_id;
     if (!versionId) {
@@ -256,23 +264,37 @@ function Home() {
   return (
     <AppShell>
       <div className="space-y-stack-lg">
-        {/* First-run nudge — show until the user has picked a plan. */}
-        {!activePlanId && (
-          <Link to="/welcome" className="block">
-            <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
-              <IconBadge name="waving_hand" filled tone="wood" />
-              <div className="min-w-0 flex-1">
-                <p className="font-serif text-lg text-primary">Get set up in 60 seconds</p>
-                <p className="truncate text-sm text-on-surface-variant">
-                  Pick your tradition, confirm AI, and start your first reading plan.
-                </p>
-              </div>
-              <Chip tone="ink" className="shrink-0">
-                Start
-              </Chip>
-            </Card>
-          </Link>
-        )}
+        {/* First-run nudge — show until the user has picked a plan.
+            If they paused midway, deep-link back to the exact step. */}
+        {!activePlanId && !welcomeCompleted && (() => {
+          const inProgress = welcomeStep !== null && welcomeStep > 0;
+          const stepLabels = ["tradition", "AI preference", "first reading plan"];
+          const nextLabel = stepLabels[Math.min(welcomeStep ?? 0, 2)];
+          return (
+            <Link
+              to="/welcome"
+              search={inProgress ? { step: welcomeStep ?? 0 } : undefined}
+              className="block"
+            >
+              <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
+                <IconBadge name={inProgress ? "play_circle" : "waving_hand"} filled tone="wood" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-serif text-lg text-primary">
+                    {inProgress ? "Continue onboarding" : "Get set up in 60 seconds"}
+                  </p>
+                  <p className="truncate text-sm text-on-surface-variant">
+                    {inProgress
+                      ? `Pick up at step ${(welcomeStep ?? 0) + 1} of 3 — ${nextLabel}.`
+                      : "Pick your tradition, confirm AI, and start your first reading plan."}
+                  </p>
+                </div>
+                <Chip tone="ink" className="shrink-0">
+                  {inProgress ? "Resume" : "Start"}
+                </Chip>
+              </Card>
+            </Link>
+          );
+        })()}
 
         {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
         {aiEnabled && season && (

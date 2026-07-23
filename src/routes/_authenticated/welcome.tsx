@@ -21,6 +21,11 @@ type Tradition = Database["public"]["Enums"]["tradition"];
 
 export const Route = createFileRoute("/_authenticated/welcome")({
   head: () => ({ meta: [{ title: "Welcome · Faith Companion" }] }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = Number(search.step);
+    const step = Number.isFinite(raw) ? Math.max(0, Math.min(2, Math.trunc(raw))) : undefined;
+    return step === undefined ? {} : { step };
+  },
   component: WelcomeWizard,
 });
 
@@ -49,7 +54,8 @@ type WelcomeProgress = {
 
 function WelcomeWizard() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
+  const { step: stepFromUrl } = Route.useSearch();
+  const [step, setStep] = useState(stepFromUrl ?? 0);
   const [saving, setSaving] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -79,7 +85,10 @@ function WelcomeWizard() {
       if (progress.tradition) setTradition(progress.tradition);
       if (typeof progress.ai_enabled === "boolean") setAiEnabled(progress.ai_enabled);
       if (progress.plan_id) setPlanId(progress.plan_id);
-      if (typeof progress.step === "number") {
+      // URL ?step overrides the saved position (used by "Continue onboarding").
+      if (typeof stepFromUrl === "number") {
+        setStep(stepFromUrl);
+      } else if (typeof progress.step === "number") {
         setStep(Math.max(0, Math.min(2, progress.step)));
       }
 
