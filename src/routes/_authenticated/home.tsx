@@ -6,7 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { dailyDevotional } from "@/lib/ai-study.functions";
 import { AppShell } from "@/components/app/app-shell";
 import { Icon } from "@/components/app/icon";
+import { Constellation } from "@/components/app/constellation";
 import { VerseImageSheet } from "@/components/app/verse-image";
+
 import {
   Button,
   Card,
@@ -360,10 +362,12 @@ function Home() {
         )}
 
         {/* Hero verse — dramatic gradient overlay card matching reference */}
-        <section className="relative overflow-hidden rounded-xl aspect-[16/10] md:aspect-[21/9] shadow-2xl group border border-outline-variant">
+        <section className="relative overflow-hidden rounded-xl aspect-[16/10] md:aspect-[21/9] shadow-2xl group border border-outline-variant gold-ribbon">
           <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high via-surface-container to-background" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+          <Constellation count={22} spotlight={false} />
           {verse && (
+
             <button
               onClick={() => setShareVerse(verse)}
               aria-label="Share today's verse"
