@@ -384,10 +384,34 @@ function Home() {
             return (
               <button
                 type="button"
-                disabled={day1FullyCompleted}
-                aria-disabled={day1FullyCompleted}
                 onClick={async () => {
-                  if (day1FullyCompleted) return;
+                  if (day1FullyCompleted) {
+                    // Review mode: jump back to the first sub-item so the user
+                    // can re-read Passage, Reflection, and Prayer.
+                    const targetId = "plan-passage";
+                    const el = document.getElementById(targetId);
+                    if (el) {
+                      const target = el as HTMLElement;
+                      if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+                      setResumeAnnouncement("Reviewing Day 1 at Passage.");
+                      target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+                      let finished = false;
+                      const finishReview = () => {
+                        if (finished) return;
+                        finished = true;
+                        window.clearTimeout(fallbackTimer);
+                        target.focus({ preventScroll: true });
+                        setResumeHighlightId(targetId);
+                        window.setTimeout(() => setResumeHighlightId(null), 2400);
+                        window.setTimeout(() => setResumeAnnouncement(""), 3000);
+                      };
+                      const fallbackTimer = window.setTimeout(finishReview, 800);
+                      window.addEventListener("scrollend", finishReview, { once: true });
+                    }
+                    return;
+                  }
+
                   // Fire-and-forget: unlock the achievement on the first tap only.
                   if (!day1Started) {
                     void supabase.rpc("unlock_achievement" as any, { _code: "plan_started" });
@@ -426,24 +450,24 @@ function Home() {
                     window.addEventListener("scrollend", finishResume, { once: true });
                   }
                 }}
-                className={`block w-full text-left ${day1FullyCompleted ? "opacity-60 cursor-not-allowed" : ""}`}
+                className="block w-full text-left"
               >
-                <Card tone="accent" interactive={!day1FullyCompleted} className="flex items-center gap-4 gold-ribbon">
-                  <IconBadge name={day1FullyCompleted ? "check_circle" : day1Started ? "play_circle" : "play_arrow"} filled tone={day1FullyCompleted ? "ink" : "wood"} />
+                <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
+                  <IconBadge name={day1FullyCompleted ? "replay" : day1Started ? "play_circle" : "play_arrow"} filled tone="wood" />
                   <div className="min-w-0 flex-1">
                     <p className="font-serif text-lg text-primary">
-                      {day1FullyCompleted ? "Day 1 complete" : day1Started ? "Resume Day 1" : "Start my plan"}
+                      {day1FullyCompleted ? "Review Day 1" : day1Started ? "Resume Day 1" : "Start my plan"}
                     </p>
                     <p className="truncate text-sm text-on-surface-variant">
                       {day1FullyCompleted
-                        ? "You’ve viewed every part of Day 1. Mark today complete when you’re ready."
+                        ? "Revisit Passage, Reflection, and Prayer."
                         : planTitle
                           ? `${planTitle} — Day 1`
                           : "Begin day 1 of your reading plan."}
                     </p>
                   </div>
                   <Chip tone="ink" className="shrink-0">
-                    {day1FullyCompleted ? "Done" : day1Started ? "Resume" : "Begin"}
+                    {day1FullyCompleted ? "Review" : day1Started ? "Resume" : "Begin"}
                   </Chip>
                 </Card>
               </button>
