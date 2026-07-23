@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/app/icon";
+import { Constellation } from "@/components/app/constellation";
 import { trackLanding } from "@/lib/landing-analytics";
 import sunsetUrl from "@/assets/sunset.jpg";
+
 
 type Testimonial = { quote: string; name: string; role: string; rating?: number };
 
@@ -320,8 +322,9 @@ function SiteNav() {
 function Hero() {
   return (
     <section className="relative overflow-hidden">
-      {/* Breathing aurora + warm sunset glow, fading into the ink background. */}
+      {/* Breathing aurora + warm sunset glow + drifting candle constellation. */}
       <div aria-hidden className="aurora" />
+      <Constellation count={38} />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-0 opacity-30"
@@ -334,7 +337,8 @@ function Hero() {
         }}
       />
       <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-stack-lg px-margin-mobile py-16 md:grid-cols-2 md:py-24">
-        <div className="peaceful-fade-in space-y-stack-md">
+        <div className="peaceful-fade-in stagger-in space-y-stack-md">
+
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/70 px-3 py-1 backdrop-blur">
             <Icon name="verified" filled className="text-base text-primary" />
             <span className="text-xs font-bold uppercase tracking-widest text-primary">
