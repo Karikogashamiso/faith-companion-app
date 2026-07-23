@@ -423,7 +423,7 @@ function Home() {
                 target.focus({ preventScroll: true });
                 setResumeHighlightId(targetId);
                 window.setTimeout(() => setResumeHighlightId(null), 2400);
-                announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(""), 3000);
+                announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(IDLE_ANNOUNCEMENT), 3000);
               };
               const fallbackTimer = window.setTimeout(finish, 800);
               window.addEventListener("scrollend", finish, { once: true });
