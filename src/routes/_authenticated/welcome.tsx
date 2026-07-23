@@ -21,6 +21,11 @@ type Tradition = Database["public"]["Enums"]["tradition"];
 
 export const Route = createFileRoute("/_authenticated/welcome")({
   head: () => ({ meta: [{ title: "Welcome · Faith Companion" }] }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = Number(search.step);
+    const step = Number.isFinite(raw) ? Math.max(0, Math.min(2, Math.trunc(raw))) : undefined;
+    return step === undefined ? {} : { step };
+  },
   component: WelcomeWizard,
 });
 
