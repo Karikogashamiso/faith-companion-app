@@ -85,7 +85,10 @@ function WelcomeWizard() {
       if (progress.tradition) setTradition(progress.tradition);
       if (typeof progress.ai_enabled === "boolean") setAiEnabled(progress.ai_enabled);
       if (progress.plan_id) setPlanId(progress.plan_id);
-      if (typeof progress.step === "number") {
+      // URL ?step overrides the saved position (used by "Continue onboarding").
+      if (typeof stepFromUrl === "number") {
+        setStep(stepFromUrl);
+      } else if (typeof progress.step === "number") {
         setStep(Math.max(0, Math.min(2, progress.step)));
       }
 
