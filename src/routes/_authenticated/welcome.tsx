@@ -54,7 +54,8 @@ type WelcomeProgress = {
 
 function WelcomeWizard() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
+  const { step: stepFromUrl } = Route.useSearch();
+  const [step, setStep] = useState(stepFromUrl ?? 0);
   const [saving, setSaving] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
