@@ -58,6 +58,7 @@ function WelcomeWizard() {
   const [step, setStep] = useState(stepFromUrl ?? 0);
   const [saving, setSaving] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  
 
   const [tradition, setTradition] = useState<Tradition>("unspecified");
   const [aiEnabled, setAiEnabled] = useState(true);
@@ -82,6 +83,11 @@ function WelcomeWizard() {
       if (typeof prof?.ai_enabled === "boolean") setAiEnabled(prof.ai_enabled);
       const progress = ((prof as unknown as { welcome_progress?: WelcomeProgress } | null)
         ?.welcome_progress ?? {}) as WelcomeProgress;
+      // If the user already finished the wizard, don't drag them back through it.
+      if (progress.completed_at) {
+        navigate({ to: "/home" });
+        return;
+      }
       if (progress.tradition) setTradition(progress.tradition);
       if (typeof progress.ai_enabled === "boolean") setAiEnabled(progress.ai_enabled);
       if (progress.plan_id) setPlanId(progress.plan_id);
@@ -166,6 +172,20 @@ function WelcomeWizard() {
   async function skipToApp() {
     // Still persist tradition + AI choice — they're a one-tap decision either way.
     await saveProfile();
+    if (userId) {
+      await supabase
+        .from("profiles")
+        .update({
+          welcome_progress: {
+            step,
+            tradition,
+            ai_enabled: aiEnabled,
+            plan_id: planId,
+            completed_at: new Date().toISOString(),
+          } as never,
+        })
+        .eq("id", userId);
+    }
     navigate({ to: "/home" });
   }
 
