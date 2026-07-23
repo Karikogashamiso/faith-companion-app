@@ -299,7 +299,7 @@ function Home() {
         {/* Post-onboarding CTA — first-time users see a clear "Start my plan"
             entry point until they complete day 1. */}
         {welcomeCompleted && activePlanId && planCurrentDay === 1 && !completedToday && planDay && (
-          <Link to="/plans/$planId" params={{ planId: activePlanId }} className="block">
+          <Link to="/plans" className="block">
             <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
               <IconBadge name="play_arrow" filled tone="wood" />
               <div className="min-w-0 flex-1">
