@@ -151,7 +151,7 @@ function WelcomeWizard() {
       await supabase
         .from("profiles")
         .update({
-          active_plan_id: planId,
+          active_plan_id: planId as never,
           welcome_progress: {
             step: 2,
             tradition,
