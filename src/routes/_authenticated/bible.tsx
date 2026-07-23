@@ -303,11 +303,12 @@ function Bible() {
   }
 
   function stepScale(dir: 1 | -1) {
-    const idx = SCALES.indexOf(scale);
+    const idx = (SCALES as readonly number[]).indexOf(scale);
     const nextIdx = Math.min(SCALES.length - 1, Math.max(0, (idx === -1 ? 1 : idx) + dir));
     changeScale(SCALES[nextIdx]);
   }
-  function changeScale(s: number) { setScale(s); setReaderPrefs({ scale: s }); }
+  function changeScale(s: (typeof SCALES)[number]) { setScale(s); setReaderPrefs({ scale: s }); }
+
 
   async function runExplain() {
     if (!versionId || !book) return;
