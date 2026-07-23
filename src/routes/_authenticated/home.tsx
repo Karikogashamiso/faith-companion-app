@@ -65,9 +65,13 @@ function Home() {
   const [day1Started, setDay1Started] = useState(false);
   const [day1Viewed, setDay1Viewed] = useState<Record<string, boolean>>({});
   const [resumeHighlightId, setResumeHighlightId] = useState<string | null>(null);
-  const [resumeAnnouncement, setResumeAnnouncement] = useState<string>("");
+  // Non-empty sentinel so the aria-live region always has a node with text,
+  // avoiding an empty region after review/resume announcements clear.
+  const IDLE_ANNOUNCEMENT = "\u00A0";
+  const [resumeAnnouncement, setResumeAnnouncement] = useState<string>(IDLE_ANNOUNCEMENT);
   const announcedCompleteRef = useRef(false);
   const announceTimerRef = useRef<number | null>(null);
+
   useEffect(() => setResume(getReadingPosition()), []);
 
   // Local per-device tracking of Day 1 "started" + which sub-items the user
