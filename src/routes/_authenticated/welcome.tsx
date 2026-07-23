@@ -172,6 +172,20 @@ function WelcomeWizard() {
   async function skipToApp() {
     // Still persist tradition + AI choice — they're a one-tap decision either way.
     await saveProfile();
+    if (userId) {
+      await supabase
+        .from("profiles")
+        .update({
+          welcome_progress: {
+            step,
+            tradition,
+            ai_enabled: aiEnabled,
+            plan_id: planId,
+            completed_at: new Date().toISOString(),
+          } as never,
+        })
+        .eq("id", userId);
+    }
     navigate({ to: "/home" });
   }
 
