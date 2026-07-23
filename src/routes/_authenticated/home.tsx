@@ -718,7 +718,7 @@ function Home() {
                 />
               </div>
               {planDay.reflection_md && (
-                <div id="plan-reflection" className="scroll-mt-24 outline-none">
+                <div id="plan-reflection" className={`scroll-mt-24 outline-none rounded-lg transition-shadow ${resumeHighlightId === "plan-reflection" ? "resume-highlight" : ""}`}>
                   <JourneyCard
                     icon="psychology"
                     eyebrow="Reflection"
