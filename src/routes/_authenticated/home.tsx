@@ -67,6 +67,7 @@ function Home() {
   const [resumeHighlightId, setResumeHighlightId] = useState<string | null>(null);
   const [resumeAnnouncement, setResumeAnnouncement] = useState<string>("");
   const announcedCompleteRef = useRef(false);
+  const announceTimerRef = useRef<number | null>(null);
   useEffect(() => setResume(getReadingPosition()), []);
 
   // Local per-device tracking of Day 1 "started" + which sub-items the user
