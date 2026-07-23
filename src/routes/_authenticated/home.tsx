@@ -65,6 +65,7 @@ function Home() {
   const [day1Started, setDay1Started] = useState(false);
   const [day1Viewed, setDay1Viewed] = useState<Record<string, boolean>>({});
   const [resumeHighlightId, setResumeHighlightId] = useState<string | null>(null);
+  const [resumeAnnouncement, setResumeAnnouncement] = useState<string>("");
   useEffect(() => setResume(getReadingPosition()), []);
 
   // Local per-device tracking of Day 1 "started" + which sub-items the user
@@ -369,15 +370,28 @@ function Home() {
               ];
               const firstIncomplete =
                 order.find((o) => o.present && !day1Viewed[o.id])?.id ?? "todays-journey";
+              const labels: Record<string, string> = {
+                "plan-passage": "Passage",
+                "plan-reflection": "Reflection",
+                "plan-prayer": "Prayer",
+                "todays-journey": "Today's Journey",
+              };
               const el =
                 document.getElementById(firstIncomplete) ??
                 document.getElementById("todays-journey");
               if (el) {
                 el.scrollIntoView({ behavior: "smooth", block: "start" });
-                (el as HTMLElement).setAttribute("tabindex", "-1");
-                (el as HTMLElement).focus({ preventScroll: true });
+                const target = el as HTMLElement;
+                if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+                // Defer focus until after smooth scroll begins so screen readers
+                // announce the destination rather than the scroll origin.
+                window.setTimeout(() => target.focus({ preventScroll: true }), 250);
                 setResumeHighlightId(firstIncomplete);
+                setResumeAnnouncement(
+                  `Resuming Day 1 at ${labels[firstIncomplete] ?? "your next step"}.`,
+                );
                 window.setTimeout(() => setResumeHighlightId(null), 2400);
+                window.setTimeout(() => setResumeAnnouncement(""), 3000);
               }
             }}
             className="block w-full text-left"
@@ -396,6 +410,12 @@ function Home() {
             </Card>
           </button>
         )}
+
+        {/* Screen-reader-only live region announcing Resume Day 1 navigation. */}
+        <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+          {resumeAnnouncement}
+        </div>
+
 
         {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
         {aiEnabled && season && (
