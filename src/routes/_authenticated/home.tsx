@@ -363,21 +363,16 @@ function Home() {
               }
               // Scroll to the first sub-item the user hasn't viewed yet;
               // fall back to the journey section itself.
-              const order: Array<{ id: string; present: boolean }> = [
-                { id: "plan-passage", present: true },
-                { id: "plan-reflection", present: Boolean(planDay.reflection_md) },
-                { id: "plan-prayer", present: Boolean(planDay.prayer_md) },
+              const order: Array<{ id: string; present: boolean; label: string }> = [
+                { id: "plan-passage", present: true, label: "Passage" },
+                { id: "plan-reflection", present: Boolean(planDay.reflection_md), label: "Reflection" },
+                { id: "plan-prayer", present: Boolean(planDay.prayer_md), label: "Prayer" },
               ];
-              const firstIncomplete =
-                order.find((o) => o.present && !day1Viewed[o.id])?.id ?? "todays-journey";
-              const labels: Record<string, string> = {
-                "plan-passage": "Passage",
-                "plan-reflection": "Reflection",
-                "plan-prayer": "Prayer",
-                "todays-journey": "Today's Journey",
-              };
+              const firstIncomplete = order.find((o) => o.present && !day1Viewed[o.id]);
+              const targetId = firstIncomplete?.id ?? "todays-journey";
+              const targetLabel = firstIncomplete?.label ?? "Today's Journey";
               const el =
-                document.getElementById(firstIncomplete) ??
+                document.getElementById(targetId) ??
                 document.getElementById("todays-journey");
               if (el) {
                 el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -386,10 +381,8 @@ function Home() {
                 // Defer focus until after smooth scroll begins so screen readers
                 // announce the destination rather than the scroll origin.
                 window.setTimeout(() => target.focus({ preventScroll: true }), 250);
-                setResumeHighlightId(firstIncomplete);
-                setResumeAnnouncement(
-                  `Resuming Day 1 at ${labels[firstIncomplete] ?? "your next step"}.`,
-                );
+                setResumeHighlightId(targetId);
+                setResumeAnnouncement(`Resuming Day 1 at ${targetLabel}.`);
                 window.setTimeout(() => setResumeHighlightId(null), 2400);
                 window.setTimeout(() => setResumeAnnouncement(""), 3000);
               }
