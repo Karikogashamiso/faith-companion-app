@@ -728,7 +728,7 @@ function Home() {
                 </div>
               )}
               {planDay.prayer_md && (
-                <div id="plan-prayer" className="scroll-mt-24 outline-none md:col-span-2">
+                <div id="plan-prayer" className={`scroll-mt-24 outline-none rounded-lg transition-shadow md:col-span-2 ${resumeHighlightId === "plan-prayer" ? "resume-highlight" : ""}`}>
                   <Card
                     tone="info"
                     className="flex flex-col items-start gap-4"
