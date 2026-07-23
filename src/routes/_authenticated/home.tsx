@@ -350,67 +350,82 @@ function Home() {
             entry point until they complete day 1. Jumps straight into today's
             plan details below and unlocks the "plan started" achievement. */}
         {welcomeCompleted && activePlanId && planCurrentDay === 1 && !completedToday && planDay && (
-          <button
-            type="button"
-            onClick={async () => {
-              // Fire-and-forget: unlock the achievement on the first tap only.
-              if (!day1Started) {
-                void supabase.rpc("unlock_achievement" as any, { _code: "plan_started" });
-                if (startedKey) {
-                  try { localStorage.setItem(startedKey, "1"); } catch { /* ignore */ }
-                }
-                setDay1Started(true);
-              }
-              // Scroll to the first sub-item the user hasn't viewed yet;
-              // fall back to the journey section itself.
-              const order: Array<{ id: string; present: boolean; label: string }> = [
-                { id: "plan-passage", present: true, label: "Passage" },
-                { id: "plan-reflection", present: Boolean(planDay.reflection_md), label: "Reflection" },
-                { id: "plan-prayer", present: Boolean(planDay.prayer_md), label: "Prayer" },
-              ];
-              const firstIncomplete = order.find((o) => o.present && !day1Viewed[o.id]);
-              const targetId = firstIncomplete?.id ?? "todays-journey";
-              const targetLabel = firstIncomplete?.label ?? "Today's Journey";
-              const el =
-                document.getElementById(targetId) ??
-                document.getElementById("todays-journey");
-              if (el) {
-                const target = el as HTMLElement;
-                if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
-                setResumeAnnouncement(`Resuming Day 1 at ${targetLabel}.`);
-                target.scrollIntoView({ behavior: "smooth", block: "start" });
+          (() => {
+            const order: Array<{ id: string; present: boolean; label: string }> = [
+              { id: "plan-passage", present: true, label: "Passage" },
+              { id: "plan-reflection", present: Boolean(planDay.reflection_md), label: "Reflection" },
+              { id: "plan-prayer", present: Boolean(planDay.prayer_md), label: "Prayer" },
+            ];
+            const presentIds = order.filter((o) => o.present).map((o) => o.id);
+            const day1FullyCompleted = presentIds.length > 0 && presentIds.every((id) => day1Viewed[id]);
+            return (
+              <button
+                type="button"
+                disabled={day1FullyCompleted}
+                aria-disabled={day1FullyCompleted}
+                onClick={async () => {
+                  if (day1FullyCompleted) return;
+                  // Fire-and-forget: unlock the achievement on the first tap only.
+                  if (!day1Started) {
+                    void supabase.rpc("unlock_achievement" as any, { _code: "plan_started" });
+                    if (startedKey) {
+                      try { localStorage.setItem(startedKey, "1"); } catch { /* ignore */ }
+                    }
+                    setDay1Started(true);
+                  }
+                  // Scroll to the first sub-item the user hasn't viewed yet;
+                  // fall back to the journey section itself.
+                  const firstIncomplete = order.find((o) => o.present && !day1Viewed[o.id]);
+                  const targetId = firstIncomplete?.id ?? "todays-journey";
+                  const targetLabel = firstIncomplete?.label ?? "Today's Journey";
+                  const el =
+                    document.getElementById(targetId) ??
+                    document.getElementById("todays-journey");
+                  if (el) {
+                    const target = el as HTMLElement;
+                    if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+                    setResumeAnnouncement(`Resuming Day 1 at ${targetLabel}.`);
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
 
-                // Wait for the smooth scroll to land before starting the
-                // highlight, so the ring never animates off-screen.
-                let finished = false;
-                const finishResume = () => {
-                  if (finished) return;
-                  finished = true;
-                  window.clearTimeout(fallbackTimer);
-                  target.focus({ preventScroll: true });
-                  setResumeHighlightId(targetId);
-                  window.setTimeout(() => setResumeHighlightId(null), 2400);
-                  window.setTimeout(() => setResumeAnnouncement(""), 3000);
-                };
-                const fallbackTimer = window.setTimeout(finishResume, 800);
-                window.addEventListener("scrollend", finishResume, { once: true });
-              }
-            }}
-            className="block w-full text-left"
-          >
-            <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
-              <IconBadge name={day1Started ? "play_circle" : "play_arrow"} filled tone="wood" />
-              <div className="min-w-0 flex-1">
-                <p className="font-serif text-lg text-primary">
-                  {day1Started ? "Resume Day 1" : "Start my plan"}
-                </p>
-                <p className="truncate text-sm text-on-surface-variant">
-                  {planTitle ? `${planTitle} — Day 1` : "Begin day 1 of your reading plan."}
-                </p>
-              </div>
-              <Chip tone="ink" className="shrink-0">{day1Started ? "Resume" : "Begin"}</Chip>
-            </Card>
-          </button>
+                    // Wait for the smooth scroll to land before starting the
+                    // highlight, so the ring never animates off-screen.
+                    let finished = false;
+                    const finishResume = () => {
+                      if (finished) return;
+                      finished = true;
+                      window.clearTimeout(fallbackTimer);
+                      target.focus({ preventScroll: true });
+                      setResumeHighlightId(targetId);
+                      window.setTimeout(() => setResumeHighlightId(null), 2400);
+                      window.setTimeout(() => setResumeAnnouncement(""), 3000);
+                    };
+                    const fallbackTimer = window.setTimeout(finishResume, 800);
+                    window.addEventListener("scrollend", finishResume, { once: true });
+                  }
+                }}
+                className={`block w-full text-left ${day1FullyCompleted ? "opacity-60 cursor-not-allowed" : ""}`}
+              >
+                <Card tone="accent" interactive={!day1FullyCompleted} className="flex items-center gap-4 gold-ribbon">
+                  <IconBadge name={day1FullyCompleted ? "check_circle" : day1Started ? "play_circle" : "play_arrow"} filled tone={day1FullyCompleted ? "ink" : "wood"} />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-serif text-lg text-primary">
+                      {day1FullyCompleted ? "Day 1 complete" : day1Started ? "Resume Day 1" : "Start my plan"}
+                    </p>
+                    <p className="truncate text-sm text-on-surface-variant">
+                      {day1FullyCompleted
+                        ? "You’ve viewed every part of Day 1. Mark today complete when you’re ready."
+                        : planTitle
+                          ? `${planTitle} — Day 1`
+                          : "Begin day 1 of your reading plan."}
+                    </p>
+                  </div>
+                  <Chip tone="ink" className="shrink-0">
+                    {day1FullyCompleted ? "Done" : day1Started ? "Resume" : "Begin"}
+                  </Chip>
+                </Card>
+              </button>
+            );
+          })()
         )}
 
         {/* Screen-reader-only live region announcing Resume Day 1 navigation. */}
