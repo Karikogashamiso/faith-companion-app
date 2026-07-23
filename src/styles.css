@@ -758,6 +758,26 @@ section[id] {
     0 0 24px color-mix(in oklab, var(--color-primary) 55%, transparent);
 }
 
+
+/* Resume-Day-1 highlight — pulsing gold border + glow that draws the eye
+   to the first incomplete sub-item after tapping "Resume Day 1". */
+@keyframes resume-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px color-mix(in oklab, var(--color-primary) 75%, transparent),
+      0 0 24px color-mix(in oklab, var(--color-primary) 45%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px color-mix(in oklab, var(--color-primary) 90%, transparent),
+      0 0 42px color-mix(in oklab, var(--color-primary) 70%, transparent);
+  }
+}
+.resume-highlight {
+  animation: resume-pulse 1.2s var(--ease-gentle) 2;
+  border-radius: 0.75rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .constellation-star,
   .gold-ribbon::after,
@@ -766,5 +786,10 @@ section[id] {
   }
   .stagger-in > * { opacity: 1 !important; transform: none !important; }
   .spotlight-cursor::before { display: none; }
+  .resume-highlight {
+    animation: none !important;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-primary) 85%, transparent);
+  }
 }
+
 
