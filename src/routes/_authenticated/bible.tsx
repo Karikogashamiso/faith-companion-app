@@ -85,6 +85,13 @@ function Bible() {
     setScale(getReaderPrefs().scale);
   }, []);
 
+  // Seed the note editor when a verse is opened; clear when closed.
+  useEffect(() => {
+    if (selected) setNoteDraft(notes.get(selected.id)?.body ?? "");
+    else setNoteDraft("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected?.id]);
+
   // Close version menu on outside click / escape.
   useEffect(() => {
     if (!versionMenuOpen) return;
