@@ -500,6 +500,7 @@ function Bible() {
                   <div className="space-y-5" style={{ fontSize: `${Math.round(BASE_PX * scale)}px` }}>
                     {verses.map((v, i) => {
                       const hl = highlights.get(v.id);
+                      const hasNote = notes.has(v.id);
                       return (
                         <div
                           key={v.id}
@@ -520,6 +521,16 @@ function Bible() {
                             )}
                             <sup className="text-primary font-bold text-[0.6em] mr-1 select-none align-super">{v.verse}</sup>
                             {i === 0 ? v.text.slice(1) : v.text}
+                            {hasNote && (
+                              <button
+                                type="button"
+                                aria-label={`Open note on verse ${v.verse}`}
+                                onClick={(e) => { e.stopPropagation(); setSelected(v); }}
+                                className="ml-1.5 inline-flex h-4 w-4 items-center translate-y-[-1px] justify-center rounded-full bg-primary/15 text-primary hover:bg-primary hover:text-on-primary transition-colors align-middle"
+                              >
+                                <Icon name="sticky_note_2" className="text-[11px]" />
+                              </button>
+                            )}
                           </p>
                           {/* Verse action affordance — appears on hover */}
                           <button
