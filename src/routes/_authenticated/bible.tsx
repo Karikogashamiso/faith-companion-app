@@ -59,6 +59,9 @@ function Bible() {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [versesLoading, setVersesLoading] = useState(false);
   const [highlights, setHighlights] = useState<Map<number, string>>(new Map());
+  const [notes, setNotes] = useState<Map<number, { id: string; body: string }>>(new Map());
+  const [noteDraft, setNoteDraft] = useState<string>("");
+  const [noteSaving, setNoteSaving] = useState(false);
   const [selected, setSelected] = useState<Verse | null>(null);
   const [imageVerse, setImageVerse] = useState<Verse | null>(null);
   const [books, setBooks] = useState<string[]>([]);
@@ -81,6 +84,13 @@ function Bible() {
   useEffect(() => {
     setScale(getReaderPrefs().scale);
   }, []);
+
+  // Seed the note editor when a verse is opened; clear when closed.
+  useEffect(() => {
+    if (selected) setNoteDraft(notes.get(selected.id)?.body ?? "");
+    else setNoteDraft("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected?.id]);
 
   // Close version menu on outside click / escape.
   useEffect(() => {
@@ -182,16 +192,16 @@ function Bible() {
         .order("verse");
       setVerses((data ?? []) as Verse[]);
       if (data?.length) {
-        const { data: h } = await supabase
-          .from("user_highlights")
-          .select("verse_id, color")
-          .eq("user_id", user.id)
-          .in("verse_id", data.map((v: any) => v.id));
-        setHighlights(
-          new Map((h ?? []).map((x: any) => [x.verse_id, x.color || "yellow"])),
-        );
+        const ids = data.map((v: any) => v.id);
+        const [{ data: h }, { data: n }] = await Promise.all([
+          supabase.from("user_highlights").select("verse_id, color").eq("user_id", user.id).in("verse_id", ids),
+          (supabase as any).from("user_notes").select("id, verse_id, body").eq("user_id", user.id).in("verse_id", ids),
+        ]);
+        setHighlights(new Map((h ?? []).map((x: any) => [x.verse_id, x.color || "yellow"])));
+        setNotes(new Map((n ?? []).map((x: any) => [x.verse_id, { id: x.id, body: x.body }])));
       } else {
         setHighlights(new Map());
+        setNotes(new Map());
       }
       setVersesLoading(false);
     })();
@@ -300,6 +310,38 @@ function Bible() {
       : await supabase.from("user_highlights").insert({ user_id: user.id, verse_id: v.id, color });
     if (error) { toast.error("Couldn't highlight", { description: error.message }); return; }
     const next = new Map(highlights); next.set(v.id, color); setHighlights(next);
+  }
+
+  async function saveNote(v: Verse) {
+    const body = noteDraft.trim();
+    const existing = notes.get(v.id);
+    setNoteSaving(true);
+    try {
+      if (!body) {
+        if (!existing) return;
+        const { error } = await (supabase as any).from("user_notes").delete().eq("user_id", user.id).eq("verse_id", v.id);
+        if (error) throw error;
+        const next = new Map(notes); next.delete(v.id); setNotes(next);
+        toast("Note removed");
+        return;
+      }
+      if (existing) {
+        const { error } = await (supabase as any).from("user_notes").update({ body }).eq("user_id", user.id).eq("verse_id", v.id);
+        if (error) throw error;
+        const next = new Map(notes); next.set(v.id, { id: existing.id, body }); setNotes(next);
+      } else {
+        const { data, error } = await (supabase as any).from("user_notes")
+          .insert({ user_id: user.id, verse_id: v.id, body })
+          .select("id").single();
+        if (error) throw error;
+        const next = new Map(notes); next.set(v.id, { id: data.id, body }); setNotes(next);
+      }
+      toast("Note saved");
+    } catch (e: any) {
+      toast.error("Couldn't save note", { description: e?.message });
+    } finally {
+      setNoteSaving(false);
+    }
   }
 
   function stepScale(dir: 1 | -1) {
@@ -465,6 +507,7 @@ function Bible() {
                   <div className="space-y-5" style={{ fontSize: `${Math.round(BASE_PX * scale)}px` }}>
                     {verses.map((v, i) => {
                       const hl = highlights.get(v.id);
+                      const hasNote = notes.has(v.id);
                       return (
                         <div
                           key={v.id}
@@ -485,6 +528,16 @@ function Bible() {
                             )}
                             <sup className="text-primary font-bold text-[0.6em] mr-1 select-none align-super">{v.verse}</sup>
                             {i === 0 ? v.text.slice(1) : v.text}
+                            {hasNote && (
+                              <button
+                                type="button"
+                                aria-label={`Open note on verse ${v.verse}`}
+                                onClick={(e) => { e.stopPropagation(); setSelected(v); }}
+                                className="ml-1.5 inline-flex h-4 w-4 items-center translate-y-[-1px] justify-center rounded-full bg-primary/15 text-primary hover:bg-primary hover:text-on-primary transition-colors align-middle"
+                              >
+                                <Icon name="sticky_note_2" className="text-[11px]" />
+                              </button>
+                            )}
                           </p>
                           {/* Verse action affordance — appears on hover */}
                           <button
@@ -674,6 +727,48 @@ function Bible() {
               </Button>
               <Button size="sm" variant="ghost" className="ml-auto" onClick={() => { setSelected(null); setRelated(null); }}>Close</Button>
             </div>
+
+            {/* Personal note (per translation — verses are version-scoped) */}
+            <div className="space-y-2 border-t border-divider-soft pt-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant flex items-center gap-1.5">
+                  <Icon name="sticky_note_2" className="text-sm" /> My note
+                  <span className="text-[10px] font-normal text-on-surface-variant/70">· {activeAbbr}</span>
+                </p>
+                {notes.has(selected.id) && (
+                  <span className="text-[10px] text-primary/70 uppercase tracking-wider">Saved</span>
+                )}
+              </div>
+              <textarea
+                value={noteDraft}
+                onChange={(e) => setNoteDraft(e.target.value)}
+                placeholder="What is God saying to you in this verse?"
+                rows={4}
+                className="w-full rounded-lg border border-primary/20 bg-background px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary resize-y"
+              />
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  leftIcon="save"
+                  loading={noteSaving}
+                  onClick={() => void saveNote(selected)}
+                  disabled={noteDraft.trim() === (notes.get(selected.id)?.body ?? "")}
+                >
+                  {notes.has(selected.id) ? (noteDraft.trim() === "" ? "Delete note" : "Update note") : "Save note"}
+                </Button>
+                {notes.has(selected.id) && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    leftIcon="delete_outline"
+                    onClick={() => { setNoteDraft(""); void saveNote(selected); }}
+                  >
+                    Delete
+                  </Button>
+                )}
+              </div>
+            </div>
+
 
             {related && (
               <div className="space-y-2 border-t border-divider-soft pt-3">
