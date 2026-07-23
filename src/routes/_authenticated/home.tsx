@@ -67,6 +67,7 @@ function Home() {
   const [resumeHighlightId, setResumeHighlightId] = useState<string | null>(null);
   const [resumeAnnouncement, setResumeAnnouncement] = useState<string>("");
   const announcedCompleteRef = useRef(false);
+  const announceTimerRef = useRef<number | null>(null);
   useEffect(() => setResume(getReadingPosition()), []);
 
   // Local per-device tracking of Day 1 "started" + which sub-items the user
@@ -129,8 +130,9 @@ function Home() {
     const fullyCompleted = presentIds.length > 0 && presentIds.every((id) => day1Viewed[id]);
     if (fullyCompleted && !announcedCompleteRef.current) {
       announcedCompleteRef.current = true;
+      if (announceTimerRef.current) window.clearTimeout(announceTimerRef.current);
       setResumeAnnouncement("Day 1 is fully completed.");
-      window.setTimeout(() => setResumeAnnouncement(""), 3000);
+      announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(""), 3000);
     }
     if (!fullyCompleted) {
       announcedCompleteRef.current = false;
@@ -387,6 +389,10 @@ function Home() {
               if (!el) return;
               const target = el as HTMLElement;
               if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+
+              // Cancel any pending clear so the previous announcement cannot
+              // wipe out the newest one; only the latest destination is read.
+              if (announceTimerRef.current) window.clearTimeout(announceTimerRef.current);
               setResumeAnnouncement(
                 mode === "review" ? `Reviewing ${label}.` : `Resuming Day 1 at ${label}.`
               );
@@ -400,7 +406,7 @@ function Home() {
                 target.focus({ preventScroll: true });
                 setResumeHighlightId(targetId);
                 window.setTimeout(() => setResumeHighlightId(null), 2400);
-                window.setTimeout(() => setResumeAnnouncement(""), 3000);
+                announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(""), 3000);
               };
               const fallbackTimer = window.setTimeout(finish, 800);
               window.addEventListener("scrollend", finish, { once: true });
