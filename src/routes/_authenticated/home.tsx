@@ -376,6 +376,8 @@ function Home() {
                 el.scrollIntoView({ behavior: "smooth", block: "start" });
                 (el as HTMLElement).setAttribute("tabindex", "-1");
                 (el as HTMLElement).focus({ preventScroll: true });
+                setResumeHighlightId(firstIncomplete);
+                window.setTimeout(() => setResumeHighlightId(null), 2400);
               }
             }}
             className="block w-full text-left"
