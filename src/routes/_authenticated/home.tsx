@@ -296,6 +296,23 @@ function Home() {
           );
         })()}
 
+        {/* Post-onboarding CTA — first-time users see a clear "Start my plan"
+            entry point until they complete day 1. */}
+        {welcomeCompleted && activePlanId && planCurrentDay === 1 && !completedToday && planDay && (
+          <Link to="/plans" className="block">
+            <Card tone="accent" interactive className="flex items-center gap-4 gold-ribbon">
+              <IconBadge name="play_arrow" filled tone="wood" />
+              <div className="min-w-0 flex-1">
+                <p className="font-serif text-lg text-primary">Start my plan</p>
+                <p className="truncate text-sm text-on-surface-variant">
+                  {planTitle ? `${planTitle} — Day 1` : "Begin day 1 of your reading plan."}
+                </p>
+              </div>
+              <Chip tone="ink" className="shrink-0">Begin</Chip>
+            </Card>
+          </Link>
+        )}
+
         {/* Seasonal conversion campaign (Lent / Advent / New Year) */}
         {aiEnabled && season && (
 
