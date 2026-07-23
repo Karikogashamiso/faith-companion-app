@@ -59,6 +59,9 @@ function Bible() {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [versesLoading, setVersesLoading] = useState(false);
   const [highlights, setHighlights] = useState<Map<number, string>>(new Map());
+  const [notes, setNotes] = useState<Map<number, { id: string; body: string }>>(new Map());
+  const [noteDraft, setNoteDraft] = useState<string>("");
+  const [noteSaving, setNoteSaving] = useState(false);
   const [selected, setSelected] = useState<Verse | null>(null);
   const [imageVerse, setImageVerse] = useState<Verse | null>(null);
   const [books, setBooks] = useState<string[]>([]);
