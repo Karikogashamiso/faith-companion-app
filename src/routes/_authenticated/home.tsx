@@ -624,7 +624,7 @@ function Home() {
         <div className="gold-rule w-full" />
 
         {/* Today's journey (reading plan) */}
-        <section className="space-y-stack-md">
+        <section id="todays-journey" className="space-y-stack-md scroll-mt-24 outline-none">
           <SectionHeader
             trailing={
               <Link
