@@ -130,8 +130,9 @@ function Home() {
     const fullyCompleted = presentIds.length > 0 && presentIds.every((id) => day1Viewed[id]);
     if (fullyCompleted && !announcedCompleteRef.current) {
       announcedCompleteRef.current = true;
+      if (announceTimerRef.current) window.clearTimeout(announceTimerRef.current);
       setResumeAnnouncement("Day 1 is fully completed.");
-      window.setTimeout(() => setResumeAnnouncement(""), 3000);
+      announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(""), 3000);
     }
     if (!fullyCompleted) {
       announcedCompleteRef.current = false;
