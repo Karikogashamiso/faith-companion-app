@@ -389,6 +389,10 @@ function Home() {
               if (!el) return;
               const target = el as HTMLElement;
               if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+
+              // Cancel any pending clear so the previous announcement cannot
+              // wipe out the newest one; only the latest destination is read.
+              if (announceTimerRef.current) window.clearTimeout(announceTimerRef.current);
               setResumeAnnouncement(
                 mode === "review" ? `Reviewing ${label}.` : `Resuming Day 1 at ${label}.`
               );
@@ -402,7 +406,7 @@ function Home() {
                 target.focus({ preventScroll: true });
                 setResumeHighlightId(targetId);
                 window.setTimeout(() => setResumeHighlightId(null), 2400);
-                window.setTimeout(() => setResumeAnnouncement(""), 3000);
+                announceTimerRef.current = window.setTimeout(() => setResumeAnnouncement(""), 3000);
               };
               const fallbackTimer = window.setTimeout(finish, 800);
               window.addEventListener("scrollend", finish, { once: true });
