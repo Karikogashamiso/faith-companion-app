@@ -39,10 +39,19 @@ const TRADITIONS: { value: Tradition; label: string; blurb: string }[] = [
 
 type Plan = { id: string; title: string; description: string | null; day_count: number };
 
+type WelcomeProgress = {
+  step?: number;
+  tradition?: Tradition;
+  ai_enabled?: boolean;
+  plan_id?: string | null;
+  completed_at?: string | null;
+};
+
 function WelcomeWizard() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   const [tradition, setTradition] = useState<Tradition>("unspecified");
   const [aiEnabled, setAiEnabled] = useState(true);
@@ -50,8 +59,8 @@ function WelcomeWizard() {
   const [planId, setPlanId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Pull the user's current settings so the wizard reflects them, and load the
-  // starter plan catalog.
+  // Pull the user's current settings + saved wizard progress so they can
+  // resume on any device, and load the starter plan catalog.
   useEffect(() => {
     void (async () => {
       const { data: auth } = await supabase.auth.getUser();
@@ -60,11 +69,19 @@ function WelcomeWizard() {
 
       const { data: prof } = await supabase
         .from("profiles")
-        .select("tradition, ai_enabled")
+        .select("tradition, ai_enabled, welcome_progress")
         .eq("id", auth.user.id)
         .maybeSingle();
       if (prof?.tradition) setTradition(prof.tradition);
       if (typeof prof?.ai_enabled === "boolean") setAiEnabled(prof.ai_enabled);
+      const progress = ((prof as unknown as { welcome_progress?: WelcomeProgress } | null)
+        ?.welcome_progress ?? {}) as WelcomeProgress;
+      if (progress.tradition) setTradition(progress.tradition);
+      if (typeof progress.ai_enabled === "boolean") setAiEnabled(progress.ai_enabled);
+      if (progress.plan_id) setPlanId(progress.plan_id);
+      if (typeof progress.step === "number") {
+        setStep(Math.max(0, Math.min(2, progress.step)));
+      }
 
       const { data: pl } = await supabase
         .from("reading_plans")
@@ -73,10 +90,27 @@ function WelcomeWizard() {
         .order("day_count", { ascending: true });
       if (pl) {
         setPlans(pl as Plan[]);
-        setPlanId((pl[0] as Plan | undefined)?.id ?? null);
+        if (!progress.plan_id) setPlanId((pl[0] as Plan | undefined)?.id ?? null);
       }
+      setHydrated(true);
     })();
   }, []);
+
+  // Persist progress whenever any answer or step changes so a return visit
+  // — even from a different device — picks up right where they left off.
+  useEffect(() => {
+    if (!hydrated || !userId) return;
+    const progress: WelcomeProgress = {
+      step,
+      tradition,
+      ai_enabled: aiEnabled,
+      plan_id: planId,
+    };
+    void supabase
+      .from("profiles")
+      .update({ welcome_progress: progress as never })
+      .eq("id", userId);
+  }, [hydrated, userId, step, tradition, aiEnabled, planId]);
 
   async function saveProfile() {
     if (!userId) return;
@@ -99,6 +133,18 @@ function WelcomeWizard() {
           { onConflict: "user_id,plan_id,day_completed" },
         );
       }
+      await supabase
+        .from("profiles")
+        .update({
+          welcome_progress: {
+            step: 2,
+            tradition,
+            ai_enabled: aiEnabled,
+            plan_id: planId,
+            completed_at: new Date().toISOString(),
+          } as never,
+        })
+        .eq("id", userId);
       toast.success("You're all set", {
         description: planId ? "Your first reading is ready on Today." : undefined,
       });
