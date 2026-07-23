@@ -501,6 +501,7 @@ export type Database = {
           share_progress: boolean
           tradition: Database["public"]["Enums"]["tradition"]
           updated_at: string
+          welcome_progress: Json
         }
         Insert: {
           ai_enabled?: boolean
@@ -515,6 +516,7 @@ export type Database = {
           share_progress?: boolean
           tradition?: Database["public"]["Enums"]["tradition"]
           updated_at?: string
+          welcome_progress?: Json
         }
         Update: {
           ai_enabled?: boolean
@@ -529,6 +531,7 @@ export type Database = {
           share_progress?: boolean
           tradition?: Database["public"]["Enums"]["tradition"]
           updated_at?: string
+          welcome_progress?: Json
         }
         Relationships: [
           {
