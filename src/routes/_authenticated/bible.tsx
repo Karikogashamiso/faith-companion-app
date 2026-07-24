@@ -525,7 +525,7 @@ function Bible() {
                 ) : verses.length === 0 ? (
                   <EmptyTranslation abbr={activeAbbr} />
                 ) : (
-                  <div className="space-y-5" style={{ fontSize: `${Math.round(BASE_PX * scale)}px` }}>
+                  <div className={verseGapClass} style={{ fontSize: `${Math.round(BASE_PX * scale)}px`, fontFamily }}>
                     {verses.map((v, i) => {
                       const hl = highlights.get(v.id);
                       const hasNote = notes.has(v.id);
@@ -533,16 +533,16 @@ function Bible() {
                         <div
                           key={v.id}
                           onClick={() => setSelected(v)}
-                          className={`group relative -mx-3 md:-mx-4 rounded-md px-3 md:px-4 py-1 cursor-pointer transition-colors hover:bg-primary/5 ${
+                          className={`group relative -mx-3 md:-mx-4 rounded-md px-3 md:px-4 ${versePadY} cursor-pointer transition-colors hover:bg-primary/5 ${
                             hl ? highlightRowClass(hl) : ""
                           } ${selected?.id === v.id ? "ring-1 ring-primary/40 bg-primary/5" : ""}`}
                         >
-                          <p className="font-serif leading-[1.85] text-on-surface selection:bg-primary/30">
-                            {i === 0 && v.text.length > 0 && (
+                          <p className="text-on-surface selection:bg-primary/30" style={{ lineHeight, fontFamily }}>
+                            {i === 0 && v.text.length > 0 && density !== "compact" && (
                               <span
                                 aria-hidden="true"
-                                className="float-left font-serif font-bold text-primary border-r border-primary/20 mr-3 pr-3 mt-2 leading-[0.8]"
-                                style={{ fontSize: `${Math.round(BASE_PX * scale * 3.4)}px` }}
+                                className="float-left font-bold text-primary border-r border-primary/20 mr-3 pr-3 mt-2 leading-[0.8]"
+                                style={{ fontSize: `${Math.round(BASE_PX * scale * 3.4)}px`, fontFamily }}
                               >
                                 {v.text.charAt(0)}
                               </span>
