@@ -371,6 +371,10 @@ function Bible() {
     changeScale(SCALES[nextIdx]);
   }
   function changeScale(s: (typeof SCALES)[number]) { setScale(s); setReaderPrefs({ scale: s }); }
+  function changeFamily(f: FontFamily) { setFamily(f); setReaderPrefs({ family: f }); }
+  function changeLineSpacing(l: LineSpacing) { setLineSpacing(l); setReaderPrefs({ lineSpacing: l }); }
+  function changeDensity(d: Density) { setDensity(d); setReaderPrefs({ density: d }); }
+  function changeTheme(t: Theme) { setThemeState(t); setTheme(t); }
 
 
   async function runExplain() {
