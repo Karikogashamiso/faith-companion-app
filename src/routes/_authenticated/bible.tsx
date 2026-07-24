@@ -13,9 +13,15 @@ import { getReadingPosition, setReadingPosition } from "@/lib/reading-position";
 import {
   BASE_PX,
   SCALES,
+  FONT_STACKS,
+  LINE_HEIGHTS,
   getReaderPrefs,
   setReaderPrefs,
+  type FontFamily,
+  type LineSpacing,
+  type Density,
 } from "@/lib/reader-prefs";
+import { getStoredTheme, setTheme, type Theme } from "@/lib/theme";
 
 // Highlight palette — stored as the color name in user_highlights.color.
 const HIGHLIGHT_COLORS = [
