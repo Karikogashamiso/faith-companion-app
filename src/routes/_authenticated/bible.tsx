@@ -833,36 +833,132 @@ function Bible() {
       )}
 
       {/* Reading-settings sheet (mobile primary; desktop uses inline stepper) */}
-      <Sheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title="Reading">
-        <div className="space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">Text size</p>
-          <div className="flex items-center gap-2">
-            <span className="font-serif text-sm text-on-surface-variant">A</span>
-            <div className="flex flex-1 gap-1">
-              {SCALES.map((s) => (
+      <Sheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title="Reading settings">
+        <div className="space-y-5 max-h-[70vh] overflow-y-auto pr-1">
+          {/* Text size */}
+          <section className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Text size</p>
+            <div className="flex items-center gap-2">
+              <span className="font-serif text-sm text-on-surface-variant">A</span>
+              <div className="flex flex-1 gap-1">
+                {SCALES.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => changeScale(s)}
+                    aria-label={`Text size ${Math.round(s * 100)} percent`}
+                    aria-pressed={scale === s}
+                    className={`flex h-11 flex-1 items-center justify-center rounded-md border transition-colors ${
+                      scale === s ? "border-primary bg-primary text-on-primary" : "border-divider-soft text-on-surface-variant hover:border-primary"
+                    }`}
+                  >
+                    <span className="font-serif" style={{ fontSize: `${Math.round(11 * s)}px` }}>A</span>
+                  </button>
+                ))}
+              </div>
+              <span className="font-serif text-2xl text-on-surface-variant">A</span>
+            </div>
+          </section>
+
+          {/* Font family */}
+          <section className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Font</p>
+            <div className="grid grid-cols-3 gap-1">
+              {([
+                { id: "serif", label: "Serif" },
+                { id: "sans", label: "Sans" },
+                { id: "dyslexic", label: "Readable" },
+              ] as const).map((f) => (
                 <button
-                  key={s}
-                  onClick={() => changeScale(s)}
-                  aria-label={`Text size ${Math.round(s * 100)} percent`}
-                  aria-pressed={scale === s}
-                  className={`flex h-11 flex-1 items-center justify-center rounded-md border transition-colors ${
-                    scale === s ? "border-primary bg-primary text-on-primary" : "border-divider-soft text-on-surface-variant hover:border-primary"
+                  key={f.id}
+                  onClick={() => changeFamily(f.id)}
+                  aria-pressed={family === f.id}
+                  className={`h-11 rounded-md border text-sm transition-colors ${
+                    family === f.id ? "border-primary bg-primary text-on-primary" : "border-divider-soft text-on-surface-variant hover:border-primary"
                   }`}
+                  style={{ fontFamily: FONT_STACKS[f.id] }}
                 >
-                  <span className="font-serif" style={{ fontSize: `${Math.round(11 * s)}px` }}>A</span>
+                  {f.label}
                 </button>
               ))}
             </div>
-            <span className="font-serif text-2xl text-on-surface-variant">A</span>
-          </div>
-          <div className="p-4 rounded border border-primary/10 bg-surface-container">
-            <p className="font-serif text-on-surface" style={{ fontSize: `${Math.round(BASE_PX * scale)}px`, lineHeight: 1.85 }}>
-              "For God so loved the world, that he gave his one and only Son…"
-            </p>
-          </div>
-          <Link to="/settings" onClick={() => setSettingsOpen(false)} className="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80">
-            <Icon name="dark_mode" className="text-base" /> Light / dark theme in Settings
-          </Link>
+          </section>
+
+          {/* Line spacing */}
+          <section className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Line spacing</p>
+            <div className="grid grid-cols-4 gap-1">
+              {(["tight", "normal", "relaxed", "loose"] as const).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => changeLineSpacing(l)}
+                  aria-pressed={lineSpacing === l}
+                  className={`h-11 rounded-md border text-xs capitalize transition-colors ${
+                    lineSpacing === l ? "border-primary bg-primary text-on-primary" : "border-divider-soft text-on-surface-variant hover:border-primary"
+                  }`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Density */}
+          <section className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Density</p>
+            <div className="grid grid-cols-2 gap-1">
+              {([
+                { id: "comfortable", label: "Comfortable", icon: "density_medium" },
+                { id: "compact", label: "Compact", icon: "density_small" },
+              ] as const).map((d) => (
+                <button
+                  key={d.id}
+                  onClick={() => changeDensity(d.id)}
+                  aria-pressed={density === d.id}
+                  className={`flex h-11 items-center justify-center gap-1.5 rounded-md border text-sm transition-colors ${
+                    density === d.id ? "border-primary bg-primary text-on-primary" : "border-divider-soft text-on-surface-variant hover:border-primary"
+                  }`}
+                >
+                  <Icon name={d.icon} className="text-base" />
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Theme */}
+          <section className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Theme</p>
+            <div className="grid grid-cols-3 gap-1">
+              {([
+                { id: "light", label: "Light", icon: "light_mode" },
+                { id: "dark", label: "Dark", icon: "dark_mode" },
+                { id: "system", label: "System", icon: "contrast" },
+              ] as const).map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => changeTheme(t.id)}
+                  aria-pressed={theme === t.id}
+                  className={`flex h-11 items-center justify-center gap-1.5 rounded-md border text-sm transition-colors ${
+                    theme === t.id ? "border-primary bg-primary text-on-primary" : "border-divider-soft text-on-surface-variant hover:border-primary"
+                  }`}
+                >
+                  <Icon name={t.icon} className="text-base" />
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Preview */}
+          <section className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Preview</p>
+            <div className="p-4 rounded border border-primary/10 bg-surface-container">
+              <p className="text-on-surface" style={{ fontSize: `${Math.round(BASE_PX * scale)}px`, lineHeight, fontFamily }}>
+                <sup className="text-primary font-bold text-[0.6em] mr-1 align-super">16</sup>
+                "For God so loved the world, that he gave his one and only Son…"
+              </p>
+            </div>
+          </section>
         </div>
       </Sheet>
     </AppShell>
