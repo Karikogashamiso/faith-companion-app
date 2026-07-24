@@ -548,7 +548,7 @@ function Bible() {
                               </span>
                             )}
                             <sup className="text-primary font-bold text-[0.6em] mr-1 select-none align-super">{v.verse}</sup>
-                            {i === 0 ? v.text.slice(1) : v.text}
+                            {i === 0 && density !== "compact" ? v.text.slice(1) : v.text}
                             {hasNote && (
                               <button
                                 type="button"
