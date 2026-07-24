@@ -73,6 +73,10 @@ function Bible() {
   const [books, setBooks] = useState<string[]>([]);
   const [bookChapters, setBookChapters] = useState<Record<string, number>>({});
   const [scale, setScale] = useState(1);
+  const [family, setFamily] = useState<FontFamily>("serif");
+  const [lineSpacing, setLineSpacing] = useState<LineSpacing>("relaxed");
+  const [density, setDensity] = useState<Density>("comfortable");
+  const [theme, setThemeState] = useState<Theme>("system");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false); // mobile drawer
   const [versionMenuOpen, setVersionMenuOpen] = useState(false);
@@ -88,8 +92,19 @@ function Bible() {
   const versionBtnRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setScale(getReaderPrefs().scale);
+    const p = getReaderPrefs();
+    setScale(p.scale);
+    setFamily(p.family);
+    setLineSpacing(p.lineSpacing);
+    setDensity(p.density);
+    setThemeState(getStoredTheme());
   }, []);
+
+  const fontFamily = FONT_STACKS[family];
+  const lineHeight = LINE_HEIGHTS[lineSpacing];
+  const verseGapClass = density === "compact" ? "space-y-2" : "space-y-5";
+  const versePadY = density === "compact" ? "py-0.5" : "py-1";
+
 
   // Seed the note editor when a verse is opened; clear when closed.
   useEffect(() => {
